@@ -40,17 +40,71 @@ def _refresh_expires_at() -> datetime:
 
 @router.post("/login", response_model=ApiResponse[TokenResponse])
 def login(req: LoginRequest, db: Session = Depends(get_db)):
-    """学号 + 密码登录，返回 access_token + refresh_token。"""
-    try:
-        user = db.query(User).filter(User.student_id == req.student_id).first()
-    except Exception:
-        raise HTTPException(status_code=500, detail="服务器内部错误")
+    """统一登录接口 — 支持用户登录和管理员登录两种模式。
 
-    if user is None or not verify_password(req.password, user.password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="学号或密码错误",
-        )
+    用户登录：login_type="user", name=姓名, student_id=学号
+    - 学号不存在时自动创建用户
+    - 学号存在时校验姓名是否匹配
+
+    管理员登录：login_type="admin", name=管理员姓名, password=密码
+    - 按姓名查找管理员账户（student_id = 姓名）
+    - 校验密码
+    """
+    if req.login_type == "admin":
+        # ===== 管理员登录 =====
+        if not req.name or not req.password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="请输入管理员姓名和密码",
+            )
+        try:
+            user = db.query(User).filter(
+                User.student_id == req.name.strip(),
+                User.role == "admin",
+            ).first()
+        except Exception:
+            raise HTTPException(status_code=500, detail="服务器内部错误")
+
+        if user is None or not verify_password(req.password, user.password_hash):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="管理员姓名或密码错误",
+            )
+    else:
+        # ===== 用户登录 =====
+        if not req.name or not req.student_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="请输入姓名和学号",
+            )
+        try:
+            user = db.query(User).filter(User.student_id == req.student_id.strip()).first()
+        except Exception:
+            raise HTTPException(status_code=500, detail="服务器内部错误")
+
+        if user is None:
+            # 自动创建新用户
+            try:
+                user = User(
+                    student_id=req.student_id.strip(),
+                    name=req.name.strip(),
+                    password_hash="",  # 普通用户无密码
+                    role="user",
+                    is_active=True,
+                )
+                db.add(user)
+                db.commit()
+                db.refresh(user)
+            except Exception:
+                db.rollback()
+                raise HTTPException(status_code=500, detail="创建用户失败")
+        else:
+            # 已存在用户：校验姓名
+            if user.name != req.name.strip():
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="姓名与学号不匹配",
+                )
 
     if not user.is_active:
         raise HTTPException(

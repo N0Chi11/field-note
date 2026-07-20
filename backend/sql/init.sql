@@ -152,13 +152,16 @@ INSERT INTO system_config (`key`, value, `desc`) VALUES
 
 -- ============================================================================
 -- 默认用户账户
--- 密码均为 admin123（bcrypt 哈希），首次登录后请修改密码
+-- 4 位管理员：范雨欣、黄禹博、陈玥杉、牛婉慈
+-- 管理员密码：40thxmtzx（bcrypt 哈希）
+-- 管理员用姓名作为 student_id 登录
+-- 普通用户无需预设，首次登录时自动创建
 -- ============================================================================
 INSERT INTO users (student_id, name, password_hash, role, is_active) VALUES
-    ('admin',     '系统管理员', '$2b$12$gaXSLx.qftvCWxg86A.fLuE.Z3ijta96/mDVyx/AuMS7gPelkiBk.', 'admin', 1),
-    ('2024001',   '范雨欣',     '$2b$12$gaXSLx.qftvCWxg86A.fLuE.Z3ijta96/mDVyx/AuMS7gPelkiBk.', 'admin', 1),
-    ('2024010',   '张伟',       '$2b$12$gaXSLx.qftvCWxg86A.fLuE.Z3ijta96/mDVyx/AuMS7gPelkiBk.', 'user',  1),
-    ('2024020',   '李娜',       '$2b$12$gaXSLx.qftvCWxg86A.fLuE.Z3ijta96/mDVyx/AuMS7gPelkiBk.', 'user',  1);
+    ('范雨欣', '范雨欣', '$2b$12$B236y5hyJQ.D2111B7jSXegbI80E67srHYJNOqM4.oO0XdAqqBp3G', 'admin', 1),
+    ('黄禹博', '黄禹博', '$2b$12$B236y5hyJQ.D2111B7jSXegbI80E67srHYJNOqM4.oO0XdAqqBp3G', 'admin', 1),
+    ('陈玥杉', '陈玥杉', '$2b$12$B236y5hyJQ.D2111B7jSXegbI80E67srHYJNOqM4.oO0XdAqqBp3G', 'admin', 1),
+    ('牛婉慈', '牛婉慈', '$2b$12$B236y5hyJQ.D2111B7jSXegbI80E67srHYJNOqM4.oO0XdAqqBp3G', 'admin', 1);
 
 -- ============================================================================
 -- 种子设备数据

@@ -1,12 +1,21 @@
 import { request } from './request'
 import type { User, TokenData, ChangePasswordPayload } from '@/types/models'
 
-/** 登录 */
-export function login(student_id: string, password: string) {
+/** 用户登录（姓名 + 学号） */
+export function loginUser(name: string, student_id: string) {
   return request<TokenData>({
     method: 'POST',
     url: '/auth/login',
-    data: { student_id, password }
+    data: { login_type: 'user', name, student_id }
+  })
+}
+
+/** 管理员登录（姓名 + 密码） */
+export function loginAdmin(name: string, password: string) {
+  return request<TokenData>({
+    method: 'POST',
+    url: '/auth/login',
+    data: { login_type: 'admin', name, password }
   })
 }
 

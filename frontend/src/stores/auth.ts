@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { login as loginApi, getMe, logout as logoutApi } from '@/api/auth'
+import { loginUser as loginUserApi, loginAdmin as loginAdminApi, getMe, logout as logoutApi } from '@/api/auth'
 import { setTokens, clearTokens, ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/api/request'
 import type { User } from '@/types/models'
 
@@ -24,14 +24,24 @@ export const useAuthStore = defineStore('auth', () => {
 
   // ---- actions ----
   /**
-   * 登录
+   * 用户登录（姓名 + 学号）
    */
-  async function login(student_id: string, password: string) {
-    const data = await loginApi(student_id, password)
+  async function loginUser(name: string, student_id: string) {
+    const data = await loginUserApi(name, student_id)
     token.value = data.access_token
     refreshToken.value = data.refresh_token
     setTokens(data.access_token, data.refresh_token)
-    // 登录后拉取用户信息
+    await fetchUser()
+  }
+
+  /**
+   * 管理员登录（姓名 + 密码）
+   */
+  async function loginAdmin(name: string, password: string) {
+    const data = await loginAdminApi(name, password)
+    token.value = data.access_token
+    refreshToken.value = data.refresh_token
+    setTokens(data.access_token, data.refresh_token)
     await fetchUser()
   }
 
@@ -86,7 +96,8 @@ export const useAuthStore = defineStore('auth', () => {
     isLoggedIn,
     isAdmin,
     // actions
-    login,
+    loginUser,
+    loginAdmin,
     fetchUser,
     logout,
     updateToken

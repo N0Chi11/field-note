@@ -8,10 +8,16 @@ from pydantic import BaseModel, ConfigDict
 
 
 class LoginRequest(BaseModel):
-    """登录请求。"""
+    """登录请求 — 支持用户登录和管理员登录两种模式。
 
-    student_id: str
-    password: str
+    用户登录：login_type="user", name=姓名, student_id=学号
+    管理员登录：login_type="admin", name=管理员姓名, password=密码
+    """
+
+    login_type: str = "user"  # "user" 或 "admin"
+    name: Optional[str] = None        # 用户姓名 或 管理员姓名
+    student_id: Optional[str] = None  # 用户学号
+    password: Optional[str] = None    # 管理员密码
 
 
 class TokenResponse(BaseModel):
@@ -20,7 +26,7 @@ class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
-    expires_in: int
+    expires_in: Optional[int] = None
 
 
 class RefreshRequest(BaseModel):
