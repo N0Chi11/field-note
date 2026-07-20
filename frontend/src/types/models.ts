@@ -1,0 +1,181 @@
+/**
+ * 全局类型定义
+ */
+
+/** 用户角色 */
+export type UserRole = 'user' | 'admin'
+
+/** 器材状态 */
+export type EquipmentStatus = 'available' | 'borrowed' | 'repair'
+
+/** 借用卡状态 */
+export type CardStatus = 'available' | 'borrowed'
+
+/** 借用申请状态 */
+export type RequestStatus =
+  | 'pending'
+  | 'approved'
+  | 'borrowing'
+  | 'return_pending'
+  | 'returned'
+  | 'rejected'
+  | 'cancelled'
+
+/** 冲突类型 */
+export type ConflictType = 'hard' | 'soft'
+
+/** 用户 */
+export interface User {
+  id: number
+  student_id: string
+  name: string
+  role: UserRole
+  phone?: string
+  avatar_url?: string
+  is_active: boolean
+}
+
+/** 器材 */
+export interface Equipment {
+  id: number
+  code: string
+  name: string
+  category: string
+  icon: string
+  image_url?: string
+  notes?: string
+  status: EquipmentStatus
+  created_at: string
+  updated_at: string
+}
+
+/** 借用卡 */
+export interface Card {
+  id: number
+  code: string
+  name: string
+  notes?: string
+  status: CardStatus
+  created_at: string
+}
+
+/** 借用申请 */
+export interface BorrowRequest {
+  id: number
+  work_order_no: string
+  user_id: number
+  equipment_id: number
+  card_id?: number
+  borrow_time: string
+  return_time: string
+  reason: string
+  status: RequestStatus
+  approver_id?: number
+  admin_comment?: string
+  return_photo_url?: string
+  created_at: string
+}
+
+/** 借用详情（带关联名称） */
+export interface BorrowDetail extends BorrowRequest {
+  user_name: string
+  equipment_name: string
+  card_name?: string
+  approver_name?: string
+}
+
+/** 操作日志 */
+export interface OperationLog {
+  id: number
+  actor_name: string
+  action: string
+  detail: string
+  target_type?: string
+  target_id?: number
+  created_at: string
+}
+
+/** 统一响应体 */
+export interface ApiResponse<T = any> {
+  code: number
+  data: T
+  message: string
+}
+
+/** 分页响应 */
+export interface PaginatedResponse<T> {
+  items: T[]
+  total: number
+  page: number
+  size: number
+}
+
+/** 冲突检测结果 */
+export interface ConflictResult {
+  has_conflict: boolean
+  conflict_type?: ConflictType
+  conflict_orders: string[]
+}
+
+/** 管理员统计 */
+export interface AdminStats {
+  total: number
+  pending: number
+  borrowing: number
+  return_pending: number
+}
+
+/** Token 数据 */
+export interface TokenData {
+  access_token: string
+  refresh_token: string
+  token_type: string
+}
+
+/** 器材查询参数 */
+export interface EquipmentQuery {
+  status?: EquipmentStatus
+  category?: string
+  keyword?: string
+}
+
+/** 借用卡查询参数 */
+export interface CardQuery {
+  status?: CardStatus
+}
+
+/** 借用申请查询参数 */
+export interface BorrowRequestQuery {
+  status?: RequestStatus
+  keyword?: string
+}
+
+/** 日志查询参数 */
+export interface LogQuery {
+  action?: string
+  actor_id?: number
+  page?: number
+  size?: number
+}
+
+/** 创建借用申请 payload */
+export interface CreateRequestPayload {
+  equipment_id: number
+  borrow_time: string
+  return_time: string
+  reason: string
+}
+
+/** 冲突检测 payload */
+export interface CheckConflictPayload {
+  equipment_id: number
+  borrow_time: string
+  return_time: string
+  exclude_request_id?: number
+}
+
+/** 修改密码 payload */
+export interface ChangePasswordPayload {
+  old_password: string
+  new_password: string
+}

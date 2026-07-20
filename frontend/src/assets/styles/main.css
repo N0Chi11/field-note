@@ -1,0 +1,187 @@
+/* =========================================================
+   全局样式 - 器材设备管理系统
+   自然风配色（与原 HTML 系统一致）
+   ========================================================= */
+
+:root {
+  /* 背景 */
+  --bg: #faf9f7;
+  --bg-card: #ffffff;
+  --bg-input: #f5f3ef;
+  --bg-code: #f5f3ef;
+
+  /* 文本 */
+  --text: #2c2c2c;
+  --text-secondary: #6b6b6b;
+  --text-tertiary: #999;
+
+  /* 主色 */
+  --accent: #b8862b;
+  --accent-light: #d4a84a;
+  --accent-bg: rgba(184, 134, 43, 0.1);
+
+  /* 语义色 */
+  --success: #4a7c59;
+  --success-bg: rgba(74, 124, 89, 0.1);
+  --danger: #c25450;
+  --danger-bg: rgba(194, 84, 80, 0.1);
+  --warning: #b8862b;
+  --info: #5b7c99;
+
+  /* 边框与圆角 */
+  --border: #e8e4de;
+  --radius: 12px;
+  --radius-sm: 8px;
+
+  /* 阴影 */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* 字体 */
+  --font: 'Segoe UI', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+/* ---------- 全局重置 ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  height: 100%;
+}
+
+/* ---------- 链接 ---------- */
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--accent-light);
+}
+
+/* ---------- 滚动条 ---------- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+/* ---------- 常用工具类 ---------- */
+.text-success {
+  color: var(--success);
+}
+.text-danger {
+  color: var(--danger);
+}
+.text-warning {
+  color: var(--warning);
+}
+.text-info {
+  color: var(--info);
+}
+.text-secondary {
+  color: var(--text-secondary);
+}
+.text-tertiary {
+  color: var(--text-tertiary);
+}
+
+.tag-success {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.tag-danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.tag-accent {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+/* ---------- 路由过渡动画 ---------- */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.25s ease;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+
+/* 兜底动画类（供全局使用） */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* ---------- 表单元素基础 ---------- */
+input,
+textarea,
+select,
+button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}

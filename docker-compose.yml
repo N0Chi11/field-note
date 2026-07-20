@@ -1,0 +1,129 @@
+# ============================================================================
+# Equipment Management System - Docker Compose
+# 服务: mysql / redis / backend / nginx
+# 网络: equip-net
+# ============================================================================
+version: "3.8"
+
+services:
+  # --------------------------------------------------------------------------
+  # MySQL 数据库
+  # --------------------------------------------------------------------------
+  mysql:
+    image: mysql:8.0
+    container_name: equip-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-equipment_db}
+      MYSQL_USER: ${MYSQL_USER:-equip_app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-yourpassword}
+      TZ: Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3306:3306"
+    volumes:
+      # 挂载初始化脚本（仅首次启动时执行）
+      - ./backend/sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - mysql_data:/var/lib/mysql
+    networks:
+      - equip-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # --------------------------------------------------------------------------
+  # Redis 缓存
+  # --------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: equip-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - equip-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --------------------------------------------------------------------------
+  # FastAPI 后端
+  # --------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: equip-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      # 覆盖 .env 中的连接地址，使其指向容器内的服务名
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-equip_app}:${MYSQL_PASSWORD:-yourpassword}@mysql:3306/${MYSQL_DATABASE:-equipment_db}
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    volumes:
+      - uploads_data:/app/uploads
+      - ./backend:/app
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - equip-net
+
+  # --------------------------------------------------------------------------
+  # Nginx 反向代理
+  # --------------------------------------------------------------------------
+  nginx:
+    image: nginx:alpine
+    container_name: equip-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # 前端构建产物
+      - ./frontend/dist:/usr/share/nginx/html:ro
+      # Nginx 配置
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # SSL 证书
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      # 上传文件（与 backend 共享）
+      - uploads_data:/usr/share/nginx/uploads:ro
+    depends_on:
+      - backend
+    networks:
+      - equip-net
+
+# ----------------------------------------------------------------------------
+# 持久化数据卷
+# ----------------------------------------------------------------------------
+volumes:
+  mysql_data:
+    name: equip_mysql_data
+  redis_data:
+    name: equip_redis_data
+  uploads_data:
+    name: equip_uploads_data
+
+# ----------------------------------------------------------------------------
+# 自定义网络
+# ----------------------------------------------------------------------------
+networks:
+  equip-net:
+    name: equip-net
+    driver: bridge

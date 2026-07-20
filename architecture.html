@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备管理系统 — 全栈架构方案</title>
+<style>
+:root {
+  --bg: #faf9f7;
+  --bg-card: #ffffff;
+  --bg-code: #f5f3ef;
+  --text: #2c2c2c;
+  --text-secondary: #6b6b6b;
+  --text-tertiary: #999;
+  --accent: #b8862b;
+  --accent-light: #d4a84a;
+  --success: #4a7c59;
+  --danger: #c25450;
+  --info: #5b7c99;
+  --border: #e8e4de;
+  --font: 'Segoe UI', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.8; font-size: 15px; }
+.container { max-width: 960px; margin: 0 auto; padding: 48px 32px 80px; }
+h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+h1 .subtitle { display: block; font-size: 15px; font-weight: 400; color: var(--text-tertiary); margin-top: 4px; }
+h2 { font-size: 24px; font-weight: 700; margin: 48px 0 20px; padding-bottom: 12px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; }
+h3 { font-size: 18px; font-weight: 600; margin: 28px 0 12px; color: var(--accent); }
+h4 { font-size: 15px; font-weight: 600; margin: 20px 0 8px; }
+p { margin-bottom: 12px; color: var(--text-secondary); }
+strong { color: var(--text); }
+code { font-family: var(--font-mono); background: var(--bg-code); padding: 2px 7px; border-radius: 4px; font-size: 13px; color: var(--accent); }
+pre { background: var(--bg-code); border-radius: 10px; padding: 18px 22px; overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; color: var(--text); font-size: 13px; line-height: 1.7; }
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; background: var(--bg-card); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+th { background: var(--accent); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 13px; }
+td { padding: 9px 14px; border-bottom: 1px solid var(--border); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg-code); }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.badge.green { background: #e8f5e9; color: var(--success); }
+.badge.blue { background: #e3f2fd; color: var(--info); }
+.badge.red { background: #ffebee; color: var(--danger); }
+.badge.yellow { background: #fff8e1; color: var(--accent); }
+.callout { padding: 18px 22px; border-radius: 10px; margin: 20px 0; border-left: 4px solid; }
+.callout.info { background: #e3f2fd22; border-color: var(--info); }
+.callout.warn { background: #fff8e122; border-color: var(--accent); }
+.callout.danger { background: #ffebee22; border-color: var(--danger); }
+.callout p { margin-bottom: 0; color: var(--text); }
+.callout p + p { margin-top: 8px; }
+.arch-diagram { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 32px; margin: 24px 0; text-align: center; }
+.arch-layer { display: flex; justify-content: center; gap: 12px; margin: 8px 0; flex-wrap: wrap; }
+.arch-box { padding: 14px 24px; border-radius: 10px; font-weight: 600; font-size: 14px; min-width: 120px; text-align: center; }
+.arch-box.frontend { background: #e3f2fd; color: var(--info); border: 2px solid var(--info); }
+.arch-box.backend { background: #e8f5e9; color: var(--success); border: 2px solid var(--success); }
+.arch-box.db { background: #fff8e1; color: var(--accent); border: 2px solid var(--accent); }
+.arch-box.infra { background: #f3e5f5; color: #8e44ad; border: 2px solid #8e44ad; }
+.arch-arrow { font-size: 24px; color: var(--text-tertiary); margin: 4px 0; }
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px 28px; margin: 24px 0; }
+.toc h3 { margin-top: 0; }
+.toc ol { padding-left: 20px; }
+.toc li { margin: 6px 0; }
+.toc a { color: var(--accent); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.stat-row { display: flex; gap: 16px; margin: 20px 0; flex-wrap: wrap; }
+.stat-card { flex: 1; min-width: 140px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; text-align: center; }
+.stat-card .num { font-size: 28px; font-weight: 800; color: var(--accent); }
+.stat-card .label { font-size: 13px; color: var(--text-tertiary); margin-top: 4px; }
+.kv { display: grid; grid-template-columns: 160px 1fr; gap: 4px 16px; font-size: 14px; margin: 12px 0; }
+.kv dt { font-weight: 600; color: var(--text); }
+.kv dd { color: var(--text-secondary); }
+hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.footer { text-align: center; padding: 32px; color: var(--text-tertiary); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>器材设备管理系统 — 全栈架构方案
+<span class="subtitle">Vue3 + FastAPI + MySQL + Docker · 从单机 HTML 到全栈 Web 应用</span>
+</h1>
+
+<div class="stat-row">
+  <div class="stat-card"><div class="num">7</div><div class="label">数据库表</div></div>
+  <div class="stat-card"><div class="num">30+</div><div class="label">API 接口</div></div>
+  <div class="stat-card"><div class="num">5</div><div class="label">前端模块</div></div>
+  <div class="stat-card"><div class="num">4</div><div class="label">Docker 容器</div></div>
+</div>
+
+<div class="toc">
+<h3>目录</h3>
+<ol>
+  <li><a href="#overview">架构总览与技术选型</a></li>
+  <li><a href="#database">数据库设计</a></li>
+  <li><a href="#api">RESTful API 接口文档</a></li>
+  <li><a href="#frontend">Vue3 前端架构</a></li>
+  <li><a href="#deploy">Docker 部署方案</a></li>
+  <li><a href="#migration">迁移路线图</a></li>
+</ol>
+</div>
+
+<!-- ========== 1. 架构总览 ========== -->
+<h2 id="overview"><span class="num">1</span>架构总览与技术选型</h2>
+
+<h3>系统架构图</h3>
+<div class="arch-diagram">
+  <div class="arch-layer">
+    <div class="arch-box frontend">Vue3 前端<br><small>Nginx 静态托管</small></div>
+  </div>
+  <div class="arch-arrow">↓ HTTP / HTTPS</div>
+  <div class="arch-layer">
+    <div class="arch-box backend">FastAPI 后端<br><small>REST API · JWT 认证</small></div>
+  </div>
+  <div class="arch-arrow">↓ SQLAlchemy ORM</div>
+  <div class="arch-layer">
+    <div class="arch-box db">MySQL 8.0<br><small>数据持久化</small></div>
+    <div class="arch-box db">Redis<br><small>会话缓存</small></div>
+  </div>
+  <div class="arch-arrow">↓</div>
+  <div class="arch-layer">
+    <div class="arch-box infra">Docker Compose<br><small>一键编排</small></div>
+  </div>
+</div>
+
+<h3>技术选型说明</h3>
+<table>
+  <tr><th>层</th><th>技术</th><th>选择理由</th></tr>
+  <tr><td>前端框架</td><td>Vue 3 + Composition API</td><td>响应式系统成熟，单文件组件清晰，学习曲线平缓</td></tr>
+  <tr><td>前端构建</td><td>Vite 5</td><td>极速 HMR，打包体积小，Vue 官方推荐</td></tr>
+  <tr><td>状态管理</td><td>Pinia</td><td>Vue3 官方推荐，TypeScript 友好，API 简洁</td></tr>
+  <tr><td>路由</td><td>Vue Router 4</td><td>Vue 官方路由，支持懒加载和导航守卫</td></tr>
+  <tr><td>UI 组件库</td><td>Naive UI</td><td>Vue3 原生，TypeScript 编写，暗色模式，Tree-shaking</td></tr>
+  <tr><td>HTTP 请求</td><td>Axios + 拦截器</td><td>请求/响应拦截，自动 JWT 注入，统一错误处理</td></tr>
+  <tr><td>后端框架</td><td>FastAPI 0.110+</td><td>异步高性能，自动 OpenAPI 文档，Pydantic 校验</td></tr>
+  <tr><td>ORM</td><td>SQLAlchemy 2.0 + Alembic</td><td>Python 生态最成熟 ORM，Alembic 数据库迁移</td></tr>
+  <tr><td>数据库</td><td>MySQL 8.0</td><td>关系型数据库，事务支持好，团队熟悉度高</td></tr>
+  <tr><td>认证</td><td>JWT (python-jose) + bcrypt</td><td>无状态认证，密码哈希存储，适合前后端分离</td></tr>
+  <tr><td>缓存</td><td>Redis 7</td><td>JWT 黑名单、验证码缓存、热点数据缓存</td></tr>
+  <tr><td>容器化</td><td>Docker + Docker Compose</td><td>环境一致性，一键部署，方便在云服务器运行</td></tr>
+  <tr><td>反向代理</td><td>Nginx</td><td>静态文件托管 + API 反向代理 + HTTPS 终端</td></tr>
+</table>
+
+<div class="callout info">
+<p><strong>为什么暂不用微信登录？</strong></p>
+<p>微信网站登录需要微信开放平台注册 + 网站应用审核（需企业资质），周期较长。先用「学号 + 密码」跑通全流程，数据库预留 <code>openid</code> 字段，后续可平滑接入微信 OAuth。</p>
+</div>
+
+<!-- ========== 2. 数据库设计 ========== -->
+<h2 id="database"><span class="num">2</span>数据库设计</h2>
+
+<p>共 7 张表，覆盖用户、设备、内存卡、借用申请、操作日志 5 个核心实体。</p>
+
+<h3>ER 关系总览</h3>
+<pre><code>users (1) ──< (N) borrow_requests >── (1) equipment
+users (1) ──< (N) borrow_requests >── (1) cards (可选)
+users (1) ──< (N) operation_logs
+borrow_requests (1) ──< (N) operation_logs</code></pre>
+
+<h3>2.1 users — 用户表</h3>
+<pre><code>CREATE TABLE users (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  student_id    VARCHAR(20)  NOT NULL UNIQUE COMMENT '学号',
+  name          VARCHAR(50)  NOT NULL COMMENT '姓名',
+  password_hash VARCHAR(255) NOT NULL COMMENT 'bcrypt 哈希',
+  phone         VARCHAR(20)  DEFAULT NULL COMMENT '手机号',
+  role          ENUM('user','admin') NOT NULL DEFAULT 'user',
+  openid        VARCHAR(64)  DEFAULT NULL COMMENT '微信 openid（预留）',
+  avatar_url    VARCHAR(500) DEFAULT NULL,
+  is_active     TINYINT(1)   NOT NULL DEFAULT 1,
+  created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_student_id (student_id),
+  INDEX idx_role (role)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';</code></pre>
+
+<h3>2.2 equipment — 设备表</h3>
+<pre><code>CREATE TABLE equipment (
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  code       VARCHAR(20)  NOT NULL UNIQUE COMMENT '设备编号 EQ001',
+  name       VARCHAR(100) NOT NULL COMMENT '设备名称',
+  category   VARCHAR(50)  NOT NULL COMMENT '类别：相机/镜头/灯光...',
+  icon       VARCHAR(10)  DEFAULT '📦',
+  image_url  VARCHAR(500) DEFAULT NULL COMMENT '设备图片 URL',
+  notes      TEXT         DEFAULT NULL COMMENT '备注/借用限制',
+  status     ENUM('available','borrowed','repair') NOT NULL DEFAULT 'available',
+  created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_status (status),
+  INDEX idx_category (category)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='设备表';</code></pre>
+
+<h3>2.3 cards — 内存卡表</h3>
+<pre><code>CREATE TABLE cards (
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  code       VARCHAR(20)  NOT NULL UNIQUE COMMENT '卡编号 SD001',
+  name       VARCHAR(100) NOT NULL COMMENT '卡名称',
+  notes      TEXT         DEFAULT NULL,
+  status     ENUM('available','borrowed') NOT NULL DEFAULT 'available',
+  created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='内存卡表';</code></pre>
+
+<h3>2.4 borrow_requests — 借用申请表（核心）</h3>
+<pre><code>CREATE TABLE borrow_requests (
+  id              INT AUTO_INCREMENT PRIMARY KEY,
+  work_order_no   VARCHAR(30)  NOT NULL UNIQUE COMMENT '工单号 WO20260717001',
+  user_id         INT          NOT NULL COMMENT '借用人 FK→users.id',
+  equipment_id    INT          NOT NULL COMMENT '借用设备 FK→equipment.id',
+  card_id         INT          DEFAULT NULL COMMENT '配套内存卡 FK→cards.id',
+  borrow_time     DATETIME     NOT NULL COMMENT '预计借用时间',
+  return_time     DATETIME     NOT NULL COMMENT '预计归还时间',
+  actual_return   DATETIME     DEFAULT NULL COMMENT '实际归还时间',
+  reason          TEXT         NOT NULL COMMENT '借用理由',
+  status          ENUM('pending','approved','borrowing',
+                       'return_pending','returned',
+                       'rejected','cancelled') NOT NULL DEFAULT 'pending',
+  approver_id     INT          DEFAULT NULL COMMENT '审批人 FK→users.id',
+  admin_comment   TEXT         DEFAULT NULL COMMENT '审批备注',
+  return_photo_url VARCHAR(500) DEFAULT NULL COMMENT '归还照片 URL',
+  created_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_user (user_id),
+  INDEX idx_equipment (equipment_id),
+  INDEX idx_card (card_id),
+  INDEX idx_status (status),
+  INDEX idx_borrow_time (borrow_time),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
+  FOREIGN KEY (equipment_id) REFERENCES equipment(id) ON DELETE RESTRICT,
+  FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE SET NULL,
+  FOREIGN KEY (approver_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='借用申请表';</code></pre>
+
+<h3>2.5 operation_logs — 操作日志表</h3>
+<pre><code>CREATE TABLE operation_logs (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  actor_id    INT          NOT NULL COMMENT '操作人 FK→users.id',
+  action      VARCHAR(30)  NOT NULL COMMENT '操作类型',
+  detail      TEXT         NOT NULL COMMENT '操作详情',
+  target_type VARCHAR(20)  DEFAULT NULL COMMENT '目标类型 request/equipment/card',
+  target_id   INT          DEFAULT NULL COMMENT '目标 ID',
+  ip_address  VARCHAR(45)  DEFAULT NULL,
+  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_actor (actor_id),
+  INDEX idx_action (action),
+  INDEX idx_target (target_type, target_id),
+  INDEX idx_created (created_at),
+  FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';</code></pre>
+
+<h3>2.6 refresh_tokens — 刷新令牌表</h3>
+<pre><code>CREATE TABLE refresh_tokens (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  user_id     INT          NOT NULL,
+  token_hash  VARCHAR(255) NOT NULL UNIQUE COMMENT 'SHA256 哈希',
+  expires_at  DATETIME     NOT NULL,
+  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  is_revoked  TINYINT(1)   NOT NULL DEFAULT 0,
+  INDEX idx_user (user_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='刷新令牌表';</code></pre>
+
+<h3>2.7 system_config — 系统配置表</h3>
+<pre><code>CREATE TABLE system_config (
+  id    INT AUTO_INCREMENT PRIMARY KEY,
+  key   VARCHAR(50) NOT NULL UNIQUE,
+  value TEXT        NOT NULL,
+  desc  VARCHAR(200) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统配置表';
+
+-- 预置数据
+INSERT INTO system_config (key, value, desc) VALUES
+  ('conflict_buffer_minutes', '30', '冲突检测缓冲时间（分钟）'),
+  ('max_borrow_days', '7', '单次最长借用天数'),
+  ('log_retention_days', '180', '操作日志保留天数');</code></pre>
+
+<div class="callout warn">
+<p><strong>设计要点：</strong></p>
+<p>1. 外键约束保证数据完整性，设备被借用时无法删除</p>
+<p>2. <code>ON DELETE SET NULL</code> 用于 card_id/approver_id，删卡/删审批人后请求记录保留</p>
+<p>3. 状态用 <code>ENUM</code> 而非 VARCHAR，确保值域安全</p>
+<p>4. 关键查询字段加索引（user_id / status / borrow_time）</p>
+</div>
+
+<!-- ========== 3. API 接口文档 ========== -->
+<h2 id="api"><span class="num">3</span>RESTful API 接口文档</h2>
+
+<p>所有接口前缀 <code>/api/v1</code>，返回 JSON 格式 <code>{ "code": 0, "data": {...}, "message": "ok" }</code>。需认证的接口在 Header 携带 <code>Authorization: Bearer &lt;jwt&gt;</code>。</p>
+
+<h3>3.1 认证模块</h3>
+<table>
+  <tr><th>方法</th><th>路径</th><th>说明</th><th>认证</th></tr>
+  <tr><td>POST</td><td><code>/auth/login</code></td><td>学号 + 密码登录，返回 access_token + refresh_token</td><td><span class="badge red">否</span></td></tr>
+  <tr><td>POST</td><td><code>/auth/refresh</code></td><td>刷新 access_token</td><td><span class="badge red">否</span></td></tr>
+  <tr><td>POST</td><td><code>/auth/logout</code></td><td>登出，吊销 refresh_token</td><td><span class="badge green">是</span></td></tr>
+  <tr><td>GET</td><td><code>/auth/me</code></td><td>获取当前登录用户信息</td><td><span class="badge green">是</span></td></tr>
+  <tr><td>PUT</td><td><code>/auth/password</code></td><td>修改密码</td><td><span class="badge green">是</span></td></tr>
+</table>
+
+<h3>3.2 设备模块</h3>
+<table>
+  <tr><th>方法</th><th>路径</th><th>说明</th><th>权限</th></tr>
+  <tr><td>GET</td><td><code>/equipment</code></td><td>设备列表（支持 ?status=&category=&keyword= 筛选）</td><td><span class="badge blue">所有用户</span></td></tr>
+  <tr><td>GET</td><td><code>/equipment/{id}</code></td><td>设备详情 + 时间轴借用记录</td><td><span class="badge blue">所有用户</span></td></tr>
+  <tr><td>POST</td><td><code>/equipment</code></td><td>添加设备</td><td><span class="badge yellow">管理员</span></td></tr>
+  <tr><td>PUT</td><td><code>/equipment/{id}</code></td><td>编辑设备</td><td><span class="badge yellow">管理员</span></td></tr>
+  <tr><td>DELETE</td><td><code>/equipment/{id}</code></td><td>删除设备（有活跃借用时拒绝）</td><td><span class="badge yellow">管理员</span></td></tr>
+  <tr><td>PATCH</td><td><code>/equipment/{id}/status</code></td><td>切换设备状态（设为维修/可用）</td><td><span class="badge yellow">管理员</span></td></tr>
+  <tr><td>POST</td><td><code>/equipment/{id}/image</code></td><td>上传设备图片（multipart）</td><td><span class="badge yellow">管理员</span></td></tr>
+</table>
+
+<h3>3.3 内存卡模块</h3>
+<table>
+  <tr><th>方法</th><th>路径</th><th>说明</th><th>权限</th></tr>
+  <tr><td>GET</td><td><code>/cards</code></td><td>内存卡列表（支持 ?status= 筛选）</td><td><span class="badge blue">所有用户</span></td></tr>
+  <tr><td>POST</td><td><code>/cards</code></td><td>添加内存卡</td><td><span class="badge yellow">管理员</span></td></tr>
+  <tr><td>PUT</td><td><code>/cards/{id}</code></td><td>编辑内存卡</td><td><span class="badge yellow">管理员</span></td></tr>
+  <tr><td>DELETE</td><td><code>/cards/{id}</code></td><td>删除内存卡（有活跃借用时拒绝）</td><td><span class="badge yellow">管理员</span></td></tr>
+</table>
+
+<h3>3.4 借用申请模块（核心）</h3>
+<table>
+  <tr><th>方法</th><th>路径</th><th>说明</th><th>权限</th></tr>
+  <tr><td>GET</td><td><code>/requests</code></td><td>借用记录列表（?status=&keyword= 筛选，普通用户只看自己的）</td><td><span class="badge green">是</span></td></tr>
+  <tr><td>GET</td><td><code>/requests/{id}</code></td><td>借用记录详情</td><td><span class="badge green">是</span></td></tr>
+  <tr><td>POST</td><td><code>/requests</code></td><td>提交借用申请（含冲突检测）</td><td><span class="badge green">是</span></td></tr>
+  <tr><td>DELETE</td><td><code>/requests/{id}</code></td><td>取消/删除申请（pending 状态用户可取消）</td><td><span class="badge green">是</span></td></tr>
+  <tr><td>POST</td><td><code>/requests/{id}/return</code></td><td>提交归还（上传归还照片，状态→return_pending）</td><td><span class="badge green">是</span></td></tr>
+  <tr><td>POST</td><td><code>/requests/check-conflict</code></td><td>实时冲突检测（借用表单中选择设备/时间后调用）</td><td><span class="badge green">是</span></td></tr>
+</table>
+
+<h3>3.5 审批模块（管理员）</h3>
+<table>
+  <tr><th>方法</th><th>路径</th><th>说明</th><th>权限</th></tr>
+  <tr><td>GET</td><td><code>/admin/requests/pending</code></td><td>待审批列表（统计卡片数据）</td><td><span class="badge yellow">管理员</span></td></tr>
+  <tr><td>POST</td><td><code>/admin/requests/{id}/approve</code></td><td>审批通过（含维修状态检查 + 冲突复查）</td><td><span class="badge yellow">管理员</span></td></tr>
+  <tr><td>POST</td><td><code>/admin/requests/{id}/reject</code></td><td>拒绝申请（含拒绝理由）</td><td><span class="badge yellow">管理员</span></td></tr>
+  <tr><td>POST</td><td><code>/admin/requests/{id}/pickup</code></td><td>确认领取（可选配内存卡，状态→borrowing）</td><td><span class="badge yellow">管理员</span></td></tr>
+  <tr><td>POST</td><td><code>/admin/requests/{id}/confirm-return</code></td><td>确认归还完成（释放内存卡，状态→returned）</td><td><span class="badge yellow">管理员</span></td></tr>
+  <tr><td>GET</td><td><code>/admin/stats</code></td><td>仪表盘统计（待审核/借用中/待归还/总数）</td><td><span class="badge yellow">管理员</span></td></tr>
+</table>
+
+<h3>3.6 操作日志模块</h3>
+<table>
+  <tr><th>方法</th><th>路径</th><th>说明</th><th>权限</th></tr>
+  <tr><td>GET</td><td><code>/admin/logs</code></td><td>操作日志列表（?action=&actor=&page=&size= 分页）</td><td><span class="badge yellow">管理员</span></td></tr>
+</table>
+
+<h3>3.7 接口示例：提交借用申请</h3>
+<pre><code>POST /api/v1/requests
+Authorization: Bearer eyJhbGciOi...
+
+Request Body:
+{
+  "equipment_id": 1,
+  "borrow_time": "2026-07-20T10:00:00",
+  "return_time": "2026-07-20T18:00:00",
+  "reason": "课程作业拍摄"
+}
+
+Response 200:
+{
+  "code": 0,
+  "data": {
+    "id": 42,
+    "work_order_no": "WO20260717xx1",
+    "status": "pending",
+    "conflict_warning": null
+  },
+  "message": "申请已提交"
+}
+
+Response 409 (冲突):
+{
+  "code": 40901,
+  "data": {
+    "conflict_type": "hard",
+    "conflict_orders": ["WO20260717001"]
+  },
+  "message": "该设备在此时段已被占用"
+}</code></pre>
+
+<!-- ========== 4. Vue3 前端架构 ========== -->
+<h2 id="frontend"><span class="num">4</span>Vue3 前端架构</h2>
+
+<h3>目录结构</h3>
+<pre><code>frontend/
+├── index.html
+├── vite.config.ts
+├── tsconfig.json
+├── package.json
+├── src/
+│   ├── main.ts                  # 应用入口
+│   ├── App.vue                  # 根组件
+│   ├── router/
+│   │   └── index.ts             # 路由定义 + 导航守卫
+│   ├── stores/                  # Pinia 状态管理
+│   │   ├── auth.ts              # 认证状态（登录/登出/token）
+│   │   ├── equipment.ts         # 设备列表缓存
+│   │   └── toast.ts             # 全局提示
+│   ├── api/                     # API 请求封装
+│   │   ├── request.ts           # Axios 实例 + 拦截器
+│   │   ├── auth.ts              # 认证接口
+│   │   ├── equipment.ts         # 设备接口
+│   │   ├── borrow.ts            # 借用接口
+│   │   └── admin.ts             # 管理员接口
+│   ├── views/                   # 页面组件
+│   │   ├── Login.vue
+│   │   ├── EquipmentList.vue     # 器材设备清单
+│   │   ├── BorrowForm.vue        # 借用申请
+│   │   ├── BorrowOverview.vue    # 借用一览
+│   │   ├── Profile.vue           # 个人中心
+│   │   ├── admin/
+│   │   │   ├── EquipmentManage.vue  # 设备维护
+│   │   │   ├── Approval.vue         # 借用审批
+│   │   │   ├── ReturnConfirm.vue    # 归还确认
+│   │   │   └── Logs.vue             # 操作日志
+│   ├── components/              # 可复用组件
+│   │   ├── layout/
+│   │   │   ├── AppSidebar.vue    # 侧边栏
+│   │   │   ├── MobileNav.vue     # 移动端底部导航
+│   │   │   └── WelcomeModal.vue  # 欢迎弹窗
+│   │   ├── equipment/
+│   │   │   ├── EquipmentCard.vue  # 设备卡片
+│   │   │   ├── EquipmentModal.vue # 设备编辑弹窗
+│   │   │   └── TimelineModal.vue  # 时间轴甘特图
+│   │   ├── borrow/
+│   │   │   ├── RequestCard.vue    # 借用记录卡片
+│   │   │   ├── ApprovalModal.vue  # 审批弹窗
+│   │   │   ├── PickupModal.vue    # 领取确认弹窗
+│   │   │   └── ReturnModal.vue    # 归还弹窗
+│   │   └── common/
+│   │       ├── StatCard.vue       # 统计卡片
+│   │       ├── FilterTabs.vue     # 筛选标签
+│   │       └── EmptyState.vue     # 空状态
+│   ├── composables/             # 组合式函数
+│   │   ├── useAuth.ts           # 认证逻辑
+│   │   ├── useConflictCheck.ts  # 冲突检测
+│   │   └── useUrgency.ts        # 到期提醒
+│   ├── types/                   # TypeScript 类型
+│   │   └── models.ts            # 数据模型定义
+│   └── assets/
+│       └── styles/
+│           └── main.css         # 全局样式 + CSS 变量
+└── public/
+    └── favicon.ico</code></pre>
+
+<h3>路由定义</h3>
+<pre><code>// router/index.ts
+const routes = [
+  { path: '/login', component: Login, meta: { guest: true } },
+  { path: '/', redirect: '/equipment' },
+  { path: '/equipment', component: EquipmentList, meta: { auth: true } },
+  { path: '/borrow', component: BorrowForm, meta: { auth: true } },
+  { path: '/overview', component: BorrowOverview, meta: { auth: true } },
+  { path: '/profile', component: Profile, meta: { auth: true } },
+  // 管理员路由
+  { path: '/admin/equipment', component: EquipmentManage, meta: { auth: true, admin: true } },
+  { path: '/admin/approval', component: Approval, meta: { auth: true, admin: true } },
+  { path: '/admin/return', component: ReturnConfirm, meta: { auth: true, admin: true } },
+  { path: '/admin/logs', component: Logs, meta: { auth: true, admin: true } },
+]
+
+// 导航守卫：检查 token + 管理员权限
+router.beforeEach((to, from, next) => {
+  const auth = useAuthStore()
+  if (to.meta.auth && !auth.isLoggedIn) return next('/login')
+  if (to.meta.admin && !auth.isAdmin) return next('/')
+  if (to.meta.guest && auth.isLoggedIn) return next('/')
+  next()
+})</code></pre>
+
+<h3>Axios 拦截器（核心）</h3>
+<pre><code>// api/request.ts
+const instance = axios.create({ baseURL: '/api/v1', timeout: 10000 })
+
+// 请求拦截：自动注入 JWT
+instance.interceptors.request.use(config => {
+  const token = localStorage.getItem('access_token')
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
+
+// 响应拦截：401 自动刷新 token，403 权限提示
+instance.interceptors.response.use(
+  res => res.data,
+  async error => {
+    if (error.response?.status === 401) {
+      const refreshed = await tryRefreshToken()
+      if (refreshed) return instance(error.config) // 重试
+      redirectToLogin()
+    }
+    return Promise.reject(error)
+  }
+)</code></pre>
+
+<!-- ========== 5. Docker 部署 ========== -->
+<h2 id="deploy"><span class="num">5</span>Docker 部署方案</h2>
+
+<h3>docker-compose.yml</h3>
+<pre><code>version: '3.8'
+
+services:
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: equip-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: equipment_db
+      MYSQL_USER: equip_app
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+    networks: [equip-net]
+
+  # Redis 缓存
+  redis:
+    image: redis:7-alpine
+    container_name: equip-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks: [equip-net]
+
+  # FastAPI 后端
+  backend:
+    build: ./backend
+    container_name: equip-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: mysql+pymysql://equip_app:${DB_PASSWORD}@mysql:3306/equipment_db
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ORIGINS: http://localhost,http://your-domain.com
+    depends_on:
+      - mysql
+      - redis
+    networks: [equip-net]
+
+  # Nginx 前端 + 反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: equip-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html    # Vue 打包产物
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl               # HTTPS 证书
+      - ./uploads:/var/www/uploads                # 上传的图片
+    depends_on:
+      - backend
+    networks: [equip-net]
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  equip-net:
+    driver: bridge</code></pre>
+
+<h3>Nginx 配置</h3>
+<pre><code># nginx/nginx.conf
+server {
+    listen 80;
+    server_name your-domain.com;
+    # HTTPS 重定向
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name your-domain.com;
+
+    ssl_certificate     /etc/nginx/ssl/cert.pem;
+    ssl_certificate_key /etc/nginx/ssl/key.pem;
+
+    # Vue 前端静态文件
+    location / {
+        root /usr/share/nginx/html;
+        try_files $uri $uri/ /index.html;  # SPA 路由回退
+    }
+
+    # API 反向代理 → FastAPI
+    location /api/ {
+        proxy_pass http://backend:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    # 上传文件访问
+    location /uploads/ {
+        alias /var/www/uploads/;
+        expires 30d;
+    }
+
+    # 文件上传大小限制
+    client_max_body_size 10M;
+}</code></pre>
+
+<h3>后端 Dockerfile</h3>
+<pre><code># backend/Dockerfile
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
+
+<div class="callout info">
+<p><strong>部署流程（云服务器）：</strong></p>
+<p>1. 服务器安装 Docker + Docker Compose</p>
+<p>2. <code>git clone</code> 项目代码到服务器</p>
+<p>3. 配置 <code>.env</code> 文件（数据库密码、JWT 密钥）</p>
+<p>4. 前端 <code>npm run build</code> 打包到 <code>frontend/dist</code></p>
+<p>5. <code>docker-compose up -d</code> 一键启动全部服务</p>
+<p>6. 配置 HTTPS 证书（Let's Encrypt 免费证书）</p>
+</div>
+
+<!-- ========== 6. 迁移路线图 ========== -->
+<h2 id="migration"><span class="num">6</span>迁移路线图</h2>
+
+<p>从单机 HTML 到全栈 Web 应用，建议分 4 个阶段逐步推进：</p>
+
+<table>
+  <tr><th>阶段</th><th>内容</th><th>预计工期</th><th>产出</th></tr>
+  <tr><td><strong>Phase 1</strong><br>后端骨架</td><td>FastAPI 项目搭建 + MySQL 建表 + 认证（注册/登录/JWT）+ 设备 CRUD + 借用申请 CRUD + Docker Compose 环境</td><td>3-5 天</td><td>可运行的后端 API + Swagger 文档</td></tr>
+  <tr><td><strong>Phase 2</strong><br>前端重写</td><td>Vue3 项目搭建 + 路由 + 登录页 + 设备清单 + 借用表单 + 借用一览 + 个人中心</td><td>4-6 天</td><td>用户端功能可用的前端</td></tr>
+  <tr><td><strong>Phase 3</strong><br>管理后台</td><td>设备维护页 + 借用审批 + 归还确认 + 内存卡管理 + 操作日志 + 冲突检测 + 统计仪表盘</td><td>3-5 天</td><td>管理员端功能完整</td></tr>
+  <tr><td><strong>Phase 4</strong><br>部署上线</td><td>云服务器 Docker 部署 + Nginx + HTTPS + 数据迁移 + 移动端适配优化</td><td>2-3 天</td><td>线上可访问的系统</td></tr>
+</table>
+
+<h3>数据迁移方案</h3>
+<p>从现有单机版的 <code>localStorage</code> 迁移到 MySQL：</p>
+<pre><code># 迁移脚本 (Python)
+# 1. 从 HTML 导出 JSON（已有 exportAllData 功能）
+# 2. 脚本读取 JSON，批量写入 MySQL
+
+python scripts/migrate_from_json.py backup.json
+
+# 脚本逻辑：
+#   - users:     从 eb_users 数组插入 users 表
+#   - equipment: 从 eb_equipment 映射字段插入 equipment 表
+#   - cards:     从 eb_cards 映射插入 cards 表
+#   - requests:  从 eb_requests 映射 status/字段插入 borrow_requests 表
+#   - logs:      从 eb_logs 映射插入 operation_logs 表</code></pre>
+
+<div class="callout warn">
+<p><strong>迁移注意事项：</strong></p>
+<p>1. 用户密码需要重置（单机版是明文，全栈版用 bcrypt），首次登录时强制改密</p>
+<p>2. 图片从 Base64 迁移为文件 URL（存到 <code>/uploads/</code> 目录）</p>
+<p>3. 时间格式统一为 ISO 8601（单机版部分时间格式不一致）</p>
+<p>4. 工单号生成规则保持一致，避免迁移后冲突</p>
+</div>
+
+<hr>
+
+<div class="callout info">
+<p><strong>下一步：</strong> 确认架构方案后，可以开始 Phase 1 —— 搭建 FastAPI 后端骨架 + MySQL 建表。我会先创建后端项目目录结构、数据库初始化脚本、认证模块，然后逐步实现核心 API。</p>
+</div>
+
+</div>
+<div class="footer">A107 新媒体中心 · 器材设备管理系统全栈架构方案 · 2026.07</div>
+</body>
+</html>

@@ -1,0 +1,223 @@
+"""认证路由：登录、刷新、登出、当前用户、修改密码。"""
+from datetime import datetime, timedelta, timezone
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+
+from app.config import get_settings
+from app.core.deps import get_current_user
+from app.core.security import (
+    create_access_token,
+    create_refresh_token,
+    decode_token,
+    get_password_hash,
+    hash_token,
+    verify_password,
+)
+from app.database import get_db
+from app.models.refresh_token import RefreshToken
+from app.models.user import User
+from app.schemas.auth import (
+    LoginRequest,
+    PasswordChangeRequest,
+    RefreshRequest,
+    TokenResponse,
+    UserResponse,
+)
+from app.schemas.common import ApiResponse
+
+settings = get_settings()
+
+router = APIRouter(prefix="/auth", tags=["认证"])
+
+
+def _refresh_expires_at() -> datetime:
+    """计算 refresh_token 过期时间（naive UTC，兼容 MySQL DATETIME）。"""
+    return (datetime.now(timezone.utc) + timedelta(
+        days=settings.REFRESH_TOKEN_EXPIRE_DAYS
+    )).replace(tzinfo=None)
+
+
+@router.post("/login", response_model=ApiResponse[TokenResponse])
+def login(req: LoginRequest, db: Session = Depends(get_db)):
+    """学号 + 密码登录，返回 access_token + refresh_token。"""
+    try:
+        user = db.query(User).filter(User.student_id == req.student_id).first()
+    except Exception:
+        raise HTTPException(status_code=500, detail="服务器内部错误")
+
+    if user is None or not verify_password(req.password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="学号或密码错误",
+        )
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="用户已被禁用",
+        )
+
+    token_data = {"sub": str(user.id), "role": user.role}
+    access_token = create_access_token(token_data)
+    refresh_token = create_refresh_token({"sub": str(user.id)})
+
+    # 持久化 refresh_token 的 SHA256 哈希
+    try:
+        db_token = RefreshToken(
+            user_id=user.id,
+            token_hash=hash_token(refresh_token),
+            expires_at=_refresh_expires_at(),
+            is_revoked=False,
+        )
+        db.add(db_token)
+        db.commit()
+        db.refresh(db_token)
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="服务器内部错误")
+
+    resp = TokenResponse(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        token_type="bearer",
+    )
+    return ApiResponse[TokenResponse](data=resp, message="登录成功")
+
+
+@router.post("/refresh", response_model=ApiResponse[TokenResponse])
+def refresh(req: RefreshRequest, db: Session = Depends(get_db)):
+    """使用 refresh_token 刷新，返回新的 access_token（并轮换 refresh_token）。"""
+    payload = decode_token(req.refresh_token)
+    if payload is None or payload.get("type") != "refresh":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="无效的刷新令牌",
+        )
+
+    user_id = payload.get("sub")
+    if user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="无效的刷新令牌",
+        )
+
+    try:
+        user_id_int = int(user_id)
+    except (TypeError, ValueError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="无效的刷新令牌",
+        )
+
+    token_hash = hash_token(req.refresh_token)
+    try:
+        db_token = (
+            db.query(RefreshToken)
+            .filter(
+                RefreshToken.token_hash == token_hash,
+                RefreshToken.user_id == user_id_int,
+            )
+            .first()
+        )
+    except Exception:
+        raise HTTPException(status_code=500, detail="服务器内部错误")
+
+    # 令牌已过期由 decode_token 校验；这里校验是否存在于库且未被吊销
+    if db_token is None or db_token.is_revoked:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="刷新令牌已失效",
+        )
+
+    try:
+        user = db.query(User).filter(User.id == user_id_int).first()
+    except Exception:
+        raise HTTPException(status_code=500, detail="服务器内部错误")
+
+    if user is None or not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="用户不存在或已被禁用",
+        )
+
+    # 轮换：吊销旧 refresh_token，签发新的并入库
+    new_access_token = create_access_token({"sub": str(user.id), "role": user.role})
+    new_refresh_token = create_refresh_token({"sub": str(user.id)})
+
+    try:
+        db_token.is_revoked = True
+        db.add(
+            RefreshToken(
+                user_id=user.id,
+                token_hash=hash_token(new_refresh_token),
+                expires_at=_refresh_expires_at(),
+                is_revoked=False,
+            )
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="服务器内部错误")
+
+    resp = TokenResponse(
+        access_token=new_access_token,
+        refresh_token=new_refresh_token,
+        token_type="bearer",
+    )
+    return ApiResponse[TokenResponse](data=resp, message="刷新成功")
+
+
+@router.post("/logout", response_model=ApiResponse)
+def logout(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """登出：吊销当前用户所有未吊销的 refresh_token。"""
+    try:
+        db.query(RefreshToken).filter(
+            RefreshToken.user_id == current_user.id,
+            RefreshToken.is_revoked.is_(False),
+        ).update({RefreshToken.is_revoked: True}, synchronize_session=False)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="服务器内部错误")
+
+    return ApiResponse(message="登出成功")
+
+
+@router.get("/me", response_model=ApiResponse[UserResponse])
+def get_me(current_user: User = Depends(get_current_user)):
+    """获取当前登录用户信息。"""
+    user_resp = UserResponse(
+        id=current_user.id,
+        student_id=current_user.student_id,
+        name=current_user.name,
+        role=current_user.role,
+        is_active=current_user.is_active,
+    )
+    return ApiResponse[UserResponse](data=user_resp, message="ok")
+
+
+@router.put("/password", response_model=ApiResponse)
+def change_password(
+    req: PasswordChangeRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """修改密码：验证旧密码后更新为新密码哈希。"""
+    if not verify_password(req.old_password, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="旧密码错误",
+        )
+
+    try:
+        current_user.password_hash = get_password_hash(req.new_password)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="服务器内部错误")
+
+    return ApiResponse(message="密码修改成功")

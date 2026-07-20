@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 12<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size:<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; background: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  th { background: #f1f3f5; padding<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; background: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  th { background: #f1f3f5; padding: 10px 14px; text-align<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; background: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  th { background: #f1f3f5; padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+  tr<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; background: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  th { background: #f1f3f5; padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafb<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; background: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  th { background: #f1f3f5; padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbfc; }
+  .type-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; background: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  th { background: #f1f3f5; padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbfc; }
+  .type-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .type-PK { background: #fff3cd; color: #856404; }
+  .type-FK { background: #d1ecf1; color: #0c5460; }
+  .type-idx { background: #d4edda; color: #155724; }
+  .type-req { background:<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; background: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  th { background: #f1f3f5; padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbfc; }
+  .type-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .type-PK { background: #fff3cd; color: #856404; }
+  .type-FK { background: #d1ecf1; color: #0c5460; }
+  .type-idx { background: #d4edda; color: #155724; }
+  .type-req { background: #f8d7da; color: #721c24; }
+  pre { background<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; background: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  th { background: #f1f3f5; padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbfc; }
+  .type-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .type-PK { background: #fff3cd; color: #856404; }
+  .type-FK { background: #d1ecf1; color: #0c5460; }
+  .type-idx { background: #d4edda; color: #155724; }
+  .type-req { background: #f8d7da; color: #721c24; }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 20px; border-radius: 10px; overflow-x: auto<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; background: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  th { background: #f1f3f5; padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbfc; }
+  .type-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .type-PK { background: #fff3cd; color: #856404; }
+  .type-FK { background: #d1ecf1; color: #0c5460; }
+  .type-idx { background: #d4edda; color: #155724; }
+  .type-req { background: #f8d7da; color: #721c24; }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 20px; border-radius: 10px; overflow-x: auto; font-size: 13px; line-height: 1.6; margin: 12px 0 20px; font-family:<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; background: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  th { background: #f1f3f5; padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbfc; }
+  .type-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .type-PK { background: #fff3cd; color: #856404; }
+  .type-FK { background: #d1ecf1; color: #0c5460; }
+  .type-idx { background: #d4edda; color: #155724; }
+  .type-req { background: #f8d7da; color: #721c24; }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 20px; border-radius: 10px; overflow-x: auto; font-size: 13px; line-height: 1.6; margin: 12px 0 20px; font-family: 'Cascadia Code', 'Fira Code<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; background: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  th { background: #f1f3f5; padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbfc; }
+  .type-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .type-PK { background: #fff3cd; color: #856404; }
+  .type-FK { background: #d1ecf1; color: #0c5460; }
+  .type-idx { background: #d4edda; color: #155724; }
+  .type-req { background: #f8d7da; color: #721c24; }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 20px; border-radius: 10px; overflow-x: auto; font-size: 13px; line-height: 1.6; margin: 12px 0 20px; font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace; }
+  pre .comment { color: #74b9ff; }
+  pre .keyword { color: #e17055; }
+  pre .string {<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; background: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  th { background: #f1f3f5; padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbfc; }
+  .type-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .type-PK { background: #fff3cd; color: #856404; }
+  .type-FK { background: #d1ecf1; color: #0c5460; }
+  .type-idx { background: #d4edda; color: #155724; }
+  .type-req { background: #f8d7da; color: #721c24; }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 20px; border-radius: 10px; overflow-x: auto; font-size: 13px; line-height: 1.6; margin: 12px 0 20px; font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace; }
+  pre .comment { color: #74b9ff; }
+  pre .keyword { color: #e17055; }
+  pre .string { color: #55efc4; }
+  pre .type { color: #ffeaa7<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; background: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  th { background: #f1f3f5; padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbfc; }
+  .type-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .type-PK { background: #fff3cd; color: #856404; }
+  .type-FK { background: #d1ecf1; color: #0c5460; }
+  .type-idx { background: #d4edda; color: #155724; }
+  .type-req { background: #f8d7da; color: #721c24; }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 20px; border-radius: 10px; overflow-x: auto; font-size: 13px; line-height: 1.6; margin: 12px 0 20px; font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace; }
+  pre .comment { color: #74b9ff; }
+  pre .keyword { color: #e17055; }
+  pre .string { color: #55efc4; }
+  pre .type { color: #ffeaa7; }
+  .card { background: var(--<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>器材设备借用系统 — 全栈架构方案</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --text-tertiary: #b2bec3;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e74c3c;
+    --info: #0984e3;
+    --border: #e9ecef;
+    --code-bg: #1e272e;
+    --code-text: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; margin-bottom: 8px; }
+  h1 .subtitle { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+  h2 { font-size: 24px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+  h2 .num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  .hero { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; padding: 32px 40px; border-radius: 16px; margin-bottom: 32px; }
+  .hero h1 { color: #fff; margin-bottom: 12px; }
+  .hero p { color: rgba(255,255,255,0.9); }
+  .tech-stack { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .tech-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; background: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  th { background: #f1f3f5; padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbfc; }
+  .type-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .type-PK { background: #fff3cd; color: #856404; }
+  .type-FK { background: #d1ecf1; color: #0c5460; }
+  .type-idx { background: #d4edda; color: #155724; }
+  .type-req { background: #f8d7da; color: #721c24; }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 20px; border-radius: 10px; overflow-x: auto; font-size: 13px; line-height: 1.6; margin: 12px 0 20px; font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace; }
+  pre .comment { color: #74b9ff; }
+  pre .keyword { color: #e17055; }
+  pre .string { color: #55efc4; }
+  pre .type { color: #ffeaa7; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin: 12px 0 20px;

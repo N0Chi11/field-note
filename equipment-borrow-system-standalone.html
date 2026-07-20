@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新媒体中心 器材设备借用系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F5F4EE;
+  --bg-card: #FFFFFF;
+  --bg-sidebar: #EEEDE5;
+  --bg-hover: #E8E6DD;
+  --bg-input: #FAF9F5;
+  --accent: #D97757;
+  --accent-hover: #C4663D;
+  --accent-light: #F9E8E0;
+  --accent-bg: #FDF4F0;
+  --accent-gradient: linear-gradient(135deg, #D97757, #C4663D);
+  --text: #2D2A26;
+  --text-secondary: #6B6A63;
+  --text-tertiary: #A09E95;
+  --border: #E0DED5;
+  --border-light: #ECEAE2;
+  --success: #4A8B5C;
+  --success-bg: #EAF3EC;
+  --warning: #B8862B;
+  --warning-bg: #F7F0E0;
+  --danger: #C25B5B;
+  --danger-bg: #F8EAEA;
+  --info: #4A7CB5;
+  --info-bg: #EAF0F8;
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.04);
+  --shadow-accent: 0 4px 12px rgba(217,119,87,0.2);
+  --font: "Source Serif 4", Georgia, "Times New Roman", "Songti SC", "STSong", serif;
+  --font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideInLeft { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+@keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+/* Login */
+.login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(-45deg, #F5F4EE, #EEEDE5, #FDF4F0, #F0EDE5, #F5F4EE); background-size: 400% 400%; animation: gradientShift 20s ease infinite; padding: 20px; position: relative; }
+.login-page::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(circle at 20% 30%, rgba(217,119,87,0.04) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(74,124,181,0.03) 0%, transparent 50%); pointer-events: none; }
+.login-card { background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.6); border-radius: var(--radius-lg); padding: 44px; width: 100%; max-width: 420px; box-shadow: var(--shadow-lg); animation: scaleIn 0.4s ease; position: relative; z-index: 1; }
+.login-logo { text-align: center; margin-bottom: 28px; }
+.login-logo-icon { width: 56px; height: 56px; background: var(--accent-gradient); border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 12px; box-shadow: var(--shadow-accent); }
+.login-logo-text { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+.login-logo-sub { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+.login-tabs { display: flex; gap: 4px; background: var(--bg-input); border-radius: var(--radius); padding: 4px; margin-bottom: 24px; }
+.login-tabs button { flex: 1; padding: 10px; border: none; background: transparent; border-radius: var(--radius-sm); font-size: 13px; color: var(--text-secondary); cursor: pointer; transition: all var(--transition); font-family: var(--font-ui); font-weight: 500; }
+.login-tabs button.active { background: var(--bg-card); color: var(--text); box-shadow: var(--shadow); }
+.login-hint { font-size: 12px; color: var(--text-tertiary); text-align: center; margin-top: 16px; line-height: 1.6; }
+
+/* Layout */
+.app-layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; height: 100vh; overflow-y: auto; z-index: 100; animation: slideInLeft 0.3s ease; }
+.sidebar-header { padding: 22px 22px 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border-light); }
+.logo-icon { width: 36px; height: 36px; background: var(--accent-gradient); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: var(--shadow-accent); flex-shrink: 0; }
+.logo-text { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.2px; }
+.logo-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
+.sidebar-nav { flex: 1; padding: 10px 12px; }
+.nav-section-title { font-size: 11px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.6px; padding: 16px 10px 6px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); color: var(--text-secondary); cursor: pointer; transition: all 0.15s; font-size: 14px; text-decoration: none; margin-bottom: 2px; font-weight: 500; position: relative; }
+.nav-item:hover { background: var(--bg-hover); color: var(--text); }
+.nav-item.active { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
+.nav-item.active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 60%; background: var(--accent); border-radius: 2px; }
+.nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-badge { margin-left: auto; background: var(--accent); color: white; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 10px; min-width: 20px; text-align: center; }
+.sidebar-footer { padding: 16px; border-top: 1px solid var(--border-light); }
+.user-info { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.user-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--accent-gradient); color: white; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; flex-shrink: 0; box-shadow: var(--shadow-accent); }
+.user-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.user-id { font-size: 12px; color: var(--text-tertiary); }
+.user-role { font-size: 10px; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.logout-btn { width: 100%; padding: 9px; border: 1px solid var(--border); background: var(--bg-card); border-radius: var(--radius-sm); color: var(--text-secondary); cursor: pointer; font-size: 13px; font-family: var(--font-ui); font-weight: 500; transition: all var(--transition); }
+.logout-btn:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
+.main-content { flex: 1; margin-left: 260px; padding: 36px 44px; max-width: 100%; overflow-x: hidden; animation: fadeIn 0.3s ease; }
+
+/* Page Header */
+.page-header { margin-bottom: 28px; animation: slideUp 0.3s ease; }
+.page-header h1 { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 6px; letter-spacing: -0.4px; }
+.page-header p { font-size: 14px; color: var(--text-secondary); }
+
+/* Stats */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 28px; }
+.stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); position: relative; overflow: hidden; transition: all var(--transition); }
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.stat-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.stat-card.stat-pending::before { background: var(--warning); }
+.stat-card.stat-borrowing::before { background: var(--accent); }
+.stat-card.stat-return::before { background: var(--info); }
+.stat-card.stat-total::before { background: var(--text-tertiary); }
+.stat-card.stat-active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent), var(--shadow-md); transform: translateY(-2px); }
+.stat-card.stat-active::after { content: '✓'; position: absolute; top: 8px; right: 10px; font-size: 14px; color: var(--accent); font-weight: 700; }
+.stat-icon { font-size: 20px; margin-bottom: 6px; }
+.stat-value { font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+.stat-label { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+
+/* Filter */
+.filter-tabs { display: flex; gap: 6px; margin-top: 18px; flex-wrap: wrap; }
+.filter-tab { padding: 7px 16px; border: 1px solid var(--border); background: var(--bg-card); border-radius: 20px; font-size: 13px; color: var(--text-secondary); cursor: pointer; transition: all var(--transition); font-family: var(--font-ui); font-weight: 500; }
+.filter-tab:hover { background: var(--bg-hover); border-color: var(--text-tertiary); }
+.filter-tab.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: var(--shadow-accent); }
+
+/* Forms */
+.form-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; max-width: 620px; box-shadow: var(--shadow); animation: slideUp 0.3s ease; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 7px; }
+.form-group .label-hint { font-size: 12px; color: var(--text-tertiary); font-weight: 400; margin-left: 6px; }
+input[type="text"], input[type="password"], input[type="datetime-local"], input[type="date"], input[type="email"], select, textarea { width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-input); font-size: 14px; color: var(--text); font-family: var(--font-ui); transition: all var(--transition); }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); background: var(--bg-card); box-shadow: 0 0 0 3px var(--accent-light); }
+input[readonly] { background: var(--bg-hover); color: var(--text-secondary); cursor: default; border-color: var(--border-light); }
+textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+select { cursor: pointer; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* Buttons */
+.btn { padding: 11px 22px; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: var(--font-ui); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; white-space: nowrap; }
+.btn-primary { background: var(--accent-gradient); color: white; box-shadow: var(--shadow-accent); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(217,119,87,0.3); }
+.btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--bg-hover); border-color: var(--text-tertiary); }
+.btn-success { background: linear-gradient(135deg, #4A8B5C, #3A7A4C); color: white; box-shadow: 0 2px 8px rgba(74,139,92,0.2); }
+.btn-success:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(74,139,92,0.3); }
+.btn-danger { background: linear-gradient(135deg, #C25B5B, #A84848); color: white; box-shadow: 0 2px 8px rgba(194,91,91,0.2); }
+.btn-danger:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(194,91,91,0.3); }
+.btn-sm { padding: 7px 14px; font-size: 13px; }
+.btn-block { width: 100%; justify-content: center; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important; }
+
+/* Equipment */
+.equipment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.equipment-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: var(--shadow); animation: slideUp 0.4s ease backwards; }
+.equipment-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--accent-light); }
+.equipment-image { width: 100%; height: 190px; background: linear-gradient(135deg, var(--bg-input), var(--bg-hover)); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+.equipment-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+.equipment-card:hover .equipment-image img { transform: scale(1.05); }
+.equipment-placeholder { font-size: 52px; filter: grayscale(0.2); }
+.equipment-status-tag { position: absolute; top: 10px; right: 10px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; backdrop-filter: blur(8px); }
+.equipment-status-tag.available { background: rgba(74,139,92,0.9); color: white; }
+.equipment-status-tag.borrowed { background: rgba(217,119,87,0.9); color: white; }
+.equipment-status-tag.repair { background: rgba(194,91,91,0.9); color: white; }
+.equipment-info { padding: 18px; }
+.equipment-code { font-size: 12px; color: var(--accent); font-weight: 700; margin-bottom: 4px; letter-spacing: 0.5px; }
+.equipment-name { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.equipment-category { font-size: 12px; color: var(--text-tertiary); }
+.equipment-notes { font-size: 12px; color: var(--warning); background: var(--warning-bg); padding: 8px 12px; border-radius: var(--radius-sm); margin-top: 10px; line-height: 1.5; border-left: 3px solid var(--warning); }
+.equipment-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+
+/* Status Badges */
+.status-badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; }
+.urgency-tag { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-left: 8px; animation: pulse 2s infinite; }
+.urgency-tag.overdue { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger); }
+.urgency-tag.urgent { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning); }
+.urgency-tag.soon { background: var(--info-bg); color: var(--info); border: 1px solid var(--info); }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+.status-pending { background: var(--warning-bg); color: var(--warning); }
+.status-pending::before { background: var(--warning); animation: pulse 2s infinite; }
+.status-approved { background: var(--info-bg); color: var(--info); }
+.status-approved::before { background: var(--info); }
+.status-borrowing { background: var(--accent-light); color: var(--accent); }
+.status-borrowing::before { background: var(--accent); animation: pulse 2s infinite; }
+.status-return-pending { background: var(--warning-bg); color: var(--warning); }
+.status-return-pending::before { background: var(--warning); animation: pulse 2s infinite; }
+.status-returned { background: var(--success-bg); color: var(--success); }
+.status-returned::before { background: var(--success); }
+.status-rejected { background: var(--danger-bg); color: var(--danger); }
+.status-rejected::before { background: var(--danger); }
+
+/* Request Cards */
+.request-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+.request-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; box-shadow: var(--shadow); transition: all var(--transition); animation: slideUp 0.3s ease backwards; }
+.request-card:hover { box-shadow: var(--shadow-md); border-color: var(--border-light); }
+.request-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.work-order { font-size: 14px; font-weight: 700; color: var(--accent); letter-spacing: 0.3px; }
+.request-body { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; font-size: 13px; }
+.request-body .label { color: var(--text-tertiary); font-size: 12px; display: block; margin-bottom: 2px; }
+.request-body .value { color: var(--text); font-weight: 500; }
+.request-body .full { grid-column: 1 / -1; margin-top: 6px; }
+.request-actions { display: flex; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-light); flex-wrap: wrap; }
+.conflict-warning { background: var(--danger-bg); border: 1px solid var(--danger); border-left: 4px solid var(--danger); border-radius: var(--radius-sm); padding: 12px 16px; font-size: 13px; color: var(--danger); margin-top: 10px; display: none; font-weight: 500; }
+.conflict-warning.show { display: block; animation: slideUp 0.2s ease; }
+
+/* Category Section */
+.category-section { margin-bottom: 32px; animation: slideUp 0.3s ease; }
+.category-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding: 10px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); }
+.category-icon { font-size: 20px; }
+.category-name { font-size: 16px; font-weight: 700; color: var(--text); flex: 1; }
+.category-count { font-size: 12px; color: var(--text-tertiary); background: var(--bg-input); padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+
+/* Profile */
+.profile-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; max-width: 620px; box-shadow: var(--shadow); animation: slideUp 0.3s ease; }
+.profile-header { display: flex; align-items: center; gap: 20px; padding-bottom: 24px; border-bottom: 1px solid var(--border-light); margin-bottom: 24px; }
+.profile-avatar-large { width: 72px; height: 72px; border-radius: 50%; background: var(--accent-gradient); color: white; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 700; flex-shrink: 0; box-shadow: var(--shadow-accent); }
+.profile-name { font-size: 22px; font-weight: 700; color: var(--text); }
+.profile-id { font-size: 14px; color: var(--text-tertiary); margin-top: 2px; }
+.profile-role-badge { display: inline-block; margin-top: 8px; padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; background: var(--accent-bg); color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+.profile-role-badge.user { background: var(--info-bg); color: var(--info); }
+.profile-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.profile-stat { text-align: center; padding: 16px 8px; background: var(--bg-input); border-radius: var(--radius); }
+.profile-stat-value { font-size: 26px; font-weight: 700; color: var(--text); }
+.profile-stat-label { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+.profile-actions { display: flex; gap: 12px; }
+.profile-actions .btn { flex: 1; justify-content: center; }
+
+/* Welcome Modal */
+.welcome-modal { max-width: 540px; text-align: center; }
+.welcome-icon { font-size: 48px; margin-bottom: 12px; animation: pulse 2s infinite; }
+.welcome-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+.welcome-body { text-align: left; margin-bottom: 24px; }
+.welcome-item { display: flex; gap: 12px; margin-bottom: 16px; padding: 16px; background: var(--bg-input); border-radius: var(--radius); border-left: 4px solid var(--accent); }
+.welcome-num { width: 28px; height: 28px; background: var(--accent-gradient); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.welcome-text { font-size: 14px; color: var(--text); line-height: 1.8; }
+.welcome-text strong { color: var(--accent); }
+
+/* Memory Card Selection */
+.memory-card-list { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; }
+.memory-card-option { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border: 2px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: all var(--transition); background: var(--bg-input); }
+.memory-card-option:hover { border-color: var(--accent-light); background: var(--accent-bg); }
+.memory-card-option.checked { border-color: var(--accent); background: var(--accent-bg); }
+.memory-card-option.disabled { opacity: 0.5; cursor: not-allowed; }
+.memory-card-option input[type="checkbox"] { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.memory-card-content { flex: 1; }
+.memory-card-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.memory-card-id { font-size: 12px; color: var(--accent); font-weight: 600; }
+.memory-card-notes { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+.memory-card-borrowed { display: inline-block; font-size: 11px; color: var(--danger); background: var(--danger-bg); padding: 2px 8px; border-radius: 10px; margin-top: 4px; font-weight: 600; }
+
+/* Precautions */
+.precautions-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 36px; max-width: 820px; box-shadow: var(--shadow); animation: slideUp 0.3s ease; }
+.precautions-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+.precautions-card > p { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; }
+.precaution-item { display: flex; gap: 16px; margin-bottom: 20px; padding: 20px; background: var(--bg-input); border-radius: var(--radius); border-left: 4px solid var(--accent); transition: all var(--transition); }
+.precaution-item:hover { background: var(--accent-bg); }
+.precaution-num { width: 32px; height: 32px; background: var(--accent-gradient); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; box-shadow: var(--shadow-accent); }
+.precaution-text { font-size: 14px; color: var(--text); line-height: 1.9; }
+.precaution-text strong { color: var(--accent); font-weight: 600; }
+
+/* Modal */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(45,42,38,0.4); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; animation: fadeIn 0.2s ease; }
+.modal { background: var(--bg-card); border-radius: var(--radius-lg); padding: 30px; width: 100%; max-width: 520px; box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto; animation: scaleIn 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+.modal-title { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; }
+.modal-close { width: 34px; height: 34px; border: none; background: var(--bg-input); border-radius: var(--radius-sm); cursor: pointer; font-size: 20px; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; transition: all var(--transition); line-height: 1; }
+.modal-close:hover { background: var(--danger-bg); color: var(--danger); }
+
+/* Image Upload */
+.image-upload-label { display: block; border: 2px dashed var(--border); border-radius: var(--radius); padding: 28px; text-align: center; cursor: pointer; transition: all var(--transition); background: var(--bg-input); position: relative; overflow: hidden; }
+.image-upload-label:hover { border-color: var(--accent); background: var(--accent-bg); }
+.image-upload-label.has-image { padding: 0; border-style: solid; border-color: var(--border); }
+.image-upload-label img { width: 100%; border-radius: var(--radius-sm); max-height: 220px; object-fit: cover; }
+.image-upload-text { font-size: 13px; color: var(--text-tertiary); }
+.image-upload-text .icon { font-size: 32px; display: block; margin-bottom: 8px; }
+
+/* Toast */
+.toast { position: fixed; bottom: 28px; right: 28px; background: var(--text); color: white; padding: 14px 22px; border-radius: var(--radius); font-size: 14px; font-weight: 500; box-shadow: var(--shadow-lg); z-index: 2000; animation: toastIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); max-width: 380px; display: flex; align-items: center; gap: 8px; }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+.toast.warning { background: var(--warning); }
+.toast::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.6); flex-shrink: 0; }
+@keyframes toastIn { from { transform: translateY(20px) scale(0.95); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+
+/* Empty State */
+.empty-state { text-align: center; padding: 80px 20px; color: var(--text-tertiary); animation: fadeIn 0.4s ease; }
+.empty-state .icon { font-size: 56px; margin-bottom: 16px; opacity: 0.5; }
+.empty-state p { font-size: 15px; font-weight: 500; }
+.empty-state .sub { font-size: 13px; margin-top: 4px; opacity: 0.7; }
+.log-list { display: flex; flex-direction: column; gap: 8px; }
+.log-item { display: flex; gap: 14px; padding: 14px 16px; background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); animation: fadeIn 0.3s ease; transition: transform 0.15s; }
+.log-item:hover { transform: translateX(4px); }
+.log-icon { width: 40px; height: 40px; min-width: 40px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.log-content { flex: 1; min-width: 0; }
+.log-action { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.log-detail { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.5; word-break: break-all; }
+.log-meta { font-size: 12px; color: var(--text-tertiary); display: flex; gap: 6px; align-items: center; }
+.overview-toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; }
+.overview-toolbar .search-input { flex: 1; padding: 8px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: var(--font-ui); background: var(--bg-input); color: var(--text-primary); transition: border-color 0.15s; }
+.overview-toolbar .search-input:focus { outline: none; border-color: var(--accent); }
+
+/* Return Photo */
+.return-photo-display { border-radius: var(--radius-sm); max-width: 100%; max-height: 320px; object-fit: contain; border: 1px solid var(--border); margin-top: 8px; display: block; }
+
+/* Gantt */
+.gantt-wrapper { margin-bottom: 20px; }
+.gantt-toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.gantt-range-btn { padding: 6px 14px; border: 1px solid var(--border); background: var(--bg-card); border-radius: 20px; font-size: 13px; color: var(--text-secondary); cursor: pointer; font-family: var(--font-ui); font-weight: 500; transition: all var(--transition); }
+.gantt-range-btn:hover { background: var(--bg-hover); }
+.gantt-range-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+.gantt-container { background: var(--bg-input); border-radius: var(--radius); padding: 20px; overflow-x: auto; border: 1px solid var(--border); }
+.gantt-chart { min-width: 600px; position: relative; }
+.gantt-header { display: flex; border-bottom: 2px solid var(--border); padding-bottom: 8px; margin-bottom: 10px; position: sticky; top: 0; z-index: 2; background: var(--bg-input); }
+.gantt-header-label { flex-shrink: 0; width: 140px; font-size: 12px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; padding-left: 4px; }
+.gantt-header-scale { flex: 1; display: flex; position: relative; }
+.gantt-header-tick { position: absolute; top: 0; font-size: 11px; color: var(--text-tertiary); font-family: var(--font-ui); white-space: nowrap; transform: translateX(-50%); }
+.gantt-row { display: flex; align-items: center; height: 44px; margin-bottom: 4px; position: relative; }
+.gantt-row-label { flex-shrink: 0; width: 140px; font-size: 13px; font-weight: 500; color: var(--text); padding-left: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gantt-row-track { flex: 1; height: 32px; background: var(--bg-card); border-radius: var(--radius-sm); position: relative; border: 1px solid var(--border-light); overflow: hidden; }
+.gantt-grid-line { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--border-light); z-index: 0; }
+.gantt-grid-line.today { width: 2px; background: var(--danger); z-index: 1; opacity: 0.5; }
+.gantt-today-label { position: absolute; top: -22px; font-size: 10px; color: var(--danger); font-weight: 600; font-family: var(--font-ui); transform: translateX(-50%); white-space: nowrap; }
+.gantt-bar { position: absolute; top: 4px; bottom: 4px; border-radius: 6px; display: flex; align-items: center; padding: 0 8px; font-size: 11px; font-weight: 600; color: white; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; transition: all 0.15s; z-index: 2; font-family: var(--font-ui); }
+.gantt-bar:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+.gantt-bar.status-borrowing { background: linear-gradient(135deg, #D97757, #C4663D); }
+.gantt-bar.status-approved { background: linear-gradient(135deg, #4A7CB5, #3A6CA5); }
+.gantt-bar.status-pending { background: linear-gradient(135deg, #B8862B, #A07622); opacity: 0.8; }
+.gantt-bar.status-returned { background: linear-gradient(135deg, #4A8B5C, #3A7A4C); opacity: 0.65; }
+.gantt-bar.status-return-pending { background: linear-gradient(135deg, #B8862B, #A07622); }
+.gantt-legend { display: flex; gap: 14px; margin-top: 14px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid var(--border-light); }
+.gantt-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); font-family: var(--font-ui); }
+.gantt-legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.gantt-history-list { margin-top: 20px; border-top: 1px solid var(--border-light); padding-top: 16px; }
+.gantt-history-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+.gantt-history-item { display: flex; gap: 10px; padding: 10px 14px; background: var(--bg-input); border-radius: var(--radius-sm); margin-bottom: 6px; font-size: 13px; line-height: 1.6; }
+
+/* Timeline status */
+.timeline-header { display: flex; gap: 16px; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border-light); margin-bottom: 20px; }
+.timeline-header-icon { width: 56px; height: 56px; border-radius: var(--radius); background: linear-gradient(135deg, var(--bg-input), var(--bg-hover)); display: flex; align-items: center; justify-content: center; font-size: 28px; overflow: hidden; flex-shrink: 0; }
+.timeline-header-icon img { width: 100%; height: 100%; object-fit: cover; }
+.timeline-header-info h3 { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+.timeline-header-info p { font-size: 13px; color: var(--text-tertiary); }
+.timeline-status-card { background: var(--bg-input); border-radius: var(--radius); padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+.timeline-status-card.available { border-left: 4px solid var(--success); }
+.timeline-status-card.borrowed { border-left: 4px solid var(--accent); }
+.timeline-status-text { font-size: 14px; }
+.timeline-status-text strong { color: var(--text); }
+.timeline-status-text .sub { font-size: 12px; color: var(--text-tertiary); display: block; margin-top: 2px; }
+
+/* Responsive */
+.mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--bg-card); border-top: 1px solid var(--border); z-index: 50; justify-content: space-around; align-items: center; box-shadow: 0 -2px 12px rgba(0,0,0,0.06); padding-bottom: env(safe-area-inset-bottom); }
+.mobile-nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 12px; color: var(--text-tertiary); cursor: pointer; font-size: 11px; transition: color 0.15s; position: relative; }
+.mobile-nav-item.active { color: var(--accent); }
+.mobile-nav-icon { font-size: 20px; }
+.mobile-nav-badge { position: absolute; top: 4px; right: 6px; background: var(--danger); color: #fff; font-size: 10px; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0 4px; font-weight: 600; }
+@media (max-width: 900px) {
+  .sidebar { width: 0; overflow: hidden; }
+  .sidebar.expanded { width: 260px; box-shadow: var(--shadow-lg); position: fixed; z-index: 100; height: 100vh; }
+  .sidebar:not(.expanded) .logo-text, .sidebar:not(.expanded) .logo-sub, .sidebar:not(.expanded) .nav-item span:not(.nav-icon), .sidebar:not(.expanded) .nav-section-title, .sidebar:not(.expanded) .user-info > div:not(.user-avatar), .sidebar:not(.expanded) .user-role, .sidebar:not(.expanded) .logout-btn span, .sidebar:not(.expanded) .nav-badge { display: none; }
+  .sidebar-toggle { display: none !important; }
+  .main-content { margin-left: 0; padding: 16px 16px 80px; }
+  .request-body { grid-template-columns: 1fr; }
+  .equipment-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .login-card { padding: 32px 24px; }
+  .page-header h1 { font-size: 22px; }
+  .mobile-nav { display: flex !important; }
+  .filter-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .filter-tab { white-space: nowrap; }
+  .overview-toolbar { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ========== A107 新媒体中心 器材设备借用系统 ========== */
+const store = {
+  get(key, def) { try { const v = localStorage.getItem(key); if (!v) return def; const parsed = JSON.parse(v); return (parsed === null || parsed === undefined) ? def : parsed; } catch { return def; } },
+  set(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch(e) { showToast('存储空间已满，请导出数据后清理旧记录', 'error'); console.error('Storage error:', e); return false; } }
+};
+
+const ADMINS = [
+  { name: '范雨欣', id: 'ADMIN_FYX' },
+  { name: '黄禹博', id: 'ADMIN_HYB' },
+  { name: '陈玥杉', id: 'ADMIN_CYS' },
+  { name: '牛婉慈', id: 'ADMIN_NWC' }
+];
+const ADMIN_PASSWORD = String.fromCharCode(52,48,116,104,120,109,116,122,120);
+const STATUS_TEXT = { 'pending': '待审核', 'approved': '已通过', 'borrowing': '借用中', 'return-pending': '待归还确认', 'returned': '已归还', 'rejected': '已拒绝' };
+const ACTIVE_STATUSES = ['pending', 'approved', 'borrowing', 'return-pending'];
+const STATUS_TRANSITIONS = {
+  'pending': ['approved', 'rejected'],
+  'approved': ['borrowing'],
+  'borrowing': ['return-pending'],
+  'return-pending': ['returned'],
+  'returned': [],
+  'rejected': []
+};
+function validateTransition(from, to) { if (!STATUS_TRANSITIONS[from]) return false; return STATUS_TRANSITIONS[from].includes(to); }
+const CONFLICT_BUFFER_MS = 30 * 60 * 1000; /* 30分钟缓冲 */
+function esc(str) { if (str === null || str === undefined) return ''; return String(str).replace(/[&<>"']/g, function(c) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+function toTs(dateStr) { if (!dateStr) return 0; const d = new Date(dateStr); return isNaN(d.getTime()) ? 0 : d.getTime(); }
+function checkConflict(equipmentId, borrowTime, returnTime, excludeId) {
+  if (!equipmentId || !borrowTime || !returnTime) return [];
+  const requests = store.get('eb_requests', []);
+  const bStart = toTs(borrowTime) - CONFLICT_BUFFER_MS;
+  const bEnd = toTs(returnTime) + CONFLICT_BUFFER_MS;
+  return requests.filter(function(r) {
+    return r.equipmentId === equipmentId && ACTIVE_STATUSES.includes(r.status) && r.id !== excludeId &&
+      bStart < toTs(r.returnTime) && bEnd > toTs(r.borrowTime);
+  });
+}
+function checkConflictDetailed(equipmentId, borrowTime, returnTime, excludeId) {
+  if (!equipmentId || !borrowTime || !returnTime) return { hard: [], soft: [] };
+  const requests = store.get('eb_requests', []);
+  const bStart = toTs(borrowTime) - CONFLICT_BUFFER_MS;
+  const bEnd = toTs(returnTime) + CONFLICT_BUFFER_MS;
+  const conflicts = requests.filter(function(r) {
+    return r.equipmentId === equipmentId && ACTIVE_STATUSES.includes(r.status) && r.id !== excludeId &&
+      bStart < toTs(r.returnTime) && bEnd > toTs(r.borrowTime);
+  });
+  return {
+    hard: conflicts.filter(function(r) { return r.status === 'approved' || r.status === 'borrowing'; }),
+    soft: conflicts.filter(function(r) { return r.status === 'pending' || r.status === 'return-pending'; })
+  };
+}
+const SCHEMA_VERSION = 1;
+function computeChecksum(data) {
+  const str = JSON.stringify(data, Object.keys(data).sort());
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) { hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0; }
+  return 'cs_' + Math.abs(hash).toString(36);
+}
+function validateAndRepair(key, schemaCheck, fallback) {
+  const raw = store.get(key, null);
+  if (!raw) return fallback;
+  if (Array.isArray(raw)) return raw;
+  if (!schemaCheck(raw)) { console.warn('Schema check failed for ' + key + ', using fallback'); return fallback; }
+  return raw;
+}
+
+const SEED_EQUIPMENT = [
+  { id: 'EQ001', name: '索尼A6400', category: '相机', icon: '📷', image: null, notes: '配SELP18105G镜头、SD卡*1', status: 'available' },
+  { id: 'EQ002', name: '大疆如影SC-2', category: '稳定器', icon: '🎯', image: null, notes: '配快装板', status: 'available' },
+  { id: 'EQ003', name: '无线领夹麦克风01', category: '麦克风', icon: '🎙️', image: null, notes: '接收器发射器各一个，配盒子、线材、说明书', status: 'available' },
+  { id: 'EQ004', name: '无线领夹麦克风02', category: '麦克风', icon: '🎙️', image: null, notes: '接收器发射器各一个，配盒子、线材、说明书', status: 'available' },
+  { id: 'EQ005', name: '三脚架(大-01)', category: '三脚架', icon: '📐', image: null, notes: '配快装板', status: 'available' },
+  { id: 'EQ006', name: '三脚架(大-02)', category: '三脚架', icon: '📐', image: null, notes: '配快装板（损坏）', status: 'repair' },
+  { id: 'EQ007', name: '尼康D7000_1', category: '相机', icon: '📷', image: null, notes: '配(有遮光罩)AF-S DX 尼克尔 18-105mm f/3.5-5.6G ED VR镜头', status: 'available' },
+  { id: 'EQ008', name: '尼康D7000_2', category: '相机', icon: '📷', image: null, notes: '配(无遮光罩)AF-S DX 尼克尔 18-105mm f/3.5-5.6G ED VR镜头', status: 'available' },
+  { id: 'EQ009', name: '索尼FDR-AXP55', category: '相机', icon: '🎥', image: null, notes: 'SD卡*1', status: 'available' },
+  { id: 'EQ010', name: '斯威声BM-8无线麦克风', category: '麦克风', icon: '🎙️', image: null, notes: '发射器接收器各一(有一个发射器已损坏)，配盒子、线材、监听耳机', status: 'available' },
+  { id: 'EQ011', name: 'DJI Pocket3 01', category: '相机', icon: '🎥', image: null, notes: '三角架、无线麦克风+麦克风套、充电线', status: 'available' },
+  { id: 'EQ012', name: '斯丹德RGB-B320手持补光灯', category: '灯具', icon: '💡', image: null, notes: '', status: 'available' },
+  { id: 'EQ013', name: '反光板01', category: '灯具', icon: '🪞', image: null, notes: '便携袋', status: 'available' },
+  { id: 'EQ014', name: 'DJI Pocket3 02', category: '相机', icon: '🎥', image: null, notes: '包', status: 'available' },
+  { id: 'EQ015', name: '三脚架（大）03', category: '三脚架', icon: '📐', image: null, notes: '配快装板', status: 'available' },
+  { id: 'EQ016', name: '索尼a6000', category: '相机', icon: '📷', image: null, notes: '2025.1月遗失', status: 'repair' }
+];
+
+const SEED_CARDS = [
+  { id: 'SD001', name: 'SD卡 32GB 金士顿', status: 'borrowed', notes: '配EQ001' },
+  { id: 'SD002', name: 'SD卡 64GB 闪迪', status: 'available', notes: '' },
+  { id: 'SD003', name: 'SD卡 32GB 三星', status: 'available', notes: '' },
+  { id: 'SD004', name: 'MicroSD 64GB', status: 'available', notes: '配Pocket3' }
+];
+
+const SEED_REQUESTS = [
+  { id: 'R_SEED_1', workOrderNo: 'WO20260620001', borrowerName: '李明', borrowerId: '2023001', equipmentId: 'EQ001', borrowTime: '2026-06-20T10:00', returnTime: '2026-06-20T18:00', reason: '毕业设计视频拍摄', status: 'returned', approverName: '范雨欣', adminComment: '注意检查电池', returnPhoto: null, createdAt: '2026-06-19T15:00:00.000Z' },
+  { id: 'R_SEED_2', workOrderNo: 'WO20260628001', borrowerName: '王芳', borrowerId: '2024005', equipmentId: 'EQ007', borrowTime: '2026-06-28T09:00', returnTime: '2026-06-28T18:00', reason: '社团活动拍摄', status: 'returned', approverName: '黄禹博', adminComment: '', returnPhoto: null, createdAt: '2026-06-27T16:00:00.000Z' },
+  { id: 'R_SEED_3', workOrderNo: 'WO20260702001', borrowerName: '张伟', borrowerId: '2024010', equipmentId: 'EQ001', borrowTime: '2026-07-02T10:00', returnTime: '2026-07-02T18:00', reason: '课程作业拍摄', status: 'borrowing', approverName: '陈玥杉', adminComment: '已配SD卡', cardId: 'SD001', returnPhoto: null, createdAt: '2026-07-01T09:00:00.000Z' },
+  { id: 'R_SEED_4', workOrderNo: 'WO20260703001', borrowerName: '刘洋', borrowerId: '2024015', equipmentId: 'EQ002', borrowTime: '2026-07-05T10:00', returnTime: '2026-07-05T18:00', reason: '采访拍摄稳定画面', status: 'pending', adminComment: '', returnPhoto: null, createdAt: '2026-07-03T08:00:00.000Z' },
+  { id: 'R_SEED_5', workOrderNo: 'WO20260703002', borrowerName: '陈静', borrowerId: '2023020', equipmentId: 'EQ001', borrowTime: '2026-07-08T10:00', returnTime: '2026-07-08T18:00', reason: '微电影取景拍摄', status: 'pending', adminComment: '', returnPhoto: null, createdAt: '2026-07-03T10:00:00.000Z' }
+];
+
+let state = {
+  view: 'equipment', user: null, loginTab: 'user', filter: 'all',
+  modal: null, modalData: null, timelineEquipmentId: null,
+  showWelcome: false, approvalData: { id: '', comment: '' }, rejectData: { id: '', comment: '' },
+  ganttRange: 'month',
+  borrowForm: { equipmentId: '', borrowTime: '', returnTime: '', reason: '' },
+  equipmentImagePreview: null, returnPhotoPreview: null, editingEquipmentId: null,
+  searchQuery: '', photoViewUrl: null,
+  pickupData: { id: '', cardId: '' }, editingCardId: null,
+  adminApprovalFilter: 'pending', logFilter: 'all'
+};
+
+function fmt(dateStr) { if (!dateStr) return '-'; const d = new Date(dateStr); return d.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }); }
+function generateWorkOrder() { const now = new Date(); const date = now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0'); const requests = store.get('eb_requests', []); let count = requests.filter(r => r.workOrderNo && r.workOrderNo.includes(date)).length + 1; let wo; do { wo = 'WO' + date + String(count).padStart(3, '0') + String(Math.floor(Math.random() * 36)).toString(36); count++; } while (requests.find(r => r.workOrderNo === wo)); return wo; }
+function generateRequestId() { return 'R' + Date.now() + Math.floor(Math.random() * 1000); }
+function getEquipmentById(id) { return store.get('eb_equipment', []).find(e => e.id === id); }
+function getEquipmentName(id) { const eq = getEquipmentById(id); return eq ? eq.id + ' - ' + eq.name : id; }
+function getCardById(id) { return store.get('eb_cards', []).find(c => c.id === id); }
+function getCardName(id) { const c = getCardById(id); return c ? c.id + ' - ' + c.name : id; }
+function addLog(action, detail, targetId) { var logs = store.get('eb_logs', []); logs.unshift({ id: 'L' + Date.now() + Math.floor(Math.random()*1000), time: new Date().toISOString(), actorName: state.user ? state.user.name : '系统', actorId: state.user ? (state.user.studentId || state.user.id) : 'system', actorIsAdmin: isAdmin(), action: action, detail: detail, targetId: targetId || '' }); if (logs.length > 500) logs = logs.slice(0, 500); store.set('eb_logs', logs); }
+function fmtLogTime(iso) { var d = new Date(iso); if (isNaN(d.getTime())) return ''; var now = new Date(); var diff = now - d; if (diff < 60000) return '刚刚'; if (diff < 3600000) return Math.floor(diff/60000) + '分钟前'; if (diff < 86400000) return Math.floor(diff/3600000) + '小时前'; if (diff < 604800000) return Math.floor(diff/86400000) + '天前'; return (d.getMonth()+1) + '.' + d.getDate() + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
+function getInitials(name) { return name ? name.charAt(0).toUpperCase() : '?'; }
+function isEquipmentBorrowed(equipmentId) { const requests = store.get('eb_requests', []); return requests.some(r => r.equipmentId === equipmentId && r.status === 'borrowing'); }
+function getCurrentBorrower(equipmentId) { const requests = store.get('eb_requests', []); return requests.find(r => r.equipmentId === equipmentId && r.status === 'borrowing'); }
+function getReturnUrgencyTag(r) { if (r.status !== 'borrowing') return ''; const now = Date.now(); const returnTs = toTs(r.returnTime); if (isNaN(returnTs)) return ''; const diff = returnTs - now; if (diff < 0) return '<span class="urgency-tag overdue">已逾期 ' + Math.ceil(-diff / 3600000) + ' 小时</span>'; if (diff < 3600000 * 24) return '<span class="urgency-tag urgent">今日到期</span>'; if (diff < 3600000 * 48) return '<span class="urgency-tag soon">明日到期</span>'; return ''; }
+function getEquipmentByCategory() { const equipment = store.get('eb_equipment', []); const groups = {}; const order = []; equipment.forEach(e => { if (!groups[e.category]) { groups[e.category] = []; order.push(e.category); } groups[e.category].push(e); }); return order.map(cat => ({ category: cat, items: groups[cat] })); }
+function nowLocalISO() { const n = new Date(); const tz = n.getTimezoneOffset() * 60000; return new Date(n - tz).toISOString().slice(0, 16); }
+function saveBorrowDraft() { try { const form = document.getElementById('form-borrow'); if (form) { const data = new FormData(form); state.borrowForm = { equipmentId: data.get('equipmentId') || '', borrowTime: data.get('borrowTime') || '', returnTime: data.get('returnTime') || '', reason: data.get('reason') || '' }; } sessionStorage.setItem('eb_borrow_draft', JSON.stringify(state.borrowForm)); } catch {} }
+function loadBorrowDraft() { try { const saved = sessionStorage.getItem('eb_borrow_draft'); if (saved) { state.borrowForm = JSON.parse(saved); } } catch {} }
+function checkStorageUsage() { let total = 0; for (let key in localStorage) { if (localStorage.hasOwnProperty(key)) { try { total += (localStorage[key] || '').length; } catch {} } } const maxBytes = 5 * 1024 * 1024; if (total > maxBytes * 0.8) { showToast('存储空间已使用 ' + Math.round(total / 1024) + 'KB，建议导出数据后清理旧记录', 'warning'); } return total; }
+function exportCSV() { const requests = store.get('eb_requests', []); const equipment = store.get('eb_equipment', []); const cards = store.get('eb_cards', []); const eqName = id => { const e = equipment.find(x => x.id === id); return e ? e.name : id; }; const cardName = id => { const c = cards.find(x => x.id === id); return c ? c.name : ''; }; const rows = [['工单号','借用人','学号','设备','配套内存卡','借用时间','归还时间','借用理由','状态','审批人','审批备注','创建时间']]; requests.forEach(r => { rows.push([r.workOrderNo, r.borrowerName, r.borrowerId, eqName(r.equipmentId), cardName(r.cardId || ''), r.borrowTime, r.returnTime, r.reason, STATUS_TEXT[r.status] || r.status, r.approverName || '', r.adminComment || '', r.createdAt]); }); const csv = '\uFEFF' + rows.map(row => row.map(cell => { const s = String(cell || ''); return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g, '""') + '"' : s; }).join(',')).join('\n'); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = '借用记录_' + new Date().toISOString().slice(0,10) + '.csv'; a.click(); URL.revokeObjectURL(url); showToast('CSV已导出', 'success'); }
+
+function resizeImage(file, maxSize, callback) {
+  const reader = new FileReader();
+  reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); let { width, height } = img; if (width > height) { if (width > maxSize) { height = height * maxSize / width; width = maxSize; } } else { if (height > maxSize) { width = width * maxSize / height; height = maxSize; } } canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height); callback(canvas.toDataURL('image/jpeg', 0.85)); }; img.onerror = function() { showToast('图片加载失败，请重试', 'error'); }; img.src = e.target.result; };
+  reader.onerror = function() { showToast('文件读取失败', 'error'); };
+  reader.readAsDataURL(file);
+}
+function showToast(msg, type) { const toast = document.createElement('div'); toast.className = 'toast ' + (type || ''); toast.textContent = msg; document.body.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; setTimeout(() => toast.remove(), 300); }, 3000); }
+window.handleImageUpload = function(event, type) { const file = event.target.files[0]; if (!file) return; if (!file.type.startsWith('image/')) { showToast('请上传图片文件', 'error'); return; } if (file.size > 10 * 1024 * 1024) { showToast('图片大小不能超过10MB', 'error'); return; } resizeImage(file, type === 'equipment' ? 600 : 800, function(dataUrl) { if (type === 'equipment') state.equipmentImagePreview = dataUrl; else state.returnPhotoPreview = dataUrl; render(); }); };
+
+/* Auth */
+function loginUser(name, studentId) { if (!name || !name.trim() || !studentId || !studentId.trim()) { showToast('请填写完整信息', 'error'); return false; } if (!/^202\d{7}$/.test(studentId.trim())) { showToast('请输入正确的学号', 'error'); return false; } const users = store.get('eb_users', []); let user = users.find(u => u.studentId === studentId.trim()); if (!user) { user = { name: name.trim(), studentId: studentId.trim(), role: 'user' }; users.push(user); store.set('eb_users', users); } else { user.name = name.trim(); store.set('eb_users', users); } state.user = user; store.set('eb_session', user); state.view = 'equipment'; state.showWelcome = !sessionStorage.getItem('eb_welcome_shown'); if (state.showWelcome) sessionStorage.setItem('eb_welcome_shown', '1'); showToast('登录成功', 'success'); return true; }
+function loginAdmin(adminName, password) { if (!adminName || !adminName.trim()) { showToast('请输入管理员姓名', 'error'); return false; } const admin = ADMINS.find(a => a.name === adminName.trim()); if (!admin) { showToast('该管理员不存在，请确认姓名是否正确', 'error'); return false; } if (password !== ADMIN_PASSWORD) { showToast('密码错误', 'error'); return false; } state.user = { name: admin.name, id: admin.id, studentId: admin.id, role: 'admin' }; store.set('eb_session', state.user); state.view = 'admin-approval'; state.showWelcome = !sessionStorage.getItem('eb_welcome_shown'); if (state.showWelcome) sessionStorage.setItem('eb_welcome_shown', '1'); showToast('管理员登录成功', 'success'); return true; }
+function logout() { state.user = null; store.set('eb_session', null); state.view = 'equipment'; }
+function isAdmin() { return state.user && state.user.role === 'admin'; }
+
+/* View: Login */
+function viewLogin() {
+  return '<div class="login-page"><div class="login-card">' +
+    '<div class="login-logo"><div class="login-logo-icon">📋</div><div class="login-logo-text">新媒体中心 器材设备借用系统</div><div class="login-logo-sub">Equipment Borrow System</div></div>' +
+    '<div class="login-tabs"><button class="' + (state.loginTab === 'user' ? 'active' : '') + '" data-action="switch-login-tab" data-tab="user">用户登录</button><button class="' + (state.loginTab === 'admin' ? 'active' : '') + '" data-action="switch-login-tab" data-tab="admin">管理员登录</button></div>' +
+    (state.loginTab === 'user' ?
+      '<form id="form-login"><div class="form-group"><label>姓名</label><input type="text" name="name" placeholder="请输入真实姓名" required autocomplete="off"></div><div class="form-group"><label>学号（账号）</label><input type="text" name="studentId" placeholder="请输入您的学号" required autocomplete="off" pattern="202[0-9]{7}" maxlength="10"></div><button type="submit" class="btn btn-primary btn-block">登录</button></form>' :
+      '<form id="form-admin-login"><div class="form-group"><label>管理员姓名</label><input type="text" name="adminName" placeholder="请输入管理员姓名" required autocomplete="off"></div><div class="form-group"><label>密码</label><input type="password" name="password" placeholder="请输入管理员密码" required autocomplete="off"></div><button type="submit" class="btn btn-primary btn-block">管理员登录</button></form>') +
+    '<div class="login-hint">用户使用学号登录 · 管理员请输入姓名和密码</div>' +
+    '</div></div>';
+}
+
+/* View: Sidebar */
+function viewSidebar() {
+  const u = state.user;
+  const requests = store.get('eb_requests', []);
+  const pendingCount = requests.filter(r => r.status === 'pending').length;
+  const returnCount = requests.filter(r => r.status === 'return-pending').length;
+  const adminNav = isAdmin() ?
+    '<div class="nav-section-title">管理员</div>' +
+    '<a class="nav-item ' + (state.view === 'admin-equipment' ? 'active' : '') + '" data-action="navigate" data-view="admin-equipment" title="设备维护"><span class="nav-icon">⚙️</span><span>设备维护</span></a>' +
+    '<a class="nav-item ' + (state.view === 'admin-approval' ? 'active' : '') + '" data-action="navigate" data-view="admin-approval" title="借用审批"><span class="nav-icon">✅</span><span>借用审批</span>' + (pendingCount > 0 ? '<span class="nav-badge">' + pendingCount + '</span>' : '') + '</a>' +
+    '<a class="nav-item ' + (state.view === 'admin-return' ? 'active' : '') + '" data-action="navigate" data-view="admin-return" title="归还确认"><span class="nav-icon">📦</span><span>归还确认</span>' + (returnCount > 0 ? '<span class="nav-badge">' + returnCount + '</span>' : '') + '</a>' +
+    '<a class="nav-item ' + (state.view === 'admin-logs' ? 'active' : '') + '" data-action="navigate" data-view="admin-logs" title="操作日志"><span class="nav-icon">📋</span><span>操作日志</span></a>'
+    : '';
+  return '<aside class="sidebar">' +
+    '<div class="sidebar-header"><div class="logo-icon">📋</div><div><div class="logo-text">设备借用系统</div><div class="logo-sub">新媒体中心</div></div></div>' +
+    '<nav class="sidebar-nav">' +
+    '<div class="nav-section-title">设备管理</div>' +
+    '<a class="nav-item ' + (state.view === 'equipment' ? 'active' : '') + '" data-action="navigate" data-view="equipment" title="器材设备清单"><span class="nav-icon">📦</span><span>器材设备清单</span></a>' +
+    '<a class="nav-item ' + (state.view === 'borrow' ? 'active' : '') + '" data-action="navigate" data-view="borrow" title="借用申请"><span class="nav-icon">📝</span><span>借用申请</span></a>' +
+    '<a class="nav-item ' + (state.view === 'overview' ? 'active' : '') + '" data-action="navigate" data-view="overview" title="借用一览"><span class="nav-icon">📊</span><span>借用一览</span></a>' +
+    '<a class="nav-item ' + (state.view === 'precautions' ? 'active' : '') + '" data-action="navigate" data-view="precautions" title="注意事项"><span class="nav-icon">⚠️</span><span>注意事项</span></a>' +
+    adminNav +
+    '<div class="nav-section-title">账户</div>' +
+    '<a class="nav-item ' + (state.view === 'profile' ? 'active' : '') + '" data-action="navigate" data-view="profile" title="个人中心"><span class="nav-icon">👤</span><span>个人中心</span></a>' +
+    '</nav>' +
+    '<div class="sidebar-footer"><div class="user-info"><div class="user-avatar">' + getInitials(u.name) + '</div><div><div class="user-name">' + esc(u.name) + '</div><div class="user-id">' + esc(u.studentId || u.id) + '</div>' + (isAdmin() ? '<div class="user-role">管理员</div>' : '') + '</div></div><button class="logout-btn" data-action="logout" title="退出登录"><span>退出登录</span></button><button class="sidebar-toggle" data-action="toggle-sidebar" title="展开/收起菜单" style="display:none;margin-top:8px;width:100%;padding:9px;border:1px solid var(--border);background:var(--bg-card);border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;font-size:16px;align-items:center;justify-content:center;">☰</button></div>' +
+    '</aside>';
+}
+
+/* View: Equipment */
+function viewEquipment() {
+  const groups = getEquipmentByCategory();
+  const categoryIcons = { '相机': '📷', '稳定器': '🎯', '麦克风': '🎙️', '灯具': '💡', '三脚架': '📐' };
+  const groupsHtml = groups.map((g, gi) => {
+    const cards = g.items.map((e, i) => {
+      const img = e.image ? '<img src="' + e.image + '" alt="' + esc(e.name) + '">' : '<div class="equipment-placeholder">' + (e.icon || '📦') + '</div>';
+      const borrowed = isEquipmentBorrowed(e.id);
+      const isRepair = e.status === 'repair';
+      let statusTag;
+      if (isRepair) statusTag = '<div class="equipment-status-tag repair">维修中</div>';
+      else if (borrowed) statusTag = '<div class="equipment-status-tag borrowed">借用中</div>';
+      else statusTag = '<div class="equipment-status-tag available">可借用</div>';
+      const notes = e.notes ? '<div class="equipment-notes">⚠️ ' + esc(e.notes) + '</div>' : '';
+      return '<div class="equipment-card" style="animation-delay:' + (gi * 0.05 + i * 0.03) + 's"><div class="equipment-image">' + img + statusTag + '</div><div class="equipment-info"><div class="equipment-code">' + esc(e.id) + '</div><div class="equipment-name">' + esc(e.name) + '</div><div class="equipment-category">' + esc(e.category) + '</div>' + notes + '<div class="equipment-actions"><button class="btn btn-secondary btn-sm" data-action="open-timeline" data-eid="' + esc(e.id) + '">查看时间轴</button></div></div></div>';
+    }).join('');
+    return '<div class="category-section"><div class="category-header"><span class="category-icon">' + (categoryIcons[g.category] || '📦') + '</span><span class="category-name">' + esc(g.category) + '</span><span class="category-count">' + g.items.length + ' 件</span></div><div class="equipment-grid">' + cards + '</div></div>';
+  }).join('');
+  return '<div class="page-header"><h1>器材设备清单</h1><p>所有可借用设备均已编号并附有照片，未在清单中的物品不可借用</p></div>' + (groups.length === 0 ? '<div class="empty-state"><div class="icon">📦</div><p>暂无设备</p><p class="sub">请联系管理员添加设备</p></div>' : groupsHtml);
+}
+
+/* View: Borrow */
+function viewBorrow() {
+  const equipment = store.get('eb_equipment', []);
+  const workOrder = generateWorkOrder();
+  const f = state.borrowForm;
+  const dc = checkConflictDetailed(f.equipmentId, f.borrowTime, f.returnTime, null);
+  const hasConflict = dc.hard.length > 0 || dc.soft.length > 0;
+  let conflictHtml = '';
+  if (dc.hard.length > 0) {
+    conflictHtml += '<div class="conflict-warning show">🔴 强冲突：该设备此时段已被占用（工单：' + dc.hard.map(function(c) { return c.workOrderNo; }).join('、') + '），请选择其他时间段</div>';
+  }
+  if (dc.soft.length > 0) {
+    conflictHtml += '<div class="conflict-warning show" style="border-color:var(--warning);background:rgba(184,134,43,0.08);">🟡 轻度冲突：该设备此时段有待审核/待归还的申请（工单：' + dc.soft.map(function(c) { return c.workOrderNo; }).join('、') + '），如对方通过则可能冲突</div>';
+  }
+  return '<div class="page-header"><h1>借用申请</h1><p>提交申请后可在"借用一览"页面查看审核状态（建议提前一天提交）</p></div>' +
+    '<div class="form-card"><form id="form-borrow">' +
+    '<div class="form-group"><label>工单号</label><input type="text" name="workOrder" value="' + esc(workOrder) + '" readonly></div>' +
+    '<div class="form-group"><label>借用人</label><input type="text" value="' + esc(state.user.name) + '（' + esc(state.user.studentId || state.user.id) + '）" readonly></div>' +
+    '<div class="form-group"><label>借用设备 <span class="label-hint">请选择需要借用的设备</span></label><select name="equipmentId" required data-action="check-conflict"><option value="">请选择设备</option>' + getEquipmentByCategory().map(function(g) { return '<optgroup label="' + esc(g.category) + '">' + g.items.map(function(e) { return '<option value="' + esc(e.id) + '"' + (f.equipmentId === e.id ? ' selected' : '') + (e.status === 'repair' ? ' disabled' : '') + '>' + esc(e.id) + ' - ' + esc(e.name) + (e.status === 'repair' ? '（不可用）' : (e.notes ? '（⚠️' + esc(e.notes) + '）' : '')) + '</option>'; }).join('') + '</optgroup>'; }).join('') + '</select></div>' +
+    '<div class="form-row"><div class="form-group"><label>借用时间</label><input type="datetime-local" name="borrowTime" required value="' + esc(f.borrowTime) + '" min="' + nowLocalISO() + '" data-action="check-conflict"></div><div class="form-group"><label>归还时间</label><input type="datetime-local" name="returnTime" required value="' + esc(f.returnTime) + '" min="' + nowLocalISO() + '" data-action="check-conflict"></div></div>' +
+    '<div class="form-group"><label>借用理由</label><textarea name="reason" required placeholder="请详细说明借用理由...">' + esc(f.reason || '') + '</textarea></div>' +
+    '<div id="conflict-warning" class="' + (hasConflict ? 'show' : '') + '">' + conflictHtml + '</div>' +
+    '<button type="submit" class="btn btn-primary"' + (dc.hard.length > 0 ? ' disabled' : '') + '>提交申请</button></form></div>';
+}
+
+/* View: Overview */
+function renderOverviewList() {
+  let requests = store.get('eb_requests', []);
+  if (!isAdmin()) requests = requests.filter(r => r.borrowerId === (state.user.studentId || state.user.id));
+  requests.sort((a, b) => toTs(b.createdAt) - toTs(a.createdAt));
+  const filter = state.filter;
+  let filtered = requests;
+  if (filter === 'pending') filtered = requests.filter(r => r.status === 'pending');
+  else if (filter === 'active') filtered = requests.filter(r => ['approved','borrowing','return-pending'].includes(r.status));
+  else if (filter === 'returned') filtered = requests.filter(r => r.status === 'returned');
+  else if (filter === 'rejected') filtered = requests.filter(r => r.status === 'rejected');
+  const sq = (state.searchQuery || '').trim().toLowerCase();
+  if (sq) filtered = filtered.filter(r => (r.workOrderNo + r.borrowerName + r.borrowerId + getEquipmentName(r.equipmentId) + (r.reason || '')).toLowerCase().includes(sq));
+  if (filtered.length === 0) return sq ? '<div class="empty-state"><div class="icon">🔍</div><p>未找到匹配的记录</p></div>' : '<div class="empty-state"><div class="icon">📋</div><p>暂无借用记录</p>' + (!isAdmin() ? '<button class="btn btn-primary" style="margin-top:16px" data-action="navigate" data-view="borrow">去借用设备</button>' : '') + '</div>';
+  const cards = filtered.map((r, i) => {
+    let actions = '';
+    if (r.status === 'borrowing' && !isAdmin()) actions = '<button class="btn btn-secondary btn-sm" data-action="open-return-modal" data-id="' + esc(r.id) + '">上传归还照片</button>';
+    if (r.status === 'pending' && !isAdmin()) actions += '<button class="btn btn-secondary btn-sm" data-action="cancel-request" data-id="' + esc(r.id) + '">取消申请</button>';
+    if (isAdmin() && r.status === 'pending') actions = '<button class="btn btn-success btn-sm" data-action="open-approval-modal" data-id="' + esc(r.id) + '">审批</button><button class="btn btn-danger btn-sm" data-action="open-reject-modal" data-id="' + esc(r.id) + '">拒绝</button>';
+    if (isAdmin() && r.status === 'approved') actions = '<button class="btn btn-primary btn-sm" data-action="confirm-pickup" data-id="' + esc(r.id) + '">确认已领取</button>';
+    if (isAdmin() && r.status === 'return-pending') actions = '<button class="btn btn-success btn-sm" data-action="confirm-return" data-id="' + esc(r.id) + '">确认归还</button>';
+    if (isAdmin()) actions += '<button class="btn btn-danger btn-sm" data-action="delete-request" data-id="' + esc(r.id) + '">删除</button>';
+    const returnPhoto = r.returnPhoto ? '<div class="full"><span class="label">归还照片</span><img src="' + r.returnPhoto + '" class="return-photo-display" style="cursor:pointer" data-action="view-photo" data-src="' + r.returnPhoto + '"></div>' : '';
+    const approverInfo = r.approverName ? '<div><span class="label">审批人</span><span class="value">' + esc(r.approverName) + '</span></div>' : '';
+    const cardInfo = r.cardId ? '<div><span class="label">配套内存卡</span><span class="value">💾 ' + esc(getCardName(r.cardId)) + '</span></div>' : '';
+    return '<div class="request-card" style="animation-delay:' + (i * 0.03) + 's"><div class="request-header"><span class="work-order">' + esc(r.workOrderNo) + '</span><span class="status-badge status-' + esc(r.status) + '">' + STATUS_TEXT[r.status] + '</span>' + getReturnUrgencyTag(r) + '</div><div class="request-body"><div><span class="label">借用设备</span><span class="value">' + esc(getEquipmentName(r.equipmentId)) + '</span></div><div><span class="label">借用人</span><span class="value">' + esc(r.borrowerName) + '（' + esc(r.borrowerId) + '）</span></div><div><span class="label">借用时间</span><span class="value">' + fmt(r.borrowTime) + '</span></div><div><span class="label">归还时间</span><span class="value">' + fmt(r.returnTime) + '</span></div>' + approverInfo + cardInfo + '<div class="full"><span class="label">借用理由</span><span class="value">' + esc(r.reason) + '</span></div>' + (r.adminComment ? '<div class="full"><span class="label">审批备注</span><span class="value">' + esc(r.adminComment) + '</span></div>' : '') + returnPhoto + '</div>' + (actions ? '<div class="request-actions">' + actions + '</div>' : '') + '</div>';
+  }).join('');
+  return '<div class="request-list">' + cards + '</div>';
+}
+function viewOverview() {
+  const filter = state.filter;
+  const searchExport = '<div class="overview-toolbar"><input type="text" class="search-input" placeholder="搜索工单号、借用人、设备名..." value="' + esc(state.searchQuery || '') + '" data-action="search-input">' + (isAdmin() ? '<button class="btn btn-secondary btn-sm" data-action="export-csv" title="导出全部借用记录">导出CSV</button>' : '') + '</div>';
+  return '<div class="page-header"><h1>借用一览</h1><p>' + (isAdmin() ? '查看所有借用申请及审核状态' : '查看您的借用申请及审核状态') + '</p><div class="filter-tabs"><button class="filter-tab ' + (filter === 'all' ? 'active' : '') + '" data-action="set-filter" data-filter="all">全部</button><button class="filter-tab ' + (filter === 'pending' ? 'active' : '') + '" data-action="set-filter" data-filter="pending">待审核</button><button class="filter-tab ' + (filter === 'active' ? 'active' : '') + '" data-action="set-filter" data-filter="active">进行中</button><button class="filter-tab ' + (filter === 'returned' ? 'active' : '') + '" data-action="set-filter" data-filter="returned">已归还</button><button class="filter-tab ' + (filter === 'rejected' ? 'active' : '') + '" data-action="set-filter" data-filter="rejected">已拒绝</button></div></div>' + searchExport + '<div id="overview-list">' + renderOverviewList() + '</div>';
+}
+
+/* View: Precautions */
+function viewPrecautions() {
+  return '<div class="page-header"><h1>注意事项</h1><p>器材设备借用注意事项，请仔细阅读</p></div><div class="precautions-card"><h2>器材设备借用注意事项</h2><p>请所有借用人员务必遵守以下规定</p><div class="precaution-item"><div class="precaution-num">1</div><div class="precaution-text">请<strong>至少提前一天</strong>提交申请，提交之后可以在<strong>借用清单 - 借用一览</strong>页面查看审核状态。审核通过后可以到 <strong>A107</strong> 领取器材设备，领取器材设备时需要<strong>至少一位主管在场</strong>（归还时如主管不在场请放回原位后拍照给负责主管），<strong>不允许私自从A107拿取任何器材设备</strong>（即使申请已经通过），因而如果与申请的借用时间发生冲突，可能会出现主管单独私信协调领取时间的情况。</div></div><div class="precaution-item"><div class="precaution-num">2</div><div class="precaution-text">所有可借用设备均在<strong>器材设备清单</strong>中进行了编号并附有照片，<strong>未在清单中的物品，即便放在A107也不可借用</strong>，请留意；请注意一些设备有额外的<strong>备注（比如借用限制）</strong>，需要额外留意。</div></div></div>';
+}
+
+/* View: Profile */
+function viewProfile() {
+  const u = state.user;
+  const requests = store.get('eb_requests', []);
+  const myRequests = isAdmin() ? requests : requests.filter(r => r.borrowerId === (u.studentId || u.id));
+  const myStats = { total: myRequests.length, pending: myRequests.filter(r => r.status === 'pending').length, borrowing: myRequests.filter(r => r.status === 'borrowing').length, returned: myRequests.filter(r => r.status === 'returned').length, rejected: myRequests.filter(r => r.status === 'rejected').length };
+  const nameSection = '<div class="profile-name">' + esc(u.name) + '</div>';
+  return '<div class="page-header"><h1>个人中心</h1><p>查看您的账户信息与借用统计</p></div><div class="profile-card"><div class="profile-header"><div class="profile-avatar-large">' + getInitials(u.name) + '</div><div class="profile-info">' + nameSection + '<div class="profile-id">' + esc(u.studentId || u.id) + '</div>' + (isAdmin() ? '<span class="profile-role-badge">管理员</span>' : '<span class="profile-role-badge user">用户</span>') + '</div></div><div class="profile-stats"><div class="profile-stat"><div class="profile-stat-value">' + myStats.total + '</div><div class="profile-stat-label">总申请</div></div><div class="profile-stat"><div class="profile-stat-value">' + myStats.pending + '</div><div class="profile-stat-label">待审核</div></div><div class="profile-stat"><div class="profile-stat-value">' + myStats.borrowing + '</div><div class="profile-stat-label">借用中</div></div><div class="profile-stat"><div class="profile-stat-value">' + myStats.returned + '</div><div class="profile-stat-label">已归还</div></div><div class="profile-stat"><div class="profile-stat-value">' + myStats.rejected + '</div><div class="profile-stat-label">已拒绝</div></div></div><div class="profile-actions"><button class="btn btn-secondary" data-action="navigate" data-view="overview">查看借用记录</button><button class="btn btn-danger" data-action="logout">退出登录</button></div></div>';
+}
+
+/* View: Welcome Modal */
+function viewWelcomeModal() {
+  return '<div class="modal-overlay" data-action="close-welcome-bg"><div class="modal welcome-modal"><div class="welcome-icon">⚠️</div><div class="welcome-title">器材设备借用注意事项</div><div class="welcome-body"><div class="welcome-item"><div class="welcome-num">1</div><div class="welcome-text">请<strong>至少提前一天</strong>提交申请，提交后可在"借用一览"页面查看审核状态。审核通过后到 <strong>A107</strong> 领取器材，领取时需<strong>至少一位主管在场</strong>（归还时如主管不在场请放回原位后拍照给负责主管）。<strong>不允许私自拿取</strong>任何器材，如与借用时间冲突，主管会单独协调。</div></div><div class="welcome-item"><div class="welcome-num">2</div><div class="welcome-text">所有可借用设备均在<strong>器材设备清单</strong>中编号并附有照片，<strong>未在清单中的物品不可借用</strong>。部分设备有额外<strong>备注（借用限制）</strong>，请额外留意。</div></div></div><button class="btn btn-primary btn-block" data-action="close-welcome">我已阅读并了解</button></div></div>';
+}
+
+/* View: Approval Modal */
+function viewApprovalModal() {
+  const r = state.modalData;
+  return '<div class="modal-overlay" data-action="close-modal-bg"><div class="modal"><div class="modal-header"><div class="modal-title">审批借用申请</div><button class="modal-close" data-action="close-modal">×</button></div><div style="margin-bottom:18px;padding:14px 16px;background:var(--bg-input);border-radius:var(--radius-sm);font-size:13px;line-height:1.8;"><div><strong>工单号：</strong>' + esc(r.workOrderNo) + '</div><div><strong>设备：</strong>' + esc(getEquipmentName(r.equipmentId)) + '</div><div><strong>借用人：</strong>' + esc(r.borrowerName) + '（' + esc(r.borrowerId) + '）</div><div><strong>时间：</strong>' + fmt(r.borrowTime) + ' → ' + fmt(r.returnTime) + '</div><div><strong>理由：</strong>' + esc(r.reason) + '</div></div><div class="form-group"><label>审批备注 <span class="label-hint">选填</span></label><textarea name="adminComment" placeholder="如：注意检查电池、请按时归还等" data-action="approval-comment">' + state.approvalData.comment + '</textarea></div><div style="display:flex;gap:10px;"><button class="btn btn-success btn-block" data-action="confirm-approve" data-id="' + esc(r.id) + '">通过</button><button class="btn btn-danger btn-block" data-action="open-reject-modal" data-id="' + esc(r.id) + '">拒绝</button></div></div></div>';
+}
+
+function viewRejectModal() {
+  const r = state.modalData;
+  return '<div class="modal-overlay" data-action="close-modal-bg"><div class="modal"><div class="modal-header"><div class="modal-title">拒绝借用申请</div><button class="modal-close" data-action="close-modal">×</button></div><div style="margin-bottom:18px;padding:14px 16px;background:var(--bg-input);border-radius:var(--radius-sm);font-size:13px;line-height:1.8;"><div><strong>工单号：</strong>' + esc(r.workOrderNo) + '</div><div><strong>设备：</strong>' + esc(getEquipmentName(r.equipmentId)) + '</div><div><strong>借用人：</strong>' + esc(r.borrowerName) + '（' + esc(r.borrowerId) + '）</div><div><strong>时间：</strong>' + fmt(r.borrowTime) + ' → ' + fmt(r.returnTime) + '</div></div><div class="form-group"><label>拒绝理由 <span class="label-hint">必填</span></label><textarea name="rejectReason" placeholder="请填写拒绝理由，将显示给申请人" data-action="reject-comment">' + state.rejectData.comment + '</textarea></div><button class="btn btn-danger btn-block" data-action="confirm-reject" data-id="' + esc(r.id) + '">确认拒绝</button></div></div>';
+}
+
+function viewPhotoModal() {
+  return '<div class="modal-overlay" data-action="close-modal-bg" style="background:rgba(0,0,0,0.85)"><div style="max-width:90vw;max-height:90vh;position:relative;"><img src="' + state.photoViewUrl + '" style="max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px;"><div style="text-align:center;margin-top:12px;"><button class="btn btn-secondary" data-action="close-modal">关闭</button></div></div></div>';
+}
+
+/* View: Admin Equipment */
+function viewAdminEquipment() {
+  const equipment = store.get('eb_equipment', []);
+  const cards = store.get('eb_cards', []);
+  const eqCards = equipment.map((e, i) => {
+    const img = e.image ? '<img src="' + e.image + '" alt="' + esc(e.name) + '">' : '<div class="equipment-placeholder">' + (e.icon || '📦') + '</div>';
+    const borrowed = isEquipmentBorrowed(e.id);
+    const isRepair = e.status === 'repair';
+    let statusTag;
+    if (isRepair) statusTag = '<div class="equipment-status-tag repair">维修中</div>';
+    else if (borrowed) statusTag = '<div class="equipment-status-tag borrowed">借用中</div>';
+    else statusTag = '<div class="equipment-status-tag available">可借用</div>';
+    return '<div class="equipment-card" style="animation-delay:' + (i * 0.05) + 's"><div class="equipment-image">' + img + statusTag + '</div><div class="equipment-info"><div class="equipment-code">' + esc(e.id) + '</div><div class="equipment-name">' + esc(e.name) + '</div><div class="equipment-category">' + esc(e.category) + '</div>' + (e.notes ? '<div class="equipment-notes">⚠️ ' + esc(e.notes) + '</div>' : '') + '<div class="equipment-actions"><button class="btn btn-secondary btn-sm" data-action="open-timeline" data-eid="' + esc(e.id) + '">时间轴</button><button class="btn btn-secondary btn-sm" data-action="edit-equipment" data-id="' + esc(e.id) + '">编辑</button>' + (isRepair ? '<button class="btn btn-success btn-sm" data-action="toggle-repair" data-id="' + esc(e.id) + '">设为可用</button>' : '<button class="btn btn-secondary btn-sm" data-action="toggle-repair" data-id="' + esc(e.id) + '">设为维修</button>') + '<button class="btn btn-danger btn-sm" data-action="delete-equipment" data-id="' + esc(e.id) + '">删除</button></div></div></div>';
+  }).join('');
+  const cardItems = cards.map((c, i) => {
+    const isBorrowed = c.status === 'borrowed';
+    return '<div class="equipment-card" style="animation-delay:' + (i * 0.03) + 's"><div class="equipment-image"><div class="equipment-placeholder">💾</div>' + (isBorrowed ? '<div class="equipment-status-tag borrowed">已配出</div>' : '<div class="equipment-status-tag available">可用</div>') + '</div><div class="equipment-info"><div class="equipment-code">' + esc(c.id) + '</div><div class="equipment-name">' + esc(c.name) + '</div><div class="equipment-category">内存卡</div>' + (c.notes ? '<div class="equipment-notes">⚠️ ' + esc(c.notes) + '</div>' : '') + '<div class="equipment-actions"><button class="btn btn-secondary btn-sm" data-action="edit-card" data-id="' + esc(c.id) + '">编辑</button><button class="btn btn-danger btn-sm" data-action="delete-card" data-id="' + esc(c.id) + '">删除</button></div></div></div>';
+  }).join('');
+  const cardAvailable = cards.filter(c => c.status === 'available').length;
+  const cardBorrowed = cards.filter(c => c.status === 'borrowed').length;
+  const cardSummary = cards.length > 0 ? '<div style="display:flex;gap:12px;margin-bottom:16px;font-size:13px;"><span style="padding:4px 12px;background:var(--success-bg);color:var(--success);border-radius:20px;font-weight:500;">✓ 可用 ' + cardAvailable + ' 张</span><span style="padding:4px 12px;background:var(--danger-bg);color:var(--danger);border-radius:20px;font-weight:500;">📦 已配出 ' + cardBorrowed + ' 张</span><span style="padding:4px 12px;background:var(--bg-input);color:var(--text-secondary);border-radius:20px;font-weight:500;">共 ' + cards.length + ' 张</span></div>' : '';
+  return '<div class="page-header"><h1>设备维护</h1><p>添加、编辑或删除可借用设备，管理设备状态与备注</p><div style="margin-top:16px;"><button class="btn btn-primary" data-action="open-add-equipment">+ 添加设备</button></div></div>' + (equipment.length === 0 ? '<div class="empty-state"><div class="icon">📦</div><p>暂无设备</p><p class="sub">点击上方按钮添加设备</p></div>' : '<div class="equipment-grid">' + eqCards + '</div>') +
+    '<div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border);"><div class="page-header" style="margin-bottom:16px;"><h2 style="font-size:20px;">💾 内存卡管理</h2><p style="font-size:13px;">管理SD卡/MicroSD卡，领取相机时可选择配套卡片</p><div style="margin-top:12px;"><button class="btn btn-primary" data-action="open-add-card">+ 添加内存卡</button></div></div>' + cardSummary + (cards.length === 0 ? '<div class="empty-state"><div class="icon">💾</div><p>暂无内存卡</p></div>' : '<div class="equipment-grid">' + cardItems + '</div>') + '</div>';
+}
+
+/* View: Admin Approval */
+function viewAdminApproval() {
+  const requests = store.get('eb_requests', []);
+  const stats = { pending: requests.filter(r => r.status === 'pending').length, borrowing: requests.filter(r => r.status === 'borrowing').length, returnPending: requests.filter(r => r.status === 'return-pending').length, total: requests.length };
+  const filter = state.adminApprovalFilter || 'pending';
+  let filtered;
+  if (filter === 'pending') filtered = requests.filter(r => r.status === 'pending');
+  else if (filter === 'borrowing') filtered = requests.filter(r => r.status === 'borrowing');
+  else if (filter === 'return-pending') filtered = requests.filter(r => r.status === 'return-pending');
+  else if (filter === 'all') filtered = requests;
+  else filtered = requests.filter(r => r.status === 'pending' || r.status === 'approved');
+  filtered = filtered.sort((a, b) => toTs(b.createdAt) - toTs(a.createdAt));
+  const cards = filtered.map((r, i) => {
+    const dc = checkConflictDetailed(r.equipmentId, r.borrowTime, r.returnTime, r.id);
+    let conflictWarn = '';
+    if (dc.hard.length > 0) conflictWarn = '<div class="conflict-warning show">🔴 强冲突：' + dc.hard.map(c => esc(c.workOrderNo)).join('、') + '</div>';
+    else if (dc.soft.length > 0) conflictWarn = '<div class="conflict-warning show" style="border-color:var(--warning);background:rgba(184,134,43,0.08);">🟡 轻度冲突：' + dc.soft.map(c => esc(c.workOrderNo)).join('、') + '</div>';
+    let actions = '';
+    if (r.status === 'pending') actions = '<button class="btn btn-success btn-sm" data-action="open-approval-modal" data-id="' + esc(r.id) + '">审批</button><button class="btn btn-danger btn-sm" data-action="open-reject-modal" data-id="' + esc(r.id) + '">拒绝</button>';
+    if (r.status === 'approved') actions = '<button class="btn btn-primary btn-sm" data-action="confirm-pickup" data-id="' + esc(r.id) + '">确认已领取</button>';
+    if (r.status === 'return-pending') actions = '<button class="btn btn-success btn-sm" data-action="confirm-return" data-id="' + esc(r.id) + '">确认归还完成</button>';
+    actions += '<button class="btn btn-danger btn-sm" data-action="delete-request" data-id="' + esc(r.id) + '">删除</button>';
+    const approverInfo = r.approverName ? '<div><span class="label">审批人</span><span class="value">' + esc(r.approverName) + '</span></div>' : '';
+    const cardInfo = r.cardId ? '<div><span class="label">配套内存卡</span><span class="value">💾 ' + esc(getCardName(r.cardId)) + '</span></div>' : '';
+    return '<div class="request-card" style="animation-delay:' + (i * 0.03) + 's"><div class="request-header"><span class="work-order">' + esc(r.workOrderNo) + '</span><span class="status-badge status-' + esc(r.status) + '">' + STATUS_TEXT[r.status] + '</span>' + getReturnUrgencyTag(r) + '</div><div class="request-body"><div><span class="label">借用设备</span><span class="value">' + esc(getEquipmentName(r.equipmentId)) + '</span></div><div><span class="label">借用人</span><span class="value">' + esc(r.borrowerName) + '（' + esc(r.borrowerId) + '）</span></div><div><span class="label">借用时间</span><span class="value">' + fmt(r.borrowTime) + '</span></div><div><span class="label">归还时间</span><span class="value">' + fmt(r.returnTime) + '</span></div>' + approverInfo + cardInfo + '<div class="full"><span class="label">借用理由</span><span class="value">' + esc(r.reason) + '</span></div>' + (r.adminComment ? '<div class="full"><span class="label">审批备注</span><span class="value">' + esc(r.adminComment) + '</span></div>' : '') + '</div>' + conflictWarn + (actions ? '<div class="request-actions">' + actions + '</div>' : '') + '</div>';
+  }).join('');
+  const filterLabels = { 'active': '待审+已通过', 'pending': '待审核', 'borrowing': '借用中', 'return-pending': '待归还确认', 'all': '全部' };
+  const statCards = '<div class="stats-grid">' +
+    '<div class="stat-card stat-pending' + (filter === 'pending' ? ' stat-active' : '') + '" data-action="set-approval-filter" data-filter="pending" style="cursor:pointer"><div class="stat-icon">⏳</div><div class="stat-value">' + stats.pending + '</div><div class="stat-label">待审核</div></div>' +
+    '<div class="stat-card stat-borrowing' + (filter === 'borrowing' ? ' stat-active' : '') + '" data-action="set-approval-filter" data-filter="borrowing" style="cursor:pointer"><div class="stat-icon">📦</div><div class="stat-value">' + stats.borrowing + '</div><div class="stat-label">借用中</div></div>' +
+    '<div class="stat-card stat-return' + (filter === 'return-pending' ? ' stat-active' : '') + '" data-action="set-approval-filter" data-filter="return-pending" style="cursor:pointer"><div class="stat-icon">🔄</div><div class="stat-value">' + stats.returnPending + '</div><div class="stat-label">待归还确认</div></div>' +
+    '<div class="stat-card stat-total' + (filter === 'all' ? ' stat-active' : '') + '" data-action="set-approval-filter" data-filter="all" style="cursor:pointer"><div class="stat-icon">📊</div><div class="stat-value">' + stats.total + '</div><div class="stat-label">总申请数</div></div>' +
+    '</div>';
+  const emptyText = { 'pending': '暂无待审核的申请', 'borrowing': '暂无借用中的设备', 'return-pending': '暂无待归还确认的记录', 'all': '暂无借用记录' };
+  return '<div class="page-header"><h1>借用审批</h1><p>审核借用申请并确认设备领取 · 当前筛选：' + filterLabels[filter] + '</p></div>' + statCards + (filtered.length === 0 ? '<div class="empty-state"><div class="icon">✅</div><p>' + (emptyText[filter] || '暂无记录') + '</p></div>' : '<div class="request-list">' + cards + '</div>');
+}
+
+/* View: Admin Return */
+function viewAdminReturn() {
+  const requests = store.get('eb_requests', []);
+  const returnPending = requests.filter(r => r.status === 'return-pending').sort((a, b) => toTs(b.createdAt) - toTs(a.createdAt));
+  const cards = returnPending.map((r, i) => {
+    const approverInfo = r.approverName ? '<div><span class="label">审批人</span><span class="value">' + esc(r.approverName) + '</span></div>' : '';
+    const cardInfo = r.cardId ? '<div><span class="label">配套内存卡</span><span class="value">💾 ' + esc(getCardName(r.cardId)) + '</span></div>' : '';
+    return '<div class="request-card" style="animation-delay:' + (i * 0.03) + 's"><div class="request-header"><span class="work-order">' + esc(r.workOrderNo) + '</span><span class="status-badge status-return-pending">' + STATUS_TEXT['return-pending'] + '</span></div><div class="request-body"><div><span class="label">借用设备</span><span class="value">' + esc(getEquipmentName(r.equipmentId)) + '</span></div><div><span class="label">借用人</span><span class="value">' + esc(r.borrowerName) + '（' + esc(r.borrowerId) + '）</span></div><div><span class="label">借用时间</span><span class="value">' + fmt(r.borrowTime) + '</span></div><div><span class="label">归还时间</span><span class="value">' + fmt(r.returnTime) + '</span></div>' + approverInfo + cardInfo + '<div class="full"><span class="label">借用理由</span><span class="value">' + esc(r.reason) + '</span></div>' + (r.returnPhoto ? '<div class="full"><span class="label">归还照片</span><img src="' + r.returnPhoto + '" class="return-photo-display" style="cursor:pointer" data-action="view-photo" data-src="' + r.returnPhoto + '"></div>' : '') + '</div><div class="request-actions"><button class="btn btn-success btn-sm" data-action="confirm-return" data-id="' + esc(r.id) + '">确认归还完成</button><button class="btn btn-danger btn-sm" data-action="delete-request" data-id="' + esc(r.id) + '">删除</button></div></div>';
+  }).join('');
+  return '<div class="page-header"><h1>归还确认</h1><p>确认用户已归还设备并检查归还照片</p></div>' + (returnPending.length === 0 ? '<div class="empty-state"><div class="icon">📦</div><p>暂无待归还确认的记录</p><p class="sub">用户归还设备并上传照片后会显示在这里</p></div>' : '<div class="request-list">' + cards + '</div>');
+}
+
+/* Modal: Equipment */
+/* View: Mobile Nav */
+function viewMobileNav() {
+  const requests = store.get('eb_requests', []);
+  const myPending = requests.filter(r => (r.status === 'pending' || r.status === 'borrowing' || r.status === 'return-pending') && r.borrowerId === (state.user.studentId || state.user.id)).length;
+  const adminPending = requests.filter(r => r.status === 'pending').length;
+  const adminReturn = requests.filter(r => r.status === 'return-pending').length;
+  const badge = isAdmin() ? (adminPending + adminReturn) : myPending;
+  const v = state.view;
+  let items;
+  if (isAdmin()) {
+    items = [
+      { view: 'equipment', icon: '📦', label: '设备' },
+      { view: 'borrow', icon: '📝', label: '借用' },
+      { view: 'admin-approval', icon: '✅', label: '审批', badge: badge },
+      { view: 'profile', icon: '👤', label: '我的' }
+    ];
+  } else {
+    items = [
+      { view: 'equipment', icon: '📦', label: '设备' },
+      { view: 'borrow', icon: '📝', label: '借用' },
+      { view: 'overview', icon: '📊', label: '记录', badge: badge },
+      { view: 'profile', icon: '👤', label: '我的' }
+    ];
+  }
+  return '<nav class="mobile-nav">' + items.map(function(item) {
+    const isActive = v === item.view || (item.view === 'admin-approval' && (v === 'admin-equipment' || v === 'admin-return' || v === 'admin-logs'));
+    return '<a class="mobile-nav-item' + (isActive ? ' active' : '') + '" data-action="navigate" data-view="' + item.view + '"><span class="mobile-nav-icon">' + item.icon + '</span><span>' + item.label + '</span>' + (item.badge ? '<span class="mobile-nav-badge">' + item.badge + '</span>' : '') + '</a>';
+  }).join('') + '</nav>';
+}
+
+function viewAdminLogs() {
+  const logs = store.get('eb_logs', []);
+  const ACTION_ICONS = { '提交申请': '📝', '审批通过': '✅', '拒绝申请': '❌', '确认领取': '📦', '提交归还': '📷', '确认归还': '🔄', '取消申请': '🚫', '删除记录': '🗑️', '添加设备': '➕', '编辑设备': '✏️', '删除设备': '🗑️', '设备设为维修': '🔧', '设备设为可用': '✓', '添加内存卡': '➕', '编辑内存卡': '✏️', '删除内存卡': '🗑️' };
+  const ACTION_COLORS = { '提交申请': 'var(--info)', '审批通过': 'var(--success)', '拒绝申请': 'var(--danger)', '确认领取': 'var(--accent)', '提交归还': 'var(--warning)', '确认归还': 'var(--success)', '取消申请': 'var(--text-tertiary)', '删除记录': 'var(--danger)', '添加设备': 'var(--success)', '编辑设备': 'var(--accent)', '删除设备': 'var(--danger)', '设备设为维修': 'var(--warning)', '设备设为可用': 'var(--success)', '添加内存卡': 'var(--success)', '编辑内存卡': 'var(--accent)', '删除内存卡': 'var(--danger)' };
+  const filter = state.logFilter || 'all';
+  let filtered = logs;
+  if (filter !== 'all') filtered = logs.filter(l => l.action === filter);
+  const filterOptions = ['all', '提交申请', '审批通过', '拒绝申请', '确认领取', '提交归还', '确认归还', '取消申请', '删除记录', '添加设备', '编辑设备', '删除设备', '设备设为维修', '设备设为可用', '添加内存卡', '编辑内存卡', '删除内存卡'];
+  const filterTabs = filterOptions.map(f => '<button class="filter-tab ' + (filter === f ? 'active' : '') + '" data-action="set-log-filter" data-filter="' + esc(f) + '">' + (f === 'all' ? '全部' : f) + '</button>').join('');
+  const cards = filtered.map((l, i) => {
+    const icon = ACTION_ICONS[l.action] || '•';
+    const color = ACTION_COLORS[l.action] || 'var(--text-secondary)';
+    return '<div class="log-item" style="animation-delay:' + (i * 0.02) + 's"><div class="log-icon" style="background:' + color + '15;color:' + color + ';">' + icon + '</div><div class="log-content"><div class="log-action" style="color:' + color + ';">' + esc(l.action) + '</div><div class="log-detail">' + esc(l.detail) + '</div><div class="log-meta"><span>' + esc(l.actorName) + (l.actorIsAdmin ? ' (管理员)' : '') + '</span><span>·</span><span>' + fmtLogTime(l.time) + '</span></div></div></div>';
+  }).join('');
+  return '<div class="page-header"><h1>操作日志</h1><p>记录所有借用审批与设备管理操作，最多保留 500 条</p><div class="filter-tabs" style="flex-wrap:wrap;">' + filterTabs + '</div></div>' + (filtered.length === 0 ? '<div class="empty-state"><div class="icon">📋</div><p>暂无操作日志</p></div>' : '<div class="log-list">' + cards + '</div>');
+}
+
+function viewEquipmentModal() {
+  const editing = state.editingEquipmentId;
+  const eq = editing ? getEquipmentById(editing) : null;
+  const preview = state.equipmentImagePreview || (eq && eq.image) || null;
+  return '<div class="modal-overlay" data-action="close-modal-bg"><div class="modal"><div class="modal-header"><div class="modal-title">' + (editing ? '编辑设备' : '添加设备') + '</div><button class="modal-close" data-action="close-modal">×</button></div><form id="form-equipment"><div class="form-group"><label>设备编号</label><input type="text" name="id" value="' + (eq ? esc(eq.id) : '') + '" required ' + (editing ? 'readonly' : '') + ' placeholder="如：EQ001"></div><div class="form-group"><label>设备名称</label><input type="text" name="name" value="' + (eq ? esc(eq.name) : '') + '" required placeholder="如：索尼A6400"></div><div class="form-row"><div class="form-group"><label>设备类别</label><input type="text" name="category" value="' + (eq ? esc(eq.category) : '') + '" required placeholder="如：相机"></div><div class="form-group"><label>图标</label><input type="text" name="icon" value="' + (eq ? esc(eq.icon) : '📦') + '" placeholder="如：📷"></div></div><div class="form-group"><label>设备图片</label><label class="image-upload-label ' + (preview ? 'has-image' : '') + '"><input type="file" accept="image/*" style="display:none" onchange="window.handleImageUpload(event, \'equipment\')">' + (preview ? '<img src="' + preview + '">' : '<div class="image-upload-text"><span class="icon">📤</span>点击上传设备图片</div>') + '</label></div><div class="form-group"><label>备注/借用限制 <span class="label-hint">选填</span></label><textarea name="notes" placeholder="如：仅限有经验者借用">' + (eq ? esc(eq.notes) : '') + '</textarea></div><div class="form-group"><label>设备状态</label><select name="status"><option value="available"' + (!eq || eq.status === 'available' ? ' selected' : '') + '>可借用</option><option value="repair"' + (eq && eq.status === 'repair' ? ' selected' : '') + '>维修中/不可用</option></select></div><button type="submit" class="btn btn-primary btn-block">' + (editing ? '保存修改' : '添加设备') + '</button></form></div></div>';
+}
+
+/* Modal: Card */
+function viewCardModal() {
+  const editing = state.editingCardId;
+  const cards = store.get('eb_cards', []);
+  const c = editing ? cards.find(x => x.id === editing) : null;
+  return '<div class="modal-overlay" data-action="close-modal-bg"><div class="modal"><div class="modal-header"><div class="modal-title">' + (editing ? '编辑内存卡' : '添加内存卡') + '</div><button class="modal-close" data-action="close-modal">×</button></div><form id="form-card"><div class="form-group"><label>卡编号</label><input type="text" name="id" value="' + (c ? esc(c.id) : '') + '" required ' + (editing ? 'readonly' : '') + ' placeholder="如：SD001"></div><div class="form-group"><label>卡名称</label><input type="text" name="name" value="' + (c ? esc(c.name) : '') + '" required placeholder="如：SD卡 32GB 金士顿"></div><div class="form-group"><label>备注 <span class="label-hint">选填</span></label><input type="text" name="notes" value="' + (c ? esc(c.notes) : '') + '" placeholder="如：配EQ001"></div><button type="submit" class="btn btn-primary btn-block">' + (editing ? '保存修改' : '添加内存卡') + '</button></form></div></div>';
+}
+
+/* Modal: Pickup */
+function viewPickupModal() {
+  const r = state.modalData;
+  const eq = getEquipmentById(r.equipmentId);
+  const isCamera = eq && eq.category === '相机';
+  const allCards = store.get('eb_cards', []);
+  const availableCards = allCards.filter(c => c.status === 'available');
+  let cardSelectHtml = '';
+  if (isCamera) {
+    if (availableCards.length > 0) {
+      cardSelectHtml = '<div class="form-group"><label>配套SD卡 <span class="label-hint">选择随相机借出的内存卡</span></label><select name="cardId" data-action="pickup-card-select"><option value="">不配卡</option>' + availableCards.map(c => '<option value="' + esc(c.id) + '"' + (state.pickupData.cardId === c.id ? ' selected' : '') + '>' + esc(c.id) + ' - ' + esc(c.name) + '</option>').join('') + '</select></div>';
+    } else {
+      cardSelectHtml = '<div class="form-group"><label>配套SD卡</label><div style="padding:10px 14px;background:var(--bg-input);border-radius:var(--radius-sm);font-size:13px;color:var(--text-tertiary);">暂无可用内存卡，可在设备维护页面添加</div></div>';
+    }
+  }
+  return '<div class="modal-overlay" data-action="close-modal-bg"><div class="modal"><div class="modal-header"><div class="modal-title">确认设备领取</div><button class="modal-close" data-action="close-modal">×</button></div><div style="margin-bottom:18px;padding:14px 16px;background:var(--bg-input);border-radius:var(--radius-sm);font-size:13px;line-height:1.8;"><div><strong>工单号：</strong>' + esc(r.workOrderNo) + '</div><div><strong>设备：</strong>' + esc(getEquipmentName(r.equipmentId)) + '</div><div><strong>借用人：</strong>' + esc(r.borrowerName) + '（' + esc(r.borrowerId) + '）</div><div><strong>时间：</strong>' + fmt(r.borrowTime) + ' → ' + fmt(r.returnTime) + '</div></div>' + cardSelectHtml + '<button class="btn btn-primary btn-block" data-action="confirm-pickup-with-card" data-id="' + esc(r.id) + '">确认已领取</button></div></div>';
+}
+
+/* Modal: Return */
+function viewReturnModal() {
+  const r = state.modalData;
+  const preview = state.returnPhotoPreview;
+  return '<div class="modal-overlay" data-action="close-modal-bg"><div class="modal"><div class="modal-header"><div class="modal-title">上传归还照片</div><button class="modal-close" data-action="close-modal">×</button></div><form id="form-return"><div style="margin-bottom:18px;padding:14px 16px;background:var(--bg-input);border-radius:var(--radius-sm);font-size:13px;line-height:1.8;"><div><strong>工单号：</strong>' + esc(r.workOrderNo) + '</div><div><strong>设备：</strong>' + esc(getEquipmentName(r.equipmentId)) + '</div><div><strong>借用人：</strong>' + esc(r.borrowerName) + '（' + esc(r.borrowerId) + '）</div></div><div class="form-group"><label>归还照片 <span class="label-hint">请拍摄设备已放回原位的照片</span></label><label class="image-upload-label ' + (preview ? 'has-image' : '') + '"><input type="file" accept="image/*" style="display:none" onchange="window.handleImageUpload(event, \'return\')">' + (preview ? '<img src="' + preview + '">' : '<div class="image-upload-text"><span class="icon">📸</span>点击上传归还照片</div>') + '</label></div><button type="submit" class="btn btn-primary btn-block" ' + (!preview ? 'disabled' : '') + '>提交归还申请</button></form></div></div>';
+}
+
+/* Modal: Timeline (Gantt) */
+function viewTimelineModal() {
+  const eq = getEquipmentById(state.timelineEquipmentId);
+  if (!eq) return '';
+  const requests = store.get('eb_requests', []).filter(r => r.equipmentId === eq.id && r.status !== 'rejected').sort((a, b) => toTs(a.borrowTime) - toTs(b.borrowTime));
+  const borrowed = isEquipmentBorrowed(eq.id);
+  const currentBorrower = getCurrentBorrower(eq.id);
+  const statusCard = borrowed ? '<div class="timeline-status-card borrowed"><div style="font-size:24px;">📦</div><div class="timeline-status-text"><strong>当前状态：借用中</strong><span class="sub">借用人：' + currentBorrower.borrowerName + '（' + currentBorrower.borrowerId + '）· 预计归还：' + fmt(currentBorrower.returnTime) + '</span></div></div>' : '<div class="timeline-status-card available"><div style="font-size:24px;">✅</div><div class="timeline-status-text"><strong>当前状态：可借用</strong><span class="sub">设备目前可提交借用申请</span></div></div>';
+  const range = state.ganttRange;
+  const now = new Date();
+  let startDate, endDate, tickCount, tickStep;
+  if (range === 'month') { startDate = new Date(now.getFullYear(), now.getMonth(), 1); endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59); tickCount = 5; tickStep = Math.ceil(endDate.getDate() / tickCount); }
+  else if (range === 'quarter') { const q = Math.floor(now.getMonth() / 3); startDate = new Date(now.getFullYear(), q * 3, 1); endDate = new Date(now.getFullYear(), q * 3 + 3, 0, 23, 59); tickCount = 3; }
+  else { startDate = new Date(now.getFullYear(), 0, 1); endDate = new Date(now.getFullYear(), 11, 31, 23, 59); tickCount = 4; }
+  const totalMs = endDate - startDate;
+  function dateToPercent(dateStr) { const d = new Date(dateStr); if (isNaN(d.getTime())) return 0; const clamped = Math.max(startDate, Math.min(endDate, d)); return ((clamped - startDate) / totalMs) * 100; }
+  let ticksHtml = '';
+  if (range === 'month') { for (let i = 0; i <= tickCount; i++) { const day = 1 + i * tickStep; if (day > endDate.getDate()) break; const tickDate = new Date(now.getFullYear(), now.getMonth(), day); const pct = dateToPercent(tickDate); ticksHtml += '<div class="gantt-header-tick" style="left:' + pct + '%;">' + day + '日</div>'; } }
+  else if (range === 'quarter') { const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']; const q = Math.floor(now.getMonth() / 3); for (let i = 0; i < 3; i++) { const m = q * 3 + i; const tickDate = new Date(now.getFullYear(), m, 1); const pct = dateToPercent(tickDate); ticksHtml += '<div class="gantt-header-tick" style="left:' + pct + '%;">' + months[m] + '</div>'; } }
+  else { const months = ['1月','4月','7月','10月']; for (let i = 0; i < 4; i++) { const tickDate = new Date(now.getFullYear(), i * 3, 1); const pct = dateToPercent(tickDate); ticksHtml += '<div class="gantt-header-tick" style="left:' + pct + '%;">' + months[i] + '</div>'; } }
+  const todayPct = dateToPercent(now);
+  const todayLine = (todayPct >= 0 && todayPct <= 100) ? '<div class="gantt-grid-line today" style="left:' + todayPct + '%;"></div><div class="gantt-today-label" style="left:' + todayPct + '%;">今天</div>' : '';
+  let gridLines = '';
+  if (range === 'month') { for (let i = 1; i <= tickCount; i++) { const day = 1 + i * tickStep; if (day > endDate.getDate()) break; const tickDate = new Date(now.getFullYear(), now.getMonth(), day); const pct = dateToPercent(tickDate); gridLines += '<div class="gantt-grid-line" style="left:' + pct + '%;"></div>'; } }
+  else if (range === 'quarter') { const q = Math.floor(now.getMonth() / 3); for (let i = 1; i < 3; i++) { const m = q * 3 + i; const tickDate = new Date(now.getFullYear(), m, 1); const pct = dateToPercent(tickDate); gridLines += '<div class="gantt-grid-line" style="left:' + pct + '%;"></div>'; } }
+  else { for (let i = 1; i < 4; i++) { const tickDate = new Date(now.getFullYear(), i * 3, 1); const pct = dateToPercent(tickDate); gridLines += '<div class="gantt-grid-line" style="left:' + pct + '%;"></div>'; } }
+  const rangeRequests = requests.filter(r => { const bStart = toTs(r.borrowTime); const rEnd = toTs(r.returnTime); return bStart <= endDate.getTime() && rEnd >= startDate.getTime(); });
+  const bars = rangeRequests.map(r => { const leftPct = dateToPercent(r.borrowTime); const rightPct = dateToPercent(r.returnTime); const widthPct = Math.max(rightPct - leftPct, 2); const barText = esc(r.borrowerName) + (r.status === 'borrowing' ? ' · 借用中' : r.status === 'returned' ? ' · 已归还' : ''); return '<div class="gantt-bar status-' + esc(r.status) + '" style="left:' + leftPct + '%; width:' + widthPct + '%;" title="' + esc(r.workOrderNo) + ' | ' + esc(r.borrowerName) + ' | ' + fmt(r.borrowTime) + ' → ' + fmt(r.returnTime) + '"><span class="gantt-bar-text">' + barText + '</span></div>'; }).join('');
+  const noBars = rangeRequests.length === 0 ? '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:13px;color:var(--text-tertiary);">该时段暂无借用记录</div>' : '';
+  const allHistory = requests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const historyHtml = allHistory.length > 0 ? allHistory.map(r => '<div class="gantt-history-item"><span class="status-badge status-' + r.status + '">' + STATUS_TEXT[r.status] + '</span><div style="flex:1;"><span class="work-order">' + esc(r.workOrderNo) + '</span> · ' + esc(r.borrowerName) + '（' + esc(r.borrowerId) + '） · ' + fmt(r.borrowTime) + ' → ' + fmt(r.returnTime) + '</div></div>').join('') : '';
+  const img = eq.image ? '<img src="' + eq.image + '">' : '<div style="font-size:28px;">' + (eq.icon || '📦') + '</div>';
+  return '<div class="modal-overlay" data-action="close-modal-bg"><div class="modal" style="max-width:760px;"><div class="modal-header"><div class="modal-title">设备借用时间轴</div><button class="modal-close" data-action="close-modal">×</button></div><div class="timeline-header"><div class="timeline-header-icon">' + img + '</div><div class="timeline-header-info"><h3>' + esc(eq.name) + '</h3><p>' + esc(eq.id) + ' · ' + eq.category + '</p></div></div>' + statusCard + '<div class="gantt-wrapper"><div class="gantt-toolbar"><button class="gantt-range-btn ' + (range === 'month' ? 'active' : '') + '" data-action="set-gantt-range" data-range="month">本月</button><button class="gantt-range-btn ' + (range === 'quarter' ? 'active' : '') + '" data-action="set-gantt-range" data-range="quarter">本季度</button><button class="gantt-range-btn ' + (range === 'year' ? 'active' : '') + '" data-action="set-gantt-range" data-range="year">本年</button></div><div class="gantt-container"><div class="gantt-chart"><div class="gantt-header"><div class="gantt-header-label">借用人 / 状态</div><div class="gantt-header-scale">' + ticksHtml + '</div></div><div class="gantt-row"><div class="gantt-row-label">' + (eq.name.length > 10 ? esc(eq.name.substring(0, 10)) + '…' : esc(eq.name)) + '</div><div class="gantt-row-track">' + gridLines + todayLine + bars + noBars + '</div></div></div><div class="gantt-legend"><div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#D97757;"></div>借用中</div><div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#4A7CB5;"></div>已通过</div><div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#B8862B;"></div>待审核/待归还</div><div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#4A8B5C;"></div>已归还</div><div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:#C25B5B;width:2px;"></div>今天</div></div></div></div>' + (allHistory.length > 0 ? '<div class="gantt-history-list"><div class="gantt-history-title">完整借用记录</div>' + historyHtml + '</div>' : '') + '</div></div>';
+}
+
+/* Render */
+function render() {
+  const app = document.getElementById('app');
+  if (!state.user) { app.innerHTML = viewLogin(); return; }
+  let main = '';
+  switch (state.view) {
+    case 'equipment': main = viewEquipment(); break;
+    case 'borrow': main = viewBorrow(); break;
+    case 'overview': main = viewOverview(); break;
+    case 'precautions': main = viewPrecautions(); break;
+    case 'profile': main = viewProfile(); break;
+    case 'admin-equipment': main = viewAdminEquipment(); break;
+    case 'admin-approval': main = viewAdminApproval(); break;
+    case 'admin-return': main = viewAdminReturn(); break;
+    case 'admin-logs': main = viewAdminLogs(); break;
+    default: main = viewEquipment();
+  }
+  let modal = '';
+  if (state.showWelcome) modal = viewWelcomeModal();
+  else if (state.modal === 'equipment') modal = viewEquipmentModal();
+  else if (state.modal === 'return') modal = viewReturnModal();
+  else if (state.modal === 'timeline') modal = viewTimelineModal();
+  else if (state.modal === 'approval') modal = viewApprovalModal();
+  else if (state.modal === 'reject') modal = viewRejectModal();
+  else if (state.modal === 'card') modal = viewCardModal();
+  else if (state.modal === 'pickup') modal = viewPickupModal();
+  else if (state.modal === 'photo') modal = viewPhotoModal();
+  app.innerHTML = viewSidebar() + '<main class="main-content">' + main + '</main>' + viewMobileNav() + modal;
+}
+
+/* Handlers */
+function handleClick(e) {
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const action = el.dataset.action;
+  switch (action) {
+    case 'switch-login-tab': state.loginTab = el.dataset.tab; render(); break;
+    case 'navigate': if (!isAdmin() && el.dataset.view.startsWith('admin')) return; if (state.view === 'borrow') saveBorrowDraft(); state.view = el.dataset.view; if (el.dataset.view === 'borrow') loadBorrowDraft(); render(); break;
+    case 'logout': logout(); render(); break;
+    case 'toggle-sidebar': { var sb = document.querySelector('.sidebar'); if (sb) sb.classList.toggle('expanded'); break; }
+    case 'set-filter': state.filter = el.dataset.filter; render(); break;
+    case 'set-approval-filter': state.adminApprovalFilter = el.dataset.filter; render(); break;
+    case 'set-log-filter': state.logFilter = el.dataset.filter; render(); break;
+    case 'open-approval-modal': openApprovalModal(el.dataset.id); break;
+    case 'confirm-approve': confirmApprove(el.dataset.id); break;
+    case 'confirm-reject': confirmReject(el.dataset.id); break;
+    case 'reject-request': openRejectModal(el.dataset.id); break;
+    case 'open-reject-modal': openRejectModal(el.dataset.id); break;
+    case 'search-input': state.searchQuery = el.value; break;
+    case 'export-csv': exportCSV(); break;
+    case 'view-photo': state.modal = 'photo'; state.photoViewUrl = el.dataset.src; render(); break;
+    case 'confirm-pickup': openPickupModal(el.dataset.id); break;
+    case 'confirm-pickup-with-card': confirmPickup(el.dataset.id); break;
+    case 'confirm-return': confirmReturn(el.dataset.id); break;
+    case 'delete-request': deleteRequest(el.dataset.id); break;
+    case 'cancel-request': cancelRequest(el.dataset.id); break;
+    case 'open-return-modal': openReturnModal(el.dataset.id); break;
+    case 'open-timeline': openTimeline(el.dataset.eid); break;
+    case 'set-gantt-range': state.ganttRange = el.dataset.range; render(); break;
+    case 'open-add-equipment': state.editingEquipmentId = null; state.equipmentImagePreview = null; state.modal = 'equipment'; render(); break;
+    case 'edit-equipment': state.editingEquipmentId = el.dataset.id; { const eqToEdit = getEquipmentById(el.dataset.id); state.equipmentImagePreview = eqToEdit ? eqToEdit.image || null : null; } state.modal = 'equipment'; render(); break;
+    case 'delete-equipment': deleteEquipment(el.dataset.id); break;
+    case 'open-add-card': state.editingCardId = null; state.modal = 'card'; render(); break;
+    case 'edit-card': state.editingCardId = el.dataset.id; state.modal = 'card'; render(); break;
+    case 'delete-card': deleteCard(el.dataset.id); break;
+    case 'toggle-repair': toggleRepair(el.dataset.id); break;
+    case 'close-modal': closeModal(); break;
+    case 'close-modal-bg': if (e.target === el) closeModal(); break;
+    case 'close-welcome': state.showWelcome = false; render(); break;
+    case 'close-welcome-bg': if (e.target === el) { state.showWelcome = false; render(); } break;
+  }
+}
+function closeModal() { state.modal = null; state.modalData = null; state.equipmentImagePreview = null; state.editingEquipmentId = null; state.timelineEquipmentId = null; state.approvalData = { id: '', comment: '' }; state.rejectData = { id: '', comment: '' }; state.photoViewUrl = null; state.pickupData = { id: '', cardId: '' }; state.editingCardId = null; render(); }
+function handleChange(e) {
+  const el = e.target;
+  if (el.dataset.action === 'check-conflict') { const form = document.getElementById('form-borrow'); if (form) { const data = new FormData(form); state.borrowForm.equipmentId = data.get('equipmentId') || ''; state.borrowForm.borrowTime = data.get('borrowTime') || ''; state.borrowForm.returnTime = data.get('returnTime') || ''; state.borrowForm.reason = data.get('reason') || ''; render(); } }
+  if (el.dataset.action === 'approval-comment') { state.approvalData.comment = el.value; }
+  if (el.dataset.action === 'reject-comment') { state.rejectData.comment = el.value; }
+  if (el.dataset.action === 'pickup-card-select') { state.pickupData.cardId = el.value; }
+}
+function handleSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = new FormData(form);
+  switch (form.id) {
+    case 'form-login': loginUser(data.get('name'), data.get('studentId')); render(); break;
+    case 'form-admin-login': loginAdmin(data.get('adminName'), data.get('password')); render(); break;
+    case 'form-borrow': submitBorrowForm(data); break;
+    case 'form-equipment': submitEquipmentForm(data); break;
+    case 'form-return': submitReturnForm(); break;
+    case 'form-card': submitCardForm(data); break;
+  }
+}
+
+/* Business Logic */
+function submitBorrowForm(data) {
+  const equipmentId = data.get('equipmentId'); const borrowTime = data.get('borrowTime'); const returnTime = data.get('returnTime'); const reason = data.get('reason'); const workOrder = data.get('workOrder') || generateWorkOrder();
+  if (!equipmentId || !borrowTime || !returnTime || !reason) { showToast('请填写完整信息', 'error'); return; }
+  if (new Date(borrowTime) < new Date()) { showToast('借用时间不能早于当前时间', 'error'); return; }
+  if (new Date(borrowTime) >= new Date(returnTime)) { showToast('归还时间必须晚于借用时间', 'error'); return; }
+  const eq = getEquipmentById(equipmentId);
+  if (!eq) { showToast('该设备不存在', 'error'); return; }
+  if (eq.status === 'repair') { showToast('该设备正在维修中，暂不可借用', 'error'); return; }
+  const dc = checkConflictDetailed(equipmentId, borrowTime, returnTime, null);
+  if (dc.hard.length > 0) { showToast('强冲突，该设备在所选时段已被借用', 'error'); return; }
+  const requests = store.get('eb_requests', []);
+  requests.push({ id: generateRequestId(), workOrderNo: workOrder, borrowerName: state.user.name, borrowerId: state.user.studentId || state.user.id, equipmentId: equipmentId, borrowTime: borrowTime, returnTime: returnTime, reason: reason, status: 'pending', adminComment: '', returnPhoto: null, createdAt: new Date().toISOString() });
+  if (store.set('eb_requests', requests)) { showToast('申请已提交，请等待管理员审核', 'success'); addLog('提交申请', '工单 ' + r.workOrderNo + ' · ' + getEquipmentName(equipmentId) + ' · ' + fmt(borrowTime) + '→' + fmt(returnTime), r.id); state.borrowForm = { equipmentId: '', borrowTime: '', returnTime: '', reason: '' }; sessionStorage.removeItem('eb_borrow_draft'); state.view = 'overview'; checkStorageUsage(); render(); }
+}
+function openApprovalModal(id) { const requests = store.get('eb_requests', []); const r = requests.find(x => x.id === id); if (!r) return; state.modalData = r; state.approvalData = { id: id, comment: '' }; state.modal = 'approval'; render(); }
+function confirmApprove(id) { const requests = store.get('eb_requests', []); const r = requests.find(x => x.id === id); if (!r) return; if (!validateTransition(r.status, 'approved')) { showToast('当前状态不允许此操作', 'error'); return; } const eq = getEquipmentById(r.equipmentId); if (eq && eq.status === 'repair') { showToast('该设备正在维修中，无法通过审批', 'error'); return; } const dc = checkConflictDetailed(r.equipmentId, r.borrowTime, r.returnTime, r.id); if (dc.hard.length > 0) { showToast('强冲突！该设备在此时段已被占用：' + dc.hard.map(c => c.workOrderNo).join('、'), 'error'); return; } r.status = 'approved'; r.approverName = state.user.name; r.adminComment = state.approvalData.comment || ''; if (store.set('eb_requests', requests)) { showToast('工单 ' + r.workOrderNo + ' 已通过', 'success'); addLog('审批通过', '工单 ' + r.workOrderNo + ' · ' + getEquipmentName(r.equipmentId) + (r.adminComment ? ' · ' + r.adminComment : ''), r.id); closeModal(); } }
+function openRejectModal(id) { const requests = store.get('eb_requests', []); const r = requests.find(x => x.id === id); if (!r) return; state.modalData = r; state.rejectData = { id: id, comment: '' }; state.modal = 'reject'; render(); }
+function confirmReject(id) { if (!state.rejectData.comment || !state.rejectData.comment.trim()) { showToast('请填写拒绝理由', 'error'); return; } const requests = store.get('eb_requests', []); const r = requests.find(x => x.id === id); if (!r) return; r.status = 'rejected'; r.approverName = state.user.name; r.adminComment = state.rejectData.comment.trim(); if (store.set('eb_requests', requests)) { showToast('工单 ' + r.workOrderNo + ' 已拒绝', 'warning'); addLog('拒绝申请', '工单 ' + r.workOrderNo + ' · ' + getEquipmentName(r.equipmentId) + ' · 理由：' + r.adminComment, r.id); closeModal(); checkStorageUsage(); } }
+function rejectRequest(id) { openRejectModal(id); }
+function openPickupModal(id) { const requests = store.get('eb_requests', []); const r = requests.find(x => x.id === id); if (!r) return; state.modalData = r; state.pickupData = { id: id, cardId: '' }; state.modal = 'pickup'; render(); }
+function confirmPickup(id) { const requests = store.get('eb_requests', []); const r = requests.find(x => x.id === id); if (!r) return; if (!validateTransition(r.status, 'borrowing')) { showToast('当前状态不允许此操作', 'error'); return; } r.status = 'borrowing'; var cardId = state.pickupData.cardId || ''; if (cardId) { r.cardId = cardId; var cards = store.get('eb_cards', []); var card = cards.find(c => c.id === cardId); if (card) { card.status = 'borrowed'; store.set('eb_cards', cards); } } if (store.set('eb_requests', requests)) { showToast('已确认领取，工单 ' + r.workOrderNo + ' 状态：借用中' + (cardId ? '（已配卡：' + getCardName(cardId) + '）' : ''), 'success'); addLog('确认领取', '工单 ' + r.workOrderNo + ' · ' + getEquipmentName(r.equipmentId) + (cardId ? ' · 配卡 ' + getCardName(cardId) : ''), r.id); closeModal(); } }
+function openReturnModal(id) { const requests = store.get('eb_requests', []); const r = requests.find(x => x.id === id); if (!r) return; state.modalData = r; if (!state.returnPhotoPreview) state.returnPhotoPreview = r.returnPhoto || null; state.modal = 'return'; render(); }
+function submitReturnForm() { if (!state.returnPhotoPreview) { showToast('请上传归还照片', 'error'); return; } const requests = store.get('eb_requests', []); const r = requests.find(x => x.id === state.modalData.id); if (!r) return; if (!validateTransition(r.status, 'return-pending')) { showToast('当前状态不允许此操作', 'error'); return; } r.status = 'return-pending'; r.returnPhoto = state.returnPhotoPreview; if (store.set('eb_requests', requests)) { state.returnPhotoPreview = null; showToast('归还申请已提交，等待管理员确认', 'success'); addLog('提交归还', '工单 ' + r.workOrderNo + ' · ' + getEquipmentName(r.equipmentId), r.id); closeModal(); checkStorageUsage(); } }
+function confirmReturn(id) { const requests = store.get('eb_requests', []); const r = requests.find(x => x.id === id); if (!r) return; if (!validateTransition(r.status, 'returned')) { showToast('当前状态不允许此操作', 'error'); return; } r.status = 'returned'; if (r.cardId) { var cards = store.get('eb_cards', []); var card = cards.find(c => c.id === r.cardId); if (card) { card.status = 'available'; store.set('eb_cards', cards); } } if (store.set('eb_requests', requests)) { showToast('工单 ' + r.workOrderNo + ' 归还确认完成', 'success'); addLog('确认归还', '工单 ' + r.workOrderNo + ' · ' + getEquipmentName(r.equipmentId) + (r.cardId ? ' · 卡 ' + getCardName(r.cardId) + '已释放' : ''), r.id); render(); } }
+function releaseCardFromRequest(r) { if (r.cardId && r.status === 'borrowing') { var cards = store.get('eb_cards', []); var card = cards.find(c => c.id === r.cardId); if (card) { card.status = 'available'; store.set('eb_cards', cards); } } }
+function deleteRequest(id) { if (!confirm('确认删除此借用记录？此操作不可撤销。')) return; var requests = store.get('eb_requests', []); var r = requests.find(x => x.id === id); if (r) releaseCardFromRequest(r); if (store.set('eb_requests', requests.filter(x => x.id !== id))) { showToast('借用记录已删除', 'success'); if (r) addLog('删除记录', '工单 ' + r.workOrderNo + ' · ' + getEquipmentName(r.equipmentId), r.id); render(); } }
+function cancelRequest(id) { if (!confirm('确认取消此借用申请？')) return; var requests = store.get('eb_requests', []); var r = requests.find(x => x.id === id); if (r) releaseCardFromRequest(r); if (store.set('eb_requests', requests.filter(x => x.id !== id))) { showToast('申请已取消', 'success'); if (r) addLog('取消申请', '工单 ' + r.workOrderNo + ' · ' + getEquipmentName(r.equipmentId), r.id); render(); } }
+function submitEquipmentForm(data) { const equipment = store.get('eb_equipment', []); const id = data.get('id').trim(); if (state.editingEquipmentId) { const eq = equipment.find(e => e.id === state.editingEquipmentId); if (eq) { const newStatus = data.get('status') || 'available'; if (newStatus === 'repair' && isEquipmentBorrowed(eq.id)) { showToast(eq.name + ' 正在被借用，无法设为维修', 'error'); return; } eq.name = data.get('name').trim(); eq.category = data.get('category').trim(); eq.icon = data.get('icon').trim() || '📦'; eq.notes = data.get('notes').trim(); eq.status = newStatus; if (state.equipmentImagePreview) eq.image = state.equipmentImagePreview; } if (store.set('eb_equipment', equipment)) { showToast('设备信息已更新', 'success'); if (eq) addLog('编辑设备', eq.id + ' - ' + eq.name, eq.id); closeModal(); } } else { if (equipment.find(e => e.id === id)) { showToast('设备编号已存在', 'error'); return; } equipment.push({ id: id, name: data.get('name').trim(), category: data.get('category').trim(), icon: data.get('icon').trim() || '📦', image: state.equipmentImagePreview, notes: data.get('notes').trim(), status: data.get('status') || 'available' }); if (store.set('eb_equipment', equipment)) { showToast('设备已添加', 'success'); addLog('添加设备', id + ' - ' + data.get('name').trim(), id); closeModal(); } } }
+function deleteEquipment(id) { const activeRequests = store.get('eb_requests', []).filter(r => r.equipmentId === id && ACTIVE_STATUSES.includes(r.status)); if (activeRequests.length > 0) { showToast('该设备有 ' + activeRequests.length + ' 条进行中的借用记录，无法删除', 'error'); return; } if (!confirm('确认删除此设备？相关历史借用记录将保留但不再显示设备名称。')) return; var eqName = getEquipmentName(id); var ok = store.set('eb_equipment', store.get('eb_equipment', []).filter(e => e.id !== id)); if (ok) { if (state.borrowForm.equipmentId === id) state.borrowForm.equipmentId = ''; showToast('设备已删除', 'success'); addLog('删除设备', eqName, id); render(); } }
+function toggleRepair(id) { const equipment = store.get('eb_equipment', []); const eq = equipment.find(e => e.id === id); if (!eq) return; if (eq.status === 'repair') { eq.status = 'available'; if (store.set('eb_equipment', equipment)) { showToast(eq.name + ' 已设为可用', 'success'); addLog('设备设为可用', eq.id + ' - ' + eq.name, eq.id); render(); } } else { const activeRequests = store.get('eb_requests', []).filter(r => r.equipmentId === id && ACTIVE_STATUSES.includes(r.status)); if (activeRequests.length > 0) { showToast(eq.name + ' 有 ' + activeRequests.length + ' 条进行中的借用申请，无法设为维修', 'error'); return; } eq.status = 'repair'; if (store.set('eb_equipment', equipment)) { showToast(eq.name + ' 已设为维修中', 'warning'); addLog('设备设为维修', eq.id + ' - ' + eq.name, eq.id); render(); } } }
+function openTimeline(eid) { state.timelineEquipmentId = eid; state.modal = 'timeline'; render(); }
+function submitCardForm(data) { const cards = store.get('eb_cards', []); const id = data.get('id').trim(); if (state.editingCardId) { const c = cards.find(x => x.id === state.editingCardId); if (c) { c.name = data.get('name').trim(); c.notes = data.get('notes').trim(); } if (store.set('eb_cards', cards)) { showToast('内存卡信息已更新', 'success'); if (c) addLog('编辑内存卡', c.id + ' - ' + c.name, c.id); closeModal(); } } else { if (cards.find(x => x.id === id)) { showToast('卡编号已存在', 'error'); return; } cards.push({ id: id, name: data.get('name').trim(), status: 'available', notes: data.get('notes').trim() }); if (store.set('eb_cards', cards)) { showToast('内存卡已添加', 'success'); addLog('添加内存卡', id + ' - ' + data.get('name').trim(), id); closeModal(); } } }
+function deleteCard(id) { const activeRequests = store.get('eb_requests', []).filter(r => r.cardId === id && ACTIVE_STATUSES.includes(r.status)); if (activeRequests.length > 0) { showToast('该卡有 ' + activeRequests.length + ' 条进行中的借用记录，无法删除', 'error'); return; } if (!confirm('确认删除此内存卡？')) return; var cardName = getCardName(id); if (store.set('eb_cards', store.get('eb_cards', []).filter(c => c.id !== id))) { showToast('内存卡已删除', 'success'); addLog('删除内存卡', cardName, id); render(); } }
+
+/* Init */
+function init() {
+  const DATA_VERSION = 'v15';
+  if (store.get('eb_data_version') !== DATA_VERSION) { store.set('eb_equipment', SEED_EQUIPMENT); store.set('eb_cards', SEED_CARDS); store.set('eb_requests', SEED_REQUESTS); store.set('eb_users', []); store.set('eb_data_version', DATA_VERSION); store.set('eb_session', null); store.set('eb_schema', SCHEMA_VERSION); }
+  /* 数据完整性校验：检查 schema 版本和数据结构 */
+  const currentSchema = store.get('eb_schema', 0);
+  if (currentSchema < SCHEMA_VERSION) {
+    console.warn('Schema version mismatch, running migration...');
+    var eqs = store.get('eb_equipment', []);
+    eqs.forEach(function(e) { if (!e.status) e.status = 'available'; if (!e.notes) e.notes = ''; });
+    store.set('eb_equipment', eqs);
+    var reqs = store.get('eb_requests', []);
+    reqs.forEach(function(r) { if (!r.adminComment) r.adminComment = ''; if (!r.returnPhoto) r.returnPhoto = null; if (!r.status) r.status = 'pending'; if (!r.cardId) r.cardId = null; });
+    store.set('eb_requests', reqs);
+    var cards = store.get('eb_cards', []);
+    if (!cards || cards.length === 0) { cards = SEED_CARDS; }
+    cards.forEach(function(c) { if (!c.status) c.status = 'available'; if (!c.notes) c.notes = ''; });
+    store.set('eb_cards', cards);
+    store.set('eb_schema', SCHEMA_VERSION);
+  }
+  /* checksum 完整性检查 */
+  var storedChecksum = store.get('eb_checksum', null);
+  var currentChecksum = computeChecksum({ eq: store.get('eb_equipment', []), cards: store.get('eb_cards', []), req: store.get('eb_requests', []) });
+  if (storedChecksum && storedChecksum !== currentChecksum) {
+    console.warn('Data checksum mismatch - data may have been tampered with');
+  }
+  store.set('eb_checksum', currentChecksum);
+  state.user = store.get('eb_session', null);
+  if (state.user) { state.view = isAdmin() ? 'admin-approval' : 'equipment'; if (!sessionStorage.getItem('eb_welcome_shown')) { state.showWelcome = true; sessionStorage.setItem('eb_welcome_shown', '1'); } }
+  const app = document.getElementById('app');
+  app.addEventListener('click', handleClick);
+  app.addEventListener('change', handleChange);
+  app.addEventListener('submit', handleSubmit);
+  app.addEventListener('input', function(e) {
+    var el = e.target;
+    if (el.dataset && el.dataset.action === 'search-input') {
+      if (state._composing) return;
+      state.searchQuery = el.value;
+      var listEl = document.getElementById('overview-list');
+      if (listEl) { listEl.innerHTML = renderOverviewList(); }
+    }
+  });
+  app.addEventListener('compositionstart', function(e) { if (e.target.dataset && e.target.dataset.action === 'search-input') state._composing = true; });
+  app.addEventListener('compositionend', function(e) {
+    if (e.target.dataset && e.target.dataset.action === 'search-input') {
+      state._composing = false;
+      state.searchQuery = e.target.value;
+      var listEl = document.getElementById('overview-list');
+      if (listEl) { listEl.innerHTML = renderOverviewList(); }
+    }
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      if (state.showWelcome) { state.showWelcome = false; render(); }
+      else if (state.modal) { closeModal(); }
+    }
+  });
+  render();
+}
+init();
+</script>
+</body>
+</html>
