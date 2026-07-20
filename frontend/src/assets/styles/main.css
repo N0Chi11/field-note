@@ -1,44 +1,61 @@
 /* =========================================================
    全局样式 - 器材设备管理系统
-   自然风配色（与原 HTML 系统一致）
+   完全对齐原始 HTML 版本的配色与设计
    ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
   /* 背景 */
-  --bg: #faf9f7;
-  --bg-card: #ffffff;
-  --bg-input: #f5f3ef;
-  --bg-code: #f5f3ef;
+  --bg: #F5F4EE;
+  --bg-card: #FFFFFF;
+  --bg-sidebar: #EEEDE5;
+  --bg-hover: #E8E6DD;
+  --bg-input: #FAF9F5;
+  --bg-code: #FAF9F5;
 
   /* 文本 */
-  --text: #2c2c2c;
-  --text-secondary: #6b6b6b;
-  --text-tertiary: #999;
+  --text: #2D2A26;
+  --text-secondary: #6B6A63;
+  --text-tertiary: #A09E95;
 
-  /* 主色 */
-  --accent: #b8862b;
-  --accent-light: #d4a84a;
-  --accent-bg: rgba(184, 134, 43, 0.1);
+  /* 主色（暖橙色系，与原 HTML 一致） */
+  --accent: #D97757;
+  --accent-hover: #C4663D;
+  --accent-light: #F9E8E0;
+  --accent-bg: #FDF4F0;
+  --accent-gradient: linear-gradient(135deg, #D97757, #C4663D);
 
   /* 语义色 */
-  --success: #4a7c59;
-  --success-bg: rgba(74, 124, 89, 0.1);
-  --danger: #c25450;
-  --danger-bg: rgba(194, 84, 80, 0.1);
-  --warning: #b8862b;
-  --info: #5b7c99;
+  --success: #4A8B5C;
+  --success-bg: #EAF3EC;
+  --warning: #B8862B;
+  --warning-bg: #F7F0E0;
+  --danger: #C25B5B;
+  --danger-bg: #F8EAEA;
+  --info: #4A7CB5;
+  --info-bg: #EAF0F8;
 
   /* 边框与圆角 */
-  --border: #e8e4de;
-  --radius: 12px;
+  --border: #E0DED5;
+  --border-light: #ECEAE2;
   --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
 
   /* 阴影 */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.04);
+  --shadow-accent: 0 4px 12px rgba(217, 119, 87, 0.2);
 
-  /* 字体 */
-  --font: 'Segoe UI', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  /* 字体（与原 HTML 一致：衬线标题 + 无衬线 UI） */
+  --font: "Source Serif 4", Georgia, "Times New Roman", "Songti SC", "STSong", serif;
+  --font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+
+  /* 过渡 */
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ---------- 全局重置 ---------- */
@@ -71,17 +88,17 @@ body {
 a {
   color: var(--accent);
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: color var(--transition);
 }
 
 a:hover {
-  color: var(--accent-light);
+  color: var(--accent-hover);
 }
 
 /* ---------- 滚动条 ---------- */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -90,50 +107,43 @@ a:hover {
 
 ::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-tertiary);
 }
 
-/* Firefox */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
 
-/* ---------- 常用工具类 ---------- */
-.text-success {
-  color: var(--success);
-}
-.text-danger {
-  color: var(--danger);
-}
-.text-warning {
-  color: var(--warning);
-}
-.text-info {
-  color: var(--info);
-}
-.text-secondary {
-  color: var(--text-secondary);
-}
-.text-tertiary {
-  color: var(--text-tertiary);
+/* ---------- 动画 ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.tag-success {
-  background: var(--success-bg);
-  color: var(--success);
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-.tag-danger {
-  background: var(--danger-bg);
-  color: var(--danger);
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
 }
-.tag-accent {
-  background: var(--accent-bg);
-  color: var(--accent);
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* ---------- 路由过渡动画 ---------- */
@@ -152,7 +162,6 @@ a:hover {
   transform: translateY(-12px);
 }
 
-/* 兜底动画类（供全局使用） */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;
@@ -168,7 +177,7 @@ input,
 textarea,
 select,
 button {
-  font-family: inherit;
+  font-family: var(--font-ui);
   font-size: inherit;
 }
 
@@ -185,3 +194,15 @@ img {
   max-width: 100%;
   display: block;
 }
+
+/* ---------- 常用工具类 ---------- */
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+.text-warning { color: var(--warning); }
+.text-info { color: var(--info); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+
+.tag-success { background: var(--success-bg); color: var(--success); }
+.tag-danger { background: var(--danger-bg); color: var(--danger); }
+.tag-accent { background: var(--accent-bg); color: var(--accent); }
