@@ -3,8 +3,7 @@
    完全对齐原始 HTML 版本的配色与设计
    ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap');
-
+/* 使用系统字体，避免 Google Fonts 被墙导致白屏 */
 :root {
   /* 背景 */
   --bg: #F5F4EE;
@@ -50,9 +49,9 @@
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.04);
   --shadow-accent: 0 4px 12px rgba(217, 119, 87, 0.2);
 
-  /* 字体（与原 HTML 一致：衬线标题 + 无衬线 UI） */
-  --font: "Source Serif 4", Georgia, "Times New Roman", "Songti SC", "STSong", serif;
-  --font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  /* 字体（使用系统字体，避免被墙） */
+  --font: Georgia, "Times New Roman", "Songti SC", "STSong", "SimSun", serif;
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
 
   /* 过渡 */
   --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
