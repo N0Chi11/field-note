@@ -218,7 +218,7 @@ watch(() => route.path, () => loadStats())
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  z-index: 100;
+  z-index: 300;
 }
 
 /* ---------- 头部 ---------- */
@@ -487,6 +487,19 @@ watch(() => route.path, () => loadStats())
   .sidebar.is-open {
     transform: translateX(0);
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+  }
+
+  /* 移动端导航项颜色更清晰 */
+  .nav-item {
+    color: var(--text);
+    padding: 12px 12px;
+    font-size: 15px;
+  }
+
+  .nav-item__icon {
+    width: 34px;
+    height: 34px;
+    font-size: 18px;
   }
 }
 </style>
