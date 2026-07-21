@@ -158,10 +158,10 @@ INSERT INTO system_config (`key`, value, `desc`) VALUES
 -- 普通用户无需预设，首次登录时自动创建
 -- ============================================================================
 INSERT INTO users (student_id, name, password_hash, role, is_active) VALUES
-    ('范雨欣', '范雨欣', '$2b$12$B236y5hyJQ.D2111B7jSXegbI80E67srHYJNOqM4.oO0XdAqqBp3G', 'admin', 1),
-    ('黄禹博', '黄禹博', '$2b$12$B236y5hyJQ.D2111B7jSXegbI80E67srHYJNOqM4.oO0XdAqqBp3G', 'admin', 1),
-    ('陈玥杉', '陈玥杉', '$2b$12$B236y5hyJQ.D2111B7jSXegbI80E67srHYJNOqM4.oO0XdAqqBp3G', 'admin', 1),
-    ('牛婉慈', '牛婉慈', '$2b$12$B236y5hyJQ.D2111B7jSXegbI80E67srHYJNOqM4.oO0XdAqqBp3G', 'admin', 1);
+    ('范雨欣', '范雨欣', '$2b$12$LmOxkg2yeVjcmnj1qFV1refPBRxXPIpEB5MoQ5/KnqZFPyNIN4AFe', 'admin', 1),
+    ('黄禹博', '黄禹博', '$2b$12$LmOxkg2yeVjcmnj1qFV1refPBRxXPIpEB5MoQ5/KnqZFPyNIN4AFe', 'admin', 1),
+    ('陈玥杉', '陈玥杉', '$2b$12$LmOxkg2yeVjcmnj1qFV1refPBRxXPIpEB5MoQ5/KnqZFPyNIN4AFe', 'admin', 1),
+    ('牛婉慈', '牛婉慈', '$2b$12$LmOxkg2yeVjcmnj1qFV1refPBRxXPIpEB5MoQ5/KnqZFPyNIN4AFe', 'admin', 1);
 
 -- ============================================================================
 -- 种子设备数据（与原始 HTML 版本一致，共 16 台设备）
