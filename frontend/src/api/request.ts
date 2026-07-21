@@ -90,7 +90,9 @@ service.interceptors.request.use(
 async function doRefresh(): Promise<string> {
   const refreshToken = getRefreshToken()
   if (!refreshToken) {
-    throw new Error('No refresh token')
+    // 没有 refresh token：静默跳转登录页，不抛错
+    redirectToLogin()
+    throw new Error('REDIRECT_TO_LOGIN')
   }
   const res = await refreshInstance.post<{
     code: number
@@ -165,7 +167,8 @@ service.interceptors.response.use(
       } catch (refreshError) {
         clearPendingQueue()
         redirectToLogin()
-        return Promise.reject(refreshError)
+        // 静默拒绝，不抛出可见错误
+        return Promise.reject(new Error('REDIRECT_TO_LOGIN'))
       } finally {
         isRefreshing = false
       }

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { clearTokens } from '@/api/request'
 
 /** 路由元信息 */
 declare module 'vue-router' {
@@ -100,6 +101,14 @@ router.beforeEach(async (to, _from, next) => {
     document.title = '器材设备管理系统'
   }
 
+  // 登录页：清除旧的无效 token，避免残留
+  if (to.meta.guest) {
+    clearTokens()
+    authStore.user = null
+    next()
+    return
+  }
+
   const isLoggedIn = authStore.isLoggedIn
 
   // 已登录但还没拉取用户信息
@@ -107,12 +116,18 @@ router.beforeEach(async (to, _from, next) => {
     try {
       await authStore.fetchUser()
     } catch {
-      // 拉取失败，继续走守卫逻辑，后面会被未登录逻辑拦截
+      // 拉取失败：清除 token，跳登录页
+      clearTokens()
+      authStore.user = null
+      if (to.meta.auth) {
+        next({ name: 'Login', query: { redirect: to.fullPath } })
+        return
+      }
     }
   }
 
   // 需要登录
-  if (to.meta.auth && !isLoggedIn) {
+  if (to.meta.auth && !authStore.isLoggedIn) {
     next({ name: 'Login', query: { redirect: to.fullPath } })
     return
   }
@@ -124,7 +139,7 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   // 游客页（登录页）且已登录 → 跳首页
-  if (to.meta.guest && isLoggedIn) {
+  if (to.meta.guest && authStore.isLoggedIn) {
     next({ name: 'EquipmentList' })
     return
   }
