@@ -2,6 +2,7 @@
 interface Tab {
   key: string
   label: string
+  icon?: string
 }
 
 defineProps<{
@@ -27,7 +28,8 @@ function selectTab(key: string) {
       :class="{ active: modelValue === tab.key }"
       @click="selectTab(tab.key)"
     >
-      {{ tab.label }}
+      <span v-if="tab.icon" class="filter-tabs__icon">{{ tab.icon }}</span>
+      <span class="filter-tabs__label">{{ tab.label }}</span>
     </button>
   </div>
 </template>
@@ -59,6 +61,10 @@ function selectTab(key: string) {
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .filter-tabs__item:hover {
@@ -70,5 +76,14 @@ function selectTab(key: string) {
   color: var(--accent);
   font-weight: 600;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.filter-tabs__icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.filter-tabs__label {
+  line-height: 1;
 }
 </style>

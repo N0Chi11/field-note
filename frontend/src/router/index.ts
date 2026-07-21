@@ -46,6 +46,12 @@ const routes: RouteRecordRaw[] = [
     meta: { auth: true, title: '我的借用' }
   },
   {
+    path: '/precautions',
+    name: 'Precautions',
+    component: () => import('@/views/Precautions.vue'),
+    meta: { auth: true, title: '注意事项' }
+  },
+  {
     path: '/profile',
     name: 'Profile',
     component: () => import('@/views/Profile.vue'),

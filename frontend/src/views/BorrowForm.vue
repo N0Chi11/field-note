@@ -4,7 +4,9 @@
       <!-- 页面标题 -->
       <div class="page-header">
         <h1 class="page-title">借用申请</h1>
-        <p class="page-desc">填写借用信息，系统将自动检测时间冲突</p>
+        <p class="page-desc">
+          提交申请后可在“借用一览”页面查看审核状态（建议提前一天提交）
+        </p>
       </div>
 
       <div class="form-wrapper">
@@ -15,13 +17,35 @@
           label-placement="top"
           require-mark-placement="right-hanging"
         >
-          <!-- 设备选择 -->
+          <!-- 工单号 + 借用人（只读） -->
+          <div class="form-row">
+            <n-form-item label="工单号">
+              <n-input
+                :value="workOrderPreview"
+                placeholder="提交后系统自动生成"
+                readonly
+              >
+                <template #prefix>
+                  <span class="field-icon">🔖</span>
+                </template>
+              </n-input>
+            </n-form-item>
+            <n-form-item label="借用人">
+              <n-input :value="borrowerText" placeholder="—" readonly>
+                <template #prefix>
+                  <span class="field-icon">👤</span>
+                </template>
+              </n-input>
+            </n-form-item>
+          </div>
+
+          <!-- 设备选择（按类别分组，维修中禁用） -->
           <n-form-item label="借用设备" path="equipmentId">
             <n-select
               v-model:value="form.equipmentId"
               :options="equipmentOptions"
               :loading="equipmentLoading"
-              placeholder="请选择设备"
+              placeholder="请选择设备（按类别分组）"
               filterable
               @update:value="onFieldChange"
             />
@@ -80,7 +104,9 @@
                 ? '已被占用'
                 : '有待审核 / 待归还的申请'
             }}，冲突工单：{{ conflict.conflict_orders.join('、') || '无' }}。
-            <span v-if="conflict.conflict_type === 'hard'">请选择其他时间段。</span>
+            <span v-if="conflict.conflict_type === 'hard'"
+              >请选择其他时间段。</span
+            >
             <span v-else>如对方通过可能冲突，仍可提交。</span>
           </n-alert>
 
@@ -118,7 +144,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   NForm,
@@ -129,16 +155,20 @@ import {
   NButton,
   NAlert,
   type FormInst,
-  type FormRules
+  type FormRules,
+  type SelectGroupOption,
+  type SelectOption
 } from 'naive-ui'
 import AppLayout from '@/components/AppLayout.vue'
 import { getEquipment } from '@/api/equipment'
 import { createRequest, checkConflict } from '@/api/borrow'
 import { useToastStore } from '@/stores/toast'
+import { useAuthStore } from '@/stores/auth'
 import type { Equipment, ConflictResult } from '@/types/models'
 
 const router = useRouter()
 const toast = useToastStore()
+const authStore = useAuthStore()
 
 // 草稿持久化 key（与原 HTML 版一致）
 const DRAFT_KEY = 'eb_borrow_draft'
@@ -157,9 +187,18 @@ const form = reactive({
 const conflict = ref<ConflictResult | null>(null)
 let conflictTimer: ReturnType<typeof setTimeout> | null = null
 
-const equipmentOptions = ref<
-  { label: string; value: number; disabled?: boolean }[]
->([])
+/** 工单号预览：提交后由后端生成，此处仅展示占位 */
+const workOrderPreview = computed(() => '')
+
+/** 借用人文本：当前用户姓名 + 学号 */
+const borrowerText = computed(() => {
+  const u = authStore.user
+  if (!u) return ''
+  return `${u.name}（${u.student_id}）`
+})
+
+/** 设备下拉选项（按类别分组，维修中设备 disabled） */
+const equipmentOptions = ref<(SelectGroupOption | SelectOption)[]>([])
 
 const rules: FormRules = {
   equipmentId: {
@@ -202,19 +241,33 @@ const rules: FormRules = {
   }
 }
 
-// 加载设备列表，构造下拉选项（维修中设备禁用）
+// 加载设备列表，按类别分组构造下拉选项（维修中设备禁用）
 function loadEquipment() {
   equipmentLoading.value = true
   getEquipment()
     .then((data) => {
       const list: Equipment[] = Array.isArray(data) ? data : []
-      equipmentOptions.value = list.map((e) => ({
-        label: `${e.code} - ${e.name}${
-          e.status === 'repair' ? '（维修中）' : ''
-        }`,
-        value: e.id,
-        disabled: e.status === 'repair'
-      }))
+      // 按 category 分组
+      const groupMap = new Map<string, Equipment[]>()
+      for (const e of list) {
+        const cat = e.category || '其他'
+        if (!groupMap.has(cat)) groupMap.set(cat, [])
+        groupMap.get(cat)!.push(e)
+      }
+      equipmentOptions.value = Array.from(groupMap.entries()).map(
+        ([category, items]) => ({
+          type: 'group' as const,
+          label: category,
+          key: category,
+          children: items.map((e) => ({
+            label: `${e.code} - ${e.name}${
+              e.status === 'repair' ? '（维修中）' : ''
+            }`,
+            value: e.id,
+            disabled: e.status === 'repair'
+          }))
+        })
+      )
     })
     .catch((e: any) => {
       toast.error(errMsg(e, '加载设备列表失败'))
@@ -364,26 +417,35 @@ onMounted(() => {
   margin-bottom: 20px;
 }
 .page-title {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   margin: 0 0 6px;
   color: var(--text);
+  font-family: var(--font);
+  letter-spacing: 0.3px;
 }
 .page-desc {
   font-size: 13px;
   color: var(--text-secondary);
   margin: 0;
+  line-height: 1.6;
 }
 .form-wrapper {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 24px;
+  box-shadow: var(--shadow-sm);
+  animation: slideUp 0.4s ease both;
 }
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+}
+.field-icon {
+  font-size: 14px;
+  opacity: 0.7;
 }
 .conflict-alert {
   margin-bottom: 16px;
@@ -397,6 +459,12 @@ onMounted(() => {
 @media (max-width: 640px) {
   .form-row {
     grid-template-columns: 1fr;
+  }
+  .form-wrapper {
+    padding: 18px;
+  }
+  .page-title {
+    font-size: 20px;
   }
 }
 </style>
