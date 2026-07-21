@@ -41,7 +41,9 @@ class BorrowDetail(BorrowResponse):
     """借用申请详情，附带关联实体名称。"""
 
     user_name: str
+    user_student_id: str = ""
     equipment_name: str
+    equipment_category: str = ""
     card_name: Optional[str] = None
     approver_name: Optional[str] = None
 

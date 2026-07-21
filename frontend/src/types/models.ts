@@ -79,7 +79,9 @@ export interface BorrowRequest {
 /** 借用详情（带关联名称） */
 export interface BorrowDetail extends BorrowRequest {
   user_name: string
+  user_student_id: string
   equipment_name: string
+  equipment_category: string
   card_name?: string
   approver_name?: string
 }

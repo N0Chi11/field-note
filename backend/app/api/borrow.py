@@ -77,7 +77,9 @@ def _to_detail(r: BorrowRequest) -> BorrowDetail:
         return_photo_url=r.return_photo_url,
         created_at=r.created_at,
         user_name=r.user.name if r.user else "",
+        user_student_id=r.user.student_id if r.user else "",
         equipment_name=r.equipment.name if r.equipment else "",
+        equipment_category=r.equipment.category if r.equipment else "",
         card_name=r.card.name if r.card else None,
         approver_name=r.approver.name if r.approver else None,
     )

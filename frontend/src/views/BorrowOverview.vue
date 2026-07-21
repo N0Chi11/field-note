@@ -180,17 +180,14 @@
                     拒绝
                   </button>
                 </template>
-                <n-popconfirm
+                <button
                   v-if="r.status === 'approved'"
-                  @positive-click="confirmPickupHandler(r)"
+                  type="button"
+                  class="btn btn-primary btn-sm"
+                  @click="openPickupModal(r)"
                 >
-                  <template #trigger>
-                    <button type="button" class="btn btn-primary btn-sm">
-                      确认已领取
-                    </button>
-                  </template>
-                  确认该申请已领取设备？状态将变为「借用中」。
-                </n-popconfirm>
+                  确认已领取
+                </button>
                 <n-popconfirm
                   v-if="r.status === 'return_pending'"
                   @positive-click="confirmReturnHandler(r)"
@@ -293,6 +290,53 @@
       >
         <img :src="previewPhoto" class="photo-preview" alt="归还照片" />
       </n-modal>
+
+      <!-- 配卡领取弹窗 -->
+      <n-modal
+        v-model:show="showPickupModal"
+        preset="card"
+        title="确认领取"
+        style="max-width: 480px"
+      >
+        <div v-if="pickupRecord" class="modal-info">
+          <div><strong>工单号：</strong>{{ pickupRecord.work_order_no }}</div>
+          <div><strong>设备：</strong>{{ pickupRecord.equipment_name }}</div>
+          <div><strong>借用人：</strong>{{ pickupRecord.user_name }}</div>
+          <div>
+            <strong>时间：</strong>{{ fmt(pickupRecord.borrow_time) }} →
+            {{ fmt(pickupRecord.return_time) }}
+          </div>
+        </div>
+
+        <!-- 相机类设备：选择配套SD卡 -->
+        <div
+          v-if="pickupRecord && isCamera(pickupRecord)"
+          class="pickup-card-select"
+        >
+          <div class="select-label">配套SD卡</div>
+          <n-select
+            v-model:value="selectedCardId"
+            :options="cardOptions"
+            placeholder="请选择内存卡"
+          />
+          <p class="select-tip">
+            可选「不配卡」，或从可用内存卡中选择一张一并借出。
+          </p>
+        </div>
+
+        <template #footer>
+          <div class="modal-footer">
+            <n-button @click="showPickupModal = false">取消</n-button>
+            <n-button
+              type="primary"
+              :loading="pickupLoading"
+              @click="confirmPickupWithCard"
+            >
+              确认领取
+            </n-button>
+          </div>
+        </template>
+      </n-modal>
     </div>
   </AppLayout>
 </template>
@@ -302,11 +346,13 @@ import { ref, computed, onMounted } from 'vue'
 import {
   NInput,
   NButton,
+  NSelect,
   NSpin,
   NModal,
   NUpload,
   NPopconfirm,
-  type UploadCustomRequestOptions
+  type UploadCustomRequestOptions,
+  type SelectOption
 } from 'naive-ui'
 import AppLayout from '@/components/AppLayout.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
@@ -321,11 +367,13 @@ import {
   confirmPickup,
   confirmReturn
 } from '@/api/admin'
+import { getCards } from '@/api/card'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 import type {
   BorrowDetail,
   BorrowRequestQuery,
+  Card,
   PaginatedResponse,
   RequestStatus
 } from '@/types/models'
@@ -403,6 +451,7 @@ const filtered = computed(() => {
         r.work_order_no.toLowerCase().includes(kw) ||
         r.equipment_name.toLowerCase().includes(kw) ||
         r.user_name.toLowerCase().includes(kw) ||
+        (r.user_student_id || '').toLowerCase().includes(kw) ||
         r.reason.toLowerCase().includes(kw)
       if (!hit) return false
     }
@@ -450,6 +499,7 @@ function exportCSV() {
     [
       '工单号',
       '借用人',
+      '学号',
       '设备',
       '配套内存卡',
       '借用时间',
@@ -465,6 +515,7 @@ function exportCSV() {
     rows.push([
       r.work_order_no,
       r.user_name,
+      r.user_student_id,
       r.equipment_name,
       r.card_name || '',
       r.borrow_time,
@@ -600,14 +651,64 @@ async function submitAction() {
   }
 }
 
-// ===== 管理员：确认领取 =====
-async function confirmPickupHandler(r: BorrowDetail) {
+// ===== 管理员：确认领取（配卡弹窗）=====
+const showPickupModal = ref(false)
+const pickupRecord = ref<BorrowDetail | null>(null)
+const availableCards = ref<Card[]>([])
+const selectedCardId = ref<number>(0)
+const pickupLoading = ref(false)
+// 卡 ID 从 1 开始，用 0 作为「不配卡」哨兵值
+const NO_CARD = 0
+
+const cardOptions = computed<SelectOption[]>(() => [
+  { label: '不配卡', value: NO_CARD },
+  ...availableCards.value.map((c) => ({
+    label: `${c.code} - ${c.name}`,
+    value: c.id
+  }))
+])
+
+// 相机判断（通过设备类别）
+function isCamera(record: BorrowDetail): boolean {
+  return (
+    record.equipment_category === '相机' ||
+    /相机|camera/i.test(record.equipment_category)
+  )
+}
+
+async function openPickupModal(record: BorrowDetail) {
+  pickupRecord.value = record
+  selectedCardId.value = NO_CARD
+  availableCards.value = []
+  // 如果是相机设备，加载可用内存卡列表
+  if (isCamera(record)) {
+    try {
+      const data = await getCards()
+      const cards = Array.isArray(data) ? data : []
+      availableCards.value = cards.filter((c) => c.status === 'available')
+    } catch (e: any) {
+      toast.error(errMsg(e, '加载内存卡列表失败'))
+      availableCards.value = []
+    }
+  }
+  showPickupModal.value = true
+}
+
+async function confirmPickupWithCard() {
+  if (!pickupRecord.value) return
+  pickupLoading.value = true
   try {
-    await confirmPickup(r.id)
+    await confirmPickup(
+      pickupRecord.value.id,
+      selectedCardId.value === NO_CARD ? undefined : selectedCardId.value
+    )
     toast.success('已确认领取')
+    showPickupModal.value = false
     loadRequests()
   } catch (e: any) {
-    toast.error(errMsg(e, '操作失败'))
+    toast.error(errMsg(e, '确认领取失败'))
+  } finally {
+    pickupLoading.value = false
   }
 }
 
@@ -972,6 +1073,19 @@ onMounted(loadRequests)
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+}
+.pickup-card-select {
+  margin-top: 12px;
+}
+.select-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.select-tip {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin: 8px 0 0;
 }
 .photo-preview {
   width: 100%;

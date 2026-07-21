@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { NTag, NButton, NSpin, NImage, NPopconfirm } from 'naive-ui'
 import AppLayout from '@/components/AppLayout.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
-import { getRequests } from '@/api/borrow'
+import { getRequests, deleteRequest } from '@/api/borrow'
 import { confirmReturn } from '@/api/admin'
 import { useToastStore } from '@/stores/toast'
 import type { BorrowDetail, PaginatedResponse } from '@/types/models'
@@ -12,6 +12,7 @@ const toast = useToastStore()
 
 const loading = ref(false)
 const confirmingId = ref<number | null>(null)
+const deletingId = ref<number | null>(null)
 const records = ref<BorrowDetail[]>([])
 
 /** 日期格式化：YYYY-MM-DD HH:mm */
@@ -83,6 +84,21 @@ async function handleConfirm(r: BorrowDetail) {
     toast.error(errMsg(e, '确认失败'))
   } finally {
     confirmingId.value = null
+  }
+}
+
+/** 删除归还记录 */
+async function handleDelete(r: BorrowDetail) {
+  deletingId.value = r.id
+  try {
+    await deleteRequest(r.id)
+    toast.success('已删除记录')
+    // 刷新列表
+    await loadRecords()
+  } catch (e: any) {
+    toast.error(errMsg(e, '删除失败'))
+  } finally {
+    deletingId.value = null
   }
 }
 
@@ -158,6 +174,17 @@ onMounted(loadRecords)
                     </n-button>
                   </template>
                   确认设备已归还入库？确认后状态将变为「已归还」。
+                </n-popconfirm>
+                <n-popconfirm @positive-click="handleDelete(r)">
+                  <template #trigger>
+                    <n-button
+                      type="error"
+                      :loading="deletingId === r.id"
+                    >
+                      删除
+                    </n-button>
+                  </template>
+                  确认删除该归还记录？此操作不可恢复。
                 </n-popconfirm>
               </div>
             </div>

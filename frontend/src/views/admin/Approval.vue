@@ -165,9 +165,12 @@ const filterTitle = computed(() => {
   }
 })
 
-// ===== 相机判断（通过设备名）=====
-function isCamera(name: string): boolean {
-  return /相机|camera/i.test(name)
+// ===== 相机判断（通过设备类别）=====
+function isCamera(record: BorrowDetail): boolean {
+  return (
+    record.equipment_category === '相机' ||
+    /相机|camera/i.test(record.equipment_category)
+  )
 }
 
 // ===== 可用内存卡选项（领取弹窗使用）=====
@@ -614,7 +617,7 @@ onMounted(reload)
 
         <!-- 相机类设备：选择内存卡 -->
         <div
-          v-if="pickupRecord && isCamera(pickupRecord.equipment_name)"
+          v-if="pickupRecord && isCamera(pickupRecord)"
           class="pickup-card-select"
         >
           <div class="select-label">配套内存卡</div>
