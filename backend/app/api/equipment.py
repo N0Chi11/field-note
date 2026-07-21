@@ -68,9 +68,8 @@ def list_equipment(
     category: Optional[str] = None,
     keyword: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    """设备列表，支持按状态 / 分类筛选及关键字搜索（code/name）。"""
+    """设备列表，支持按状态 / 分类筛选及关键字搜索（code/name）。公开接口，无需登录。"""
     try:
         query = db.query(Equipment)
         if status:
@@ -96,9 +95,8 @@ def list_equipment(
 def get_equipment(
     equipment_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    """设备详情 + 该设备历史借用记录（按 created_at 倒序）。"""
+    """设备详情 + 该设备历史借用记录（按 created_at 倒序）。公开接口，无需登录。"""
     try:
         eq = db.query(Equipment).filter(Equipment.id == equipment_id).first()
     except Exception:
