@@ -19,6 +19,7 @@ import {
 } from 'naive-ui'
 import AppLayout from '@/components/AppLayout.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import EquipmentTimeline from '@/components/EquipmentTimeline.vue'
 import {
   getEquipment,
   createEquipment,
@@ -32,6 +33,18 @@ import { useToastStore } from '@/stores/toast'
 import type { Equipment, Card, EquipmentStatus } from '@/types/models'
 
 const toast = useToastStore()
+
+/* ------------------------------------------------------------------ *
+ * 时间轴弹窗状态
+ * ------------------------------------------------------------------ */
+const timelineVisible = ref(false)
+const timelineEquipmentId = ref<number | null>(null)
+
+/** 查看设备借用时间轴 */
+function viewTimeline(item: Equipment) {
+  timelineEquipmentId.value = item.id
+  timelineVisible.value = true
+}
 
 /* ------------------------------------------------------------------ *
  * 下拉选项
@@ -454,6 +467,9 @@ onMounted(() => {
 
               <!-- 操作 -->
               <div class="equip-card__actions">
+                <n-button size="small" tertiary @click="viewTimeline(item)">
+                  时间轴
+                </n-button>
                 <n-button size="small" tertiary @click="openEquipModal(item)">
                   编辑
                 </n-button>
@@ -704,6 +720,12 @@ onMounted(() => {
           </n-space>
         </template>
       </n-modal>
+
+      <!-- ============ 时间轴弹窗 ============ -->
+      <EquipmentTimeline
+        v-model:visible="timelineVisible"
+        :equipment-id="timelineEquipmentId"
+      />
     </div>
   </AppLayout>
 </template>

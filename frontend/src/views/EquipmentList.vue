@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import AppLayout from '@/components/AppLayout.vue'
 import FilterTabs from '@/components/common/FilterTabs.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import EquipmentTimeline from '@/components/EquipmentTimeline.vue'
 import { getEquipment } from '@/api/equipment'
 import { useToastStore } from '@/stores/toast'
 import type { Equipment, EquipmentStatus } from '@/types/models'
 
-const router = useRouter()
 const toast = useToastStore()
+
+/* ------------------------------------------------------------------ *
+ * 时间轴弹窗状态
+ * ------------------------------------------------------------------ */
+const timelineVisible = ref(false)
+const timelineEquipmentId = ref<number | null>(null)
 
 const loading = ref(false)
 const equipmentList = ref<Equipment[]>([])
@@ -98,9 +103,10 @@ function loadEquipment() {
     })
 }
 
-/** 查看设备借用时间轴：跳转到借用一览页 */
-function viewTimeline(_e: Equipment) {
-  router.push('/overview')
+/** 查看设备借用时间轴：打开时间轴弹窗 */
+function viewTimeline(e: Equipment) {
+  timelineEquipmentId.value = e.id
+  timelineVisible.value = true
 }
 
 /** 统一错误信息提取 */
@@ -201,6 +207,12 @@ onMounted(loadEquipment)
         </section>
       </div>
     </div>
+
+    <!-- 时间轴弹窗 -->
+    <EquipmentTimeline
+      v-model:visible="timelineVisible"
+      :equipment-id="timelineEquipmentId"
+    />
   </AppLayout>
 </template>
 

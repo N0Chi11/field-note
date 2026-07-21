@@ -89,6 +89,7 @@ def _to_detail(r: BorrowRequest) -> BorrowDetail:
 def list_requests(
     status: Optional[str] = Query(None, description="按状态筛选"),
     keyword: Optional[str] = Query(None, description="工单号/原因模糊搜索"),
+    equipment_id: Optional[int] = Query(None, description="按设备ID筛选"),
     page: int = Query(1, ge=1),
     size: int = Query(20, ge=1, le=100),
     current_user: User = Depends(get_current_user),
@@ -105,6 +106,10 @@ def list_requests(
         # 状态筛选
         if status:
             query = query.filter(BorrowRequest.status == status)
+
+        # 设备筛选
+        if equipment_id:
+            query = query.filter(BorrowRequest.equipment_id == equipment_id)
 
         # 关键字模糊搜索（工单号 / 借用原因）
         if keyword:
