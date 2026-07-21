@@ -66,6 +66,8 @@ const userForm = reactive({ name: '', studentId: '' })
 const adminForm = reactive({ name: '', password: '' })
 
 function errMsg(e: any): string {
+  // 过滤掉内部跳转标记
+  if (e?.message === 'REDIRECT_TO_LOGIN') return '登录失败，请重试'
   if (e?.response?.data?.detail) {
     const d = e.response.data.detail
     return typeof d === 'string' ? d : JSON.stringify(d)

@@ -124,15 +124,18 @@ service.interceptors.response.use(
   async (error) => {
     const originalConfig = error.config as RetryConfig | undefined
 
-    // 401：尝试刷新 token
+    // 401：尝试刷新 token（但排除登录/刷新接口本身）
     if (
       error.response &&
       error.response.status === 401 &&
       originalConfig &&
-      !originalConfig._retry
+      !originalConfig._retry &&
+      originalConfig.url &&
+      !originalConfig.url.includes('/auth/login') &&
+      !originalConfig.url.includes('/auth/refresh')
     ) {
       // 如果是刷新接口本身 401，直接跳登录
-      if (originalConfig.url && originalConfig.url.includes('/auth/refresh')) {
+      if (originalConfig.url.includes('/auth/refresh')) {
         clearPendingQueue()
         redirectToLogin()
         return Promise.reject(error)
