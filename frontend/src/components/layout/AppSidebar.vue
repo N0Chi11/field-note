@@ -5,6 +5,14 @@ import { useAuthStore } from '@/stores/auth'
 import { getStats } from '@/api/admin'
 import type { AdminStats } from '@/types/models'
 
+defineProps<{
+  mobileOpen?: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'close'): void
+}>()
+
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
@@ -65,6 +73,11 @@ function isActive(path: string): boolean {
   return route.path === path || route.path.startsWith(path + '/')
 }
 
+/** 导航点击：移动端自动关闭抽屉 */
+function handleNavClick() {
+  emit('close')
+}
+
 async function handleLogout() {
   try {
     await authStore.logout()
@@ -105,7 +118,7 @@ watch(() => route.path, () => loadStats())
 </script>
 
 <template>
-  <aside class="sidebar">
+  <aside class="sidebar" :class="{ 'is-open': mobileOpen }">
     <!-- 头部 -->
     <div class="sidebar__header">
       <span class="sidebar__header-icon">📋</span>
@@ -126,6 +139,7 @@ watch(() => route.path, () => loadStats())
           :to="item.path"
           class="nav-item"
           :class="{ active: isActive(item.path) }"
+          @click="handleNavClick"
         >
           <span class="nav-item__icon">{{ item.icon }}</span>
           <span class="nav-item__text">{{ item.label }}</span>
@@ -141,6 +155,7 @@ watch(() => route.path, () => loadStats())
           :to="item.path"
           class="nav-item"
           :class="{ active: isActive(item.path) }"
+          @click="handleNavClick"
         >
           <span class="nav-item__icon">{{ item.icon }}</span>
           <span class="nav-item__text">{{ item.label }}</span>
@@ -159,6 +174,7 @@ watch(() => route.path, () => loadStats())
           :to="item.path"
           class="nav-item"
           :class="{ active: isActive(item.path) }"
+          @click="handleNavClick"
         >
           <span class="nav-item__icon">{{ item.icon }}</span>
           <span class="nav-item__text">{{ item.label }}</span>
@@ -183,7 +199,7 @@ watch(() => route.path, () => loadStats())
           <span class="sidebar__user-id">{{ user?.student_id }}</span>
         </div>
       </div>
-      <button class="sidebar__logout" @click="handleLogout">
+      <button class="sidebar__logout" @click="handleLogout(); handleNavClick()">
         <span class="sidebar__logout-icon">⏏</span>
         退出登录
       </button>
@@ -460,10 +476,17 @@ watch(() => route.path, () => loadStats())
   background: transparent;
 }
 
-/* ---------- 移动端隐藏侧边栏 ---------- */
+/* ---------- 移动端：抽屉式侧边栏 ---------- */
 @media (max-width: 900px) {
   .sidebar {
-    display: none;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+  }
+
+  .sidebar.is-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
   }
 }
 </style>
