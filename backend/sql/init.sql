@@ -8,6 +8,10 @@ CREATE DATABASE IF NOT EXISTS equipment_db
     DEFAULT CHARACTER SET utf8mb4
     DEFAULT COLLATE utf8mb4_unicode_ci;
 
+-- 授权 equip_app 用户访问 equipment_db（解决 Access denied 问题）
+GRANT ALL PRIVILEGES ON equipment_db.* TO 'equip_app'@'%';
+FLUSH PRIVILEGES;
+
 USE equipment_db;
 
 -- ============================================================================
