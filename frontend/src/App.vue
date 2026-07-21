@@ -30,3 +30,17 @@ import { NConfigProvider, NMessageProvider, NDialogProvider, zhCN, dateZhCN } fr
   transform: translateY(-12px);
 }
 </style>
+
+<style>
+/* 全局：首次加载时显示 loading */
+#app:empty::before {
+  content: '加载中...';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 16px;
+  color: #A09E95;
+  font-family: "Inter", sans-serif;
+}
+</style>

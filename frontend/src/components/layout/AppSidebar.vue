@@ -85,9 +85,10 @@ const initials = computed(() => {
 const roleLabel = computed(() => (authStore.isAdmin ? '管理员' : '学生'))
 
 onMounted(() => {
-  loadStats()
-  // 每 60s 刷新一次待办数量
-  timer = window.setInterval(loadStats, 60000)
+  // 延迟 3 秒加载待办统计，避免登录时并发过多请求
+  setTimeout(() => loadStats(), 3000)
+  // 每 120s 刷新一次待办数量（降低频率）
+  timer = window.setInterval(loadStats, 120000)
 })
 
 onUnmounted(() => {
