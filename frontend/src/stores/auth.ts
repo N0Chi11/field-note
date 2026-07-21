@@ -31,8 +31,8 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = data.access_token
     refreshToken.value = data.refresh_token
     setTokens(data.access_token, data.refresh_token)
-    // 异步拉取用户信息，不阻塞跳转
-    fetchUser().catch(() => {})
+    // 等待用户信息加载完成，避免路由守卫再次等待
+    await fetchUser()
   }
 
   /**
@@ -43,8 +43,8 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = data.access_token
     refreshToken.value = data.refresh_token
     setTokens(data.access_token, data.refresh_token)
-    // 异步拉取用户信息，不阻塞跳转
-    fetchUser().catch(() => {})
+    // 等待用户信息加载完成，避免路由守卫再次等待
+    await fetchUser()
   }
 
   /**

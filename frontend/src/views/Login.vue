@@ -85,7 +85,7 @@ async function handleUserLogin() {
   try {
     await authStore.loginUser(userForm.name.trim(), userForm.studentId.trim())
     toast.success('登录成功')
-    router.push('/equipment')
+    await router.push('/equipment')
   } catch (e) {
     toast.error(errMsg(e))
   } finally {
@@ -102,7 +102,7 @@ async function handleAdminLogin() {
   try {
     await authStore.loginAdmin(adminForm.name.trim(), adminForm.password)
     toast.success('管理员登录成功')
-    router.push('/admin/approval')
+    await router.push('/admin/approval')
   } catch (e) {
     toast.error(errMsg(e))
   } finally {
