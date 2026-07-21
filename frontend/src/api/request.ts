@@ -177,12 +177,16 @@ service.interceptors.response.use(
       }
     }
 
-    // 其它错误
+    // 其它错误（包括登录失败的 401）
+    const respData = error.response?.data
     const message =
-      error.response?.data?.message || error.message || '网络异常，请稍后再试'
+      respData?.detail ||
+      respData?.message ||
+      error.message ||
+      '网络异常，请稍后再试'
     const wrapped = new Error(message)
     ;(wrapped as any).status = error.response?.status
-    ;(wrapped as any).data = error.response?.data
+    ;(wrapped as any).data = respData
     return Promise.reject(wrapped)
   }
 )

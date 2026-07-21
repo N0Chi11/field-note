@@ -68,11 +68,12 @@ const adminForm = reactive({ name: '', password: '' })
 function errMsg(e: any): string {
   // 过滤掉内部跳转标记
   if (e?.message === 'REDIRECT_TO_LOGIN') return '登录失败，请重试'
-  if (e?.response?.data?.detail) {
-    const d = e.response.data.detail
-    return typeof d === 'string' ? d : JSON.stringify(d)
-  }
-  return e?.message || '登录失败，请重试'
+  // 后端 HTTPException 格式：{detail: "..."}
+  if (e?.response?.data?.detail) return e.response.data.detail
+  if (e?.data?.detail) return e.data.detail
+  // 包装后的 Error 对象
+  if (e?.message && e.message !== 'Request failed with status code 401') return e.message
+  return '登录失败，请检查姓名和密码'
 }
 
 async function handleUserLogin() {
