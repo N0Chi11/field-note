@@ -46,6 +46,10 @@
 
       <div class="login-hint">用户使用学号登录 · 管理员请输入姓名和密码</div>
     </div>
+    <!-- 底部水印 -->
+    <footer class="login-footer">
+      <img src="/watermark.png" alt="Designed by @N0Chi11" class="login-watermark" />
+    </footer>
   </div>
 </template>
 
@@ -283,5 +287,17 @@ async function handleAdminLogin() {
   text-align: center;
   margin-top: 16px;
   line-height: 1.6;
+}
+
+.login-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.login-watermark {
+  height: 24px;
+  width: auto;
+  opacity: 0.4;
 }
 </style>

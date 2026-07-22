@@ -40,6 +40,10 @@ function closeSidebar() {
     <!-- 主内容区域 -->
     <main class="app-main">
       <slot />
+      <!-- 底部水印 -->
+      <footer class="app-footer">
+        <img src="/watermark.png" alt="Designed by @N0Chi11" class="footer-watermark" />
+      </footer>
     </main>
   </div>
 </template>
@@ -57,6 +61,26 @@ function closeSidebar() {
   max-width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
+}
+
+/* 底部水印 */
+.app-footer {
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  justify-content: center;
+}
+
+.footer-watermark {
+  height: 28px;
+  width: auto;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.footer-watermark:hover {
+  opacity: 0.8;
 }
 
 /* 移动端顶部栏（默认隐藏） */
