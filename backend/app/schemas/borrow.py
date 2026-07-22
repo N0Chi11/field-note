@@ -40,6 +40,7 @@ class BorrowResponse(BaseModel):
     card_id: Optional[int] = None
     borrow_time: datetime
     return_time: datetime
+    actual_return: Optional[datetime] = None
     reason: str
     status: str
     approver_id: Optional[int] = None

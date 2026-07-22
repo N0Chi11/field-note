@@ -264,12 +264,16 @@ const bars = computed<GanttBar[]>(() => {
   const endTs = endDate.getTime()
   const range = requests.value.filter((r) => {
     const bStart = new Date(r.borrow_time).getTime()
-    const rEnd = new Date(r.return_time).getTime()
+    // 已归还的记录用实际归还时间作为结束时间
+    const endTime = r.actual_return || r.return_time
+    const rEnd = new Date(endTime).getTime()
     return bStart <= endTs && rEnd >= startTs
   })
   return range.map((r) => {
     const leftPct = dateToPercent(r.borrow_time)
-    const rightPct = dateToPercent(r.return_time)
+    // 已归还的记录用实际归还时间作为结束时间
+    const endTime = r.actual_return || r.return_time
+    const rightPct = dateToPercent(endTime)
     const widthPct = Math.max(rightPct - leftPct, 2)
     const barText =
       r.user_name +
@@ -280,7 +284,7 @@ const bars = computed<GanttBar[]>(() => {
         : '')
     const title = `${r.work_order_no} | ${r.user_name} | ${fmt(
       r.borrow_time
-    )} → ${fmt(r.return_time)}`
+    )} → ${fmt(endTime)}${r.actual_return ? ' (提前归还)' : ''}`
     return { left: leftPct, width: widthPct, status: r.status, text: barText, title }
   })
 })
@@ -565,7 +569,7 @@ watch(
                 <div class="history-content">
                   <span class="work-order">{{ r.work_order_no }}</span>
                   · {{ r.user_name }}（{{ r.user_student_id }}） ·
-                  {{ fmt(r.borrow_time) }} → {{ fmt(r.return_time) }}
+                  {{ fmt(r.borrow_time) }} → {{ fmt(r.actual_return || r.return_time) }}<span v-if="r.actual_return" class="early-return-tag"> 提前归还</span>
                 </div>
               </div>
             </div>
@@ -945,6 +949,17 @@ watch(
   min-width: 0;
   color: var(--text-secondary);
   word-break: break-word;
+}
+
+.early-return-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #4a8b5c;
+  background: rgba(74, 139, 92, 0.1);
+  border-radius: 4px;
 }
 .work-order {
   font-size: 14px;

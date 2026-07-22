@@ -68,6 +68,7 @@ export interface BorrowRequest {
   card_id?: number
   borrow_time: string
   return_time: string
+  actual_return?: string
   reason: string
   status: RequestStatus
   approver_id?: number
