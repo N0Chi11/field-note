@@ -290,13 +290,18 @@ async function handleAdminLogin() {
 }
 
 .login-footer {
+  position: fixed;
+  bottom: 12px;
+  left: 0;
+  right: 0;
   display: flex;
   justify-content: center;
-  margin-top: 24px;
+  pointer-events: none;
+  z-index: 10;
 }
 
 .login-watermark {
-  height: 24px;
+  height: 22px;
   width: auto;
   opacity: 0.85;
 }

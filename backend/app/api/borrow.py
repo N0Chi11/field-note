@@ -99,6 +99,19 @@ def list_requests(
     例外：按 equipment_id 筛选时不限制用户权限（用于设备时间轴，需看到所有借用记录）。
     """
     try:
+        # 自动拒绝过时的 pending 申请（borrow_time 已过且仍 pending）
+        from datetime import datetime, timezone
+        now_utc = datetime.utcnow()
+        expired = db.query(BorrowRequest).filter(
+            BorrowRequest.status == BorrowStatus.pending,
+            BorrowRequest.borrow_time < now_utc,
+        ).all()
+        for req in expired:
+            req.status = BorrowStatus.rejected
+            req.admin_comment = "系统自动拒绝：借用时间已过期"
+        if expired:
+            db.commit()
+
         query = db.query(BorrowRequest)
 
         # 权限：普通用户仅能查看自己的记录（但按设备查询时不限制，用于时间轴）

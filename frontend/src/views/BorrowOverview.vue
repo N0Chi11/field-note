@@ -139,16 +139,18 @@
 
             <!-- 操作按钮 -->
             <div v-if="hasActions(r)" class="request-actions">
+              <!-- 所有用户（含管理员）：borrowing 状态可申请归还（上传归还照片） -->
+              <button
+                v-if="r.status === 'borrowing'"
+                type="button"
+                class="btn btn-secondary btn-sm"
+                @click="openUpload(r)"
+              >
+                上传归还照片
+              </button>
+
               <!-- 普通用户操作 -->
               <template v-if="!isAdmin">
-                <button
-                  v-if="r.status === 'borrowing'"
-                  type="button"
-                  class="btn btn-secondary btn-sm"
-                  @click="openUpload(r)"
-                >
-                  上传归还照片
-                </button>
                 <n-popconfirm
                   v-if="r.status === 'pending'"
                   @positive-click="cancelRequest(r)"
