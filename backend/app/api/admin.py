@@ -283,6 +283,18 @@ def confirm_pickup(
     if not validate_transition(current_st, "borrowing"):
         raise HTTPException(status_code=400, detail="当前状态不允许此操作")
 
+    # 检查设备是否已被借用（有 borrowing 状态的记录）
+    active_borrow = db.query(BorrowRequest).filter(
+        BorrowRequest.equipment_id == r.equipment_id,
+        BorrowRequest.status == BorrowStatus.borrowing,
+        BorrowRequest.id != request_id,
+    ).first()
+    if active_borrow:
+        raise HTTPException(
+            status_code=400,
+            detail=f"设备已被 {active_borrow.user.name if active_borrow.user else '其他用户'} 借用中（工单 {active_borrow.work_order_no}），请先确认归还后再让下一位领取"
+        )
+
     # 内存卡绑定（可选）
     card_name = ""
     if req.card_id:

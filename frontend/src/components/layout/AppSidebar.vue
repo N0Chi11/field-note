@@ -17,6 +17,9 @@ const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 
+/** 应用版本号（每次发版更新此处即可） */
+const APP_VERSION = 'v2.1.0'
+
 const user = computed(() => authStore.user)
 
 interface NavItem {
@@ -123,8 +126,8 @@ watch(() => route.path, () => loadStats())
     <div class="sidebar__header">
       <img src="/logo.png" alt="logo" class="sidebar__header-logo" />
       <div class="sidebar__header-text">
-        <h1 class="sidebar__header-title">设备借用系统</h1>
-        <p class="sidebar__header-subtitle">新媒体中心</p>
+        <h1 class="sidebar__header-title">新媒体中心</h1>
+        <p class="sidebar__header-subtitle">器材设备借用系统</p>
       </div>
     </div>
 
@@ -203,6 +206,7 @@ watch(() => route.path, () => loadStats())
         <span class="sidebar__logout-icon">⏏</span>
         退出登录
       </button>
+      <div class="sidebar-version">{{ APP_VERSION }}</div>
     </div>
   </aside>
 </template>
@@ -251,14 +255,16 @@ watch(() => route.path, () => loadStats())
   margin: 0;
   line-height: 1.2;
   letter-spacing: 0.5px;
+  display: block;
 }
 
 .sidebar__header-subtitle {
   font-family: var(--font-ui);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-tertiary);
   margin: 3px 0 0 0;
-  letter-spacing: 1.5px;
+  letter-spacing: 0.5px;
+  display: block;
 }
 
 /* ---------- 导航 ---------- */
@@ -463,6 +469,14 @@ watch(() => route.path, () => loadStats())
 
 .sidebar__logout-icon {
   font-size: 14px;
+}
+
+.sidebar-version {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-tertiary, #999);
+  padding: 8px 0;
+  font-weight: 500;
 }
 
 /* ---------- 滚动条美化 ---------- */

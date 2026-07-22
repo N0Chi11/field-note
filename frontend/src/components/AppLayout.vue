@@ -4,6 +4,9 @@ import { ref } from 'vue'
 
 const sidebarOpen = ref(false)
 
+/** 应用版本号（每次发版更新此处即可） */
+const APP_VERSION = 'v2.1.0'
+
 function toggleSidebar() {
   sidebarOpen.value = !sidebarOpen.value
 }
@@ -33,6 +36,7 @@ function closeSidebar() {
       <span class="mobile-title">
         <img src="/logo.png" alt="logo" class="mobile-title-logo" />
         设备借用系统
+        <span class="mobile-version">{{ APP_VERSION }}</span>
       </span>
       <span class="mobile-placeholder"></span>
     </header>
@@ -131,6 +135,14 @@ function closeSidebar() {
     border-radius: 6px;
     object-fit: cover;
     flex-shrink: 0;
+  }
+
+  .mobile-version {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-tertiary, #999);
+    margin-left: 2px;
+    letter-spacing: 0.3px;
   }
 
   .mobile-placeholder {
