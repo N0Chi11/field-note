@@ -95,12 +95,14 @@ def list_requests(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """借用记录列表。普通用户只能看自己的，管理员可看全部。按 created_at 倒序分页。"""
+    """借用记录列表。普通用户只能看自己的，管理员可看全部。按 created_at 倒序分页。
+    例外：按 equipment_id 筛选时不限制用户权限（用于设备时间轴，需看到所有借用记录）。
+    """
     try:
         query = db.query(BorrowRequest)
 
-        # 权限：普通用户仅能查看自己的记录
-        if current_user.role != "admin":
+        # 权限：普通用户仅能查看自己的记录（但按设备查询时不限制，用于时间轴）
+        if current_user.role != "admin" and not equipment_id:
             query = query.filter(BorrowRequest.user_id == current_user.id)
 
         # 状态筛选
