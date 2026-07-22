@@ -2,10 +2,18 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
+
+
+def _strip_tz(dt: datetime) -> datetime:
+    """去掉时区信息，避免与数据库 naive datetime 比较时报错。"""
+    if dt.tzinfo is not None:
+        # 转为 UTC 后去掉时区
+        return dt.astimezone(timezone.utc).replace(tzinfo=None)
+    return dt
 
 
 class BorrowCreate(BaseModel):
@@ -15,6 +23,11 @@ class BorrowCreate(BaseModel):
     borrow_time: datetime
     return_time: datetime
     reason: str
+
+    @field_validator("borrow_time", "return_time")
+    @classmethod
+    def naive_datetime(cls, v: datetime) -> datetime:
+        return _strip_tz(v)
 
 
 class BorrowResponse(BaseModel):
@@ -55,6 +68,11 @@ class ConflictCheckRequest(BaseModel):
     borrow_time: datetime
     return_time: datetime
     exclude_request_id: Optional[int] = None
+
+    @field_validator("borrow_time", "return_time")
+    @classmethod
+    def naive_datetime(cls, v: datetime) -> datetime:
+        return _strip_tz(v)
 
 
 class ConflictCheckResponse(BaseModel):
