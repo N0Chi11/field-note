@@ -75,12 +75,12 @@ function closeSidebar() {
 .footer-watermark {
   height: 28px;
   width: auto;
-  opacity: 0.5;
+  opacity: 0.85;
   transition: opacity 0.2s;
 }
 
 .footer-watermark:hover {
-  opacity: 0.8;
+  opacity: 1;
 }
 
 /* 移动端顶部栏（默认隐藏） */

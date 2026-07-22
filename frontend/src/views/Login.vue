@@ -298,6 +298,6 @@ async function handleAdminLogin() {
 .login-watermark {
   height: 24px;
   width: auto;
-  opacity: 0.4;
+  opacity: 0.85;
 }
 </style>
