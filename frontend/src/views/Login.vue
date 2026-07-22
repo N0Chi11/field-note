@@ -4,7 +4,10 @@
       <!-- Logo -->
       <div class="login-logo">
         <img src="/logo.png" alt="logo" class="login-logo-img" />
-        <div class="login-logo-text">新媒体中心 器材设备借用系统</div>
+        <div class="login-logo-text">
+          <span class="login-logo-line1">新媒体中心</span>
+          <span class="login-logo-line2">器材设备借用系统</span>
+        </div>
         <div class="login-logo-sub">Equipment Borrow System</div>
       </div>
 
@@ -169,10 +172,25 @@ async function handleAdminLogin() {
 }
 
 .login-logo-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.3;
+}
+
+.login-logo-line1 {
   font-size: 22px;
   font-weight: 700;
   color: var(--text);
   letter-spacing: -0.3px;
+}
+
+.login-logo-line2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+  margin-top: 2px;
 }
 
 .login-logo-sub {

@@ -18,7 +18,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 /** 应用版本号（每次发版更新此处即可） */
-const APP_VERSION = 'v2.1.0'
+const APP_VERSION = 'v2.1.1'
 
 const user = computed(() => authStore.user)
 
@@ -245,6 +245,9 @@ watch(() => route.path, () => loadStats())
 
 .sidebar__header-text {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 1;
 }
 
 .sidebar__header-title {
@@ -255,7 +258,9 @@ watch(() => route.path, () => loadStats())
   margin: 0;
   line-height: 1.2;
   letter-spacing: 0.5px;
-  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar__header-subtitle {
@@ -264,7 +269,9 @@ watch(() => route.path, () => loadStats())
   color: var(--text-tertiary);
   margin: 3px 0 0 0;
   letter-spacing: 0.5px;
-  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ---------- 导航 ---------- */
