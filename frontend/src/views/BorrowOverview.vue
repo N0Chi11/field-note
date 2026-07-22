@@ -139,9 +139,9 @@
 
             <!-- 操作按钮 -->
             <div v-if="hasActions(r)" class="request-actions">
-              <!-- 所有用户（含管理员）：borrowing 状态可申请归还（上传归还照片） -->
+              <!-- 借用人本人（含管理员自己借的）：borrowing 状态可上传归还照片 -->
               <button
-                v-if="r.status === 'borrowing'"
+                v-if="r.status === 'borrowing' && r.user_id === currentUserId"
                 type="button"
                 class="btn btn-secondary btn-sm"
                 @click="openUpload(r)"
@@ -383,6 +383,7 @@ import type {
 const toast = useToastStore()
 const authStore = useAuthStore()
 const isAdmin = computed(() => !!authStore.isAdmin)
+const currentUserId = computed(() => authStore.user?.id || 0)
 
 // 状态文本映射
 const STATUS_TEXT: Record<RequestStatus, string> = {
