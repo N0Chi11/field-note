@@ -59,6 +59,7 @@
                 type="datetime"
                 clearable
                 placeholder="选择借用时间"
+                :is-date-disabled="isDateDisabled"
                 style="width: 100%"
                 @update:value="onFieldChange"
               />
@@ -69,6 +70,7 @@
                 type="datetime"
                 clearable
                 placeholder="选择归还时间"
+                :is-date-disabled="isDateDisabled"
                 style="width: 100%"
                 @update:value="onFieldChange"
               />
@@ -239,6 +241,11 @@ const rules: FormRules = {
     message: '请填写借用理由',
     trigger: ['input', 'blur']
   }
+}
+
+// 禁用过去日期（与原 HTML 的 min=nowLocalISO 一致）
+function isDateDisabled(ts: number): boolean {
+  return ts < Date.now() - 86400000 // 允许选择今天（减去一天的毫秒数）
 }
 
 // 加载设备列表，按类别分组构造下拉选项（维修中设备禁用）

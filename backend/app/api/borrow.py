@@ -165,6 +165,12 @@ def create_request(
     if req.return_time <= req.borrow_time:
         raise HTTPException(status_code=400, detail="归还时间必须晚于借用时间")
 
+    # 2.1 校验借用时间不能早于当前时间（与原 HTML 一致）
+    from datetime import datetime
+    now = datetime.now()
+    if req.borrow_time < now:
+        raise HTTPException(status_code=400, detail="借用时间不能早于当前时间")
+
     # 3. 冲突检测
     try:
         conflict = check_conflict(
