@@ -3,7 +3,7 @@
     <div class="login-card">
       <!-- Logo -->
       <div class="login-logo">
-        <div class="login-logo-icon">📋</div>
+        <img src="/logo.png" alt="logo" class="login-logo-img" />
         <div class="login-logo-text">新媒体中心 器材设备借用系统</div>
         <div class="login-logo-sub">Equipment Borrow System</div>
       </div>
@@ -155,17 +155,13 @@ async function handleAdminLogin() {
   margin-bottom: 28px;
 }
 
-.login-logo-icon {
-  width: 56px;
-  height: 56px;
-  background: var(--accent-gradient);
-  border-radius: 14px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  margin-bottom: 12px;
-  box-shadow: var(--shadow-accent);
+.login-logo-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 18px;
+  object-fit: cover;
+  margin: 0 auto 12px;
+  box-shadow: var(--shadow-md);
 }
 
 .login-logo-text {

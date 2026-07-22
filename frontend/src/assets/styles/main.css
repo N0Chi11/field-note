@@ -83,6 +83,25 @@ body {
   height: 100%;
 }
 
+/* ---------- iPhone safe area 支持 ---------- */
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 防止 iPhone 横屏缩放问题 */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
 /* ---------- 链接 ---------- */
 a {
   color: var(--accent);

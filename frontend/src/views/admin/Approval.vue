@@ -7,6 +7,7 @@ import {
   NSelect,
   NSpin,
   NModal,
+  NImage,
   NPopconfirm,
   type SelectOption
 } from 'naive-ui'
@@ -308,9 +309,13 @@ const showPickupModal = ref(false)
 const pickupRecord = ref<BorrowDetail | null>(null)
 const pickupCardId = ref<number>(NO_CARD)
 
-function openPickup(r: BorrowDetail) {
+async function openPickup(r: BorrowDetail) {
   pickupRecord.value = r
   pickupCardId.value = NO_CARD
+  // 如果是相机设备，刷新可用内存卡列表，避免使用过期数据
+  if (isCamera(r)) {
+    await loadCards()
+  }
   showPickupModal.value = true
 }
 
@@ -451,6 +456,20 @@ onMounted(reload)
                 <div v-if="r.admin_comment" class="field full">
                   <span class="label">审批备注</span>
                   <span class="value comment">{{ r.admin_comment }}</span>
+                </div>
+                <div v-if="r.return_photo_url" class="field full">
+                  <span class="label">归还照片</span>
+                  <div class="photo-wrap">
+                    <n-image
+                      :src="r.return_photo_url"
+                      :preview-src="r.return_photo_url"
+                      :width="96"
+                      :height="96"
+                      object-fit="cover"
+                      class="return-photo"
+                      alt="归还照片"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -800,6 +819,19 @@ onMounted(reload)
 }
 .field .value.comment {
   color: var(--text-secondary);
+}
+.photo-wrap {
+  display: inline-block;
+}
+.return-photo :deep(.n-image-img) {
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.return-photo :deep(.n-image-img:hover) {
+  transform: scale(1.04);
 }
 .card-actions {
   margin-top: 14px;

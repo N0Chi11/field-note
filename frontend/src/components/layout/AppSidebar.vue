@@ -121,7 +121,7 @@ watch(() => route.path, () => loadStats())
   <aside class="sidebar" :class="{ 'is-open': mobileOpen }">
     <!-- 头部 -->
     <div class="sidebar__header">
-      <span class="sidebar__header-icon">📋</span>
+      <img src="/logo.png" alt="logo" class="sidebar__header-logo" />
       <div class="sidebar__header-text">
         <h1 class="sidebar__header-title">设备借用系统</h1>
         <p class="sidebar__header-subtitle">新媒体中心</p>
@@ -230,10 +230,13 @@ watch(() => route.path, () => loadStats())
   border-bottom: 1px solid var(--border-light);
 }
 
-.sidebar__header-icon {
-  font-size: 28px;
-  line-height: 1;
+.sidebar__header-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  object-fit: cover;
   flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .sidebar__header-text {

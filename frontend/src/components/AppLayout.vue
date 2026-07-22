@@ -30,7 +30,10 @@ function closeSidebar() {
       <button class="mobile-menu-btn" @click="toggleSidebar" aria-label="菜单">
         <span></span><span></span><span></span>
       </button>
-      <span class="mobile-title">📋 设备借用系统</span>
+      <span class="mobile-title">
+        <img src="/logo.png" alt="logo" class="mobile-title-logo" />
+        设备借用系统
+      </span>
       <span class="mobile-placeholder"></span>
     </header>
 
@@ -51,6 +54,9 @@ function closeSidebar() {
   margin-left: 260px;
   min-height: 100vh;
   padding: 36px 40px 48px;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 /* 移动端顶部栏（默认隐藏） */
@@ -77,8 +83,9 @@ function closeSidebar() {
     top: 0;
     left: 0;
     right: 0;
-    height: 56px;
+    height: calc(56px + env(safe-area-inset-top, 0px));
     padding: 0 16px;
+    padding-top: env(safe-area-inset-top, 0px);
     background: var(--bg-sidebar);
     border-bottom: 1px solid var(--border);
     z-index: 200;
@@ -89,6 +96,17 @@ function closeSidebar() {
     font-size: 15px;
     font-weight: 700;
     color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mobile-title-logo {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
   }
 
   .mobile-placeholder {
