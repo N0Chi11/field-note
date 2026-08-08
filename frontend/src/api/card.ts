@@ -35,3 +35,17 @@ export function deleteCard(id: number) {
     url: `/cards/${id}`
   })
 }
+
+/** 上传内存卡图片 */
+export function uploadCardImage(id: number, file: File) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request<{ image_url: string }>({
+    method: 'POST',
+    url: `/cards/${id}/image`,
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}

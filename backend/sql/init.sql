@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS cards (
     code       VARCHAR(64)  NOT NULL                               COMMENT '卡片编码',
     name       VARCHAR(128) NOT NULL                               COMMENT '卡片名称',
     notes      VARCHAR(512) DEFAULT NULL                           COMMENT '备注',
+    image_url  VARCHAR(512) DEFAULT NULL                           COMMENT '图片 URL',
     status     ENUM('available','borrowed') NOT NULL DEFAULT 'available' COMMENT '状态: available-可用 borrowed-已借出',
     created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP     COMMENT '创建时间',
     updated_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',

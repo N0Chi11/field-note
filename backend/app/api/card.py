@@ -7,11 +7,14 @@
 
 from __future__ import annotations
 
+import os
+import uuid
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
+from app.config import get_settings
 from app.core.deps import get_current_admin, get_current_user
 from app.database import get_db
 from app.models.borrow_request import BorrowRequest, BorrowStatus
@@ -214,3 +217,93 @@ def delete_card(
             detail="服务器内部错误",
         )
     return ApiResponse(message="删除成功")
+
+
+# ===== 5. 上传内存卡图片 =====
+@router.post("/{card_id}/image", response_model=ApiResponse[CardResponse])
+def upload_card_image(
+    card_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_admin),
+):
+    """上传内存卡图片（管理员）。
+
+    保存到 settings.UPLOAD_DIR，文件名使用 uuid + 原扩展名，
+    并更新内存卡 image_url。
+    """
+    try:
+        card = db.query(Card).filter(Card.id == card_id).first()
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="服务器内部错误",
+        )
+    if card is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="内存卡不存在"
+        )
+
+    # 读取文件内容
+    try:
+        contents = file.file.read()
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="文件读取失败"
+        )
+    if not contents:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="上传文件为空"
+        )
+
+    # 文件名：uuid + 原扩展名
+    original_name = file.filename or ""
+    ext = os.path.splitext(original_name)[1].lower()
+    filename = f"{uuid.uuid4().hex}{ext}"
+
+    settings = get_settings()
+    upload_dir = settings.UPLOAD_DIR
+    try:
+        os.makedirs(upload_dir, exist_ok=True)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="服务器内部错误",
+        )
+
+    save_path = os.path.join(upload_dir, filename)
+    try:
+        with open(save_path, "wb") as f:
+            f.write(contents)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="文件保存失败",
+        )
+
+    # 静态访问路径
+    image_url = f"/uploads/{filename}"
+    try:
+        card.image_url = image_url
+        add_log(
+            db,
+            current_user.id,
+            "上传内存卡图片",
+            f"{card.code} - {card.name}",
+            "card",
+            card.id,
+        )
+        db.commit()
+        db.refresh(card)
+    except Exception:
+        db.rollback()
+        # 数据库更新失败时清理已落盘文件，保持一致
+        try:
+            os.remove(save_path)
+        except Exception:
+            pass
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="服务器内部错误",
+        )
+    return ApiResponse[CardResponse](data=card, message="图片上传成功")

@@ -55,6 +55,7 @@ export interface Card {
   code: string
   name: string
   notes?: string
+  image_url?: string
   status: CardStatus
   created_at: string
 }

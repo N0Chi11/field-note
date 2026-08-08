@@ -33,6 +33,7 @@ class Card(Base):
     )
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    image_url: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     status: Mapped[CardStatus] = mapped_column(
         Enum(CardStatus), default=CardStatus.available, nullable=False
     )

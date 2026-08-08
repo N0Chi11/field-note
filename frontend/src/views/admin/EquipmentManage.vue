@@ -28,7 +28,7 @@ import {
   updateEquipmentStatus,
   uploadEquipmentImage
 } from '@/api/equipment'
-import { getCards, createCard, updateCard, deleteCard } from '@/api/card'
+import { getCards, createCard, updateCard, deleteCard, uploadCardImage } from '@/api/card'
 import { useToastStore } from '@/stores/toast'
 import type { Equipment, Card, EquipmentStatus } from '@/types/models'
 
@@ -283,6 +283,8 @@ const cardModalShow = ref(false)
 const cardSaving = ref(false)
 const cardEditing = ref<Card | null>(null)
 const cardFormRef = ref<FormInst | null>(null)
+const cardFileList = ref<UploadFileInfo[]>([])
+const pendingCardImage = ref<File | null>(null)
 
 const cardForm = reactive<CardForm>({
   code: '',
@@ -304,6 +306,8 @@ function resetCardForm() {
   cardForm.name = ''
   cardForm.notes = ''
   cardEditing.value = null
+  cardFileList.value = []
+  pendingCardImage.value = null
 }
 
 function openCardModal(item?: Card) {
@@ -313,8 +317,29 @@ function openCardModal(item?: Card) {
     cardForm.code = item.code
     cardForm.name = item.name
     cardForm.notes = item.notes || ''
+    // 若已有图片，展示在上传列表中
+    if (item.image_url) {
+      cardFileList.value = [
+        {
+          id: 'existing-card-image',
+          name: 'current.jpg',
+          status: 'finished',
+          url: item.image_url
+        }
+      ]
+    }
   }
   cardModalShow.value = true
+}
+
+function handleCardFileChange(data: { fileList: UploadFileInfo[] }) {
+  cardFileList.value = data.fileList
+  const last = data.fileList[data.fileList.length - 1]
+  if (last && last.file) {
+    pendingCardImage.value = last.file
+  } else {
+    pendingCardImage.value = null
+  }
 }
 
 async function saveCard() {
@@ -332,11 +357,29 @@ async function saveCard() {
       notes: cardForm.notes || undefined
     }
 
+    let saved: Card
     if (cardEditing.value) {
-      await updateCard(cardEditing.value.id, payload)
+      saved = await updateCard(cardEditing.value.id, payload)
+      // 若选择了新图片，上传
+      if (pendingCardImage.value) {
+        try {
+          const res = await uploadCardImage(saved.id, pendingCardImage.value)
+          saved.image_url = res.image_url
+        } catch (e: any) {
+          toast.warning('图片上传失败，内存卡信息已保存')
+        }
+      }
       toast.success('内存卡已更新')
     } else {
-      await createCard(payload)
+      saved = await createCard(payload)
+      if (pendingCardImage.value) {
+        try {
+          const res = await uploadCardImage(saved.id, pendingCardImage.value)
+          saved.image_url = res.image_url
+        } catch (e: any) {
+          toast.warning('图片上传失败，内存卡已创建')
+        }
+      }
       toast.success('内存卡已添加')
     }
 
@@ -543,9 +586,17 @@ onMounted(() => {
           />
           <div v-else class="card-grid">
             <div v-for="card in cardList" :key="card.id" class="card-item">
-              <div class="card-item__head">
-                <span class="card-item__icon">💾</span>
+              <!-- 图片 / 图标 -->
+              <div class="card-item__media">
+                <img
+                  v-if="card.image_url"
+                  :src="card.image_url"
+                  :alt="card.name"
+                  class="card-item__img"
+                />
+                <span v-else class="card-item__icon">💾</span>
                 <n-tag
+                  class="card-item__status"
                   :type="cardStatusMeta(card.status).type"
                   size="small"
                   round
@@ -709,6 +760,18 @@ onMounted(() => {
               show-count
             />
           </n-form-item>
+          <n-form-item label="内存卡图片">
+            <n-upload
+              v-model:file-list="cardFileList"
+              list-type="image-card"
+              :max="1"
+              :default-upload="false"
+              accept="image/*"
+              @change="handleCardFileChange"
+            >
+              点击上传
+            </n-upload>
+          </n-form-item>
         </n-form>
 
         <template #footer>
@@ -867,18 +930,31 @@ onMounted(() => {
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
-.card-item__head {
+.card-item__media {
+  position: relative;
+  height: 140px;
+  background: var(--bg-input);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px 0;
+  justify-content: center;
+  overflow: hidden;
+}
+.card-item__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .card-item__icon {
-  font-size: 28px;
+  font-size: 48px;
   line-height: 1;
 }
+.card-item__status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
 .card-item__body {
-  padding: 10px 16px 8px;
+  padding: 14px 16px 8px;
   flex: 1;
   min-width: 0;
 }
