@@ -421,15 +421,21 @@ onMounted(() => {
   margin: 0 auto;
 }
 .page-header {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
+  padding: 26px 28px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(230, 234, 240, 0.9);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(18px);
 }
 .page-title {
   font-size: 24px;
   font-weight: 700;
   margin: 0 0 6px;
   color: var(--text);
-  font-family: var(--font);
-  letter-spacing: 0.3px;
+  font-family: var(--font-ui);
+  letter-spacing: -0.6px;
 }
 .page-desc {
   font-size: 13px;
@@ -440,9 +446,9 @@ onMounted(() => {
 .form-wrapper {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  box-shadow: var(--shadow-md);
   animation: slideUp 0.4s ease both;
 }
 .form-row {

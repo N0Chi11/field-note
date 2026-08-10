@@ -5,7 +5,7 @@ import { ref } from 'vue'
 const sidebarOpen = ref(false)
 
 /** 应用版本号（每次发版更新此处即可） */
-const APP_VERSION = 'v2.1.4'
+const APP_VERSION = 'v2.1.5'
 
 function toggleSidebar() {
   sidebarOpen.value = !sidebarOpen.value
@@ -55,13 +55,13 @@ function closeSidebar() {
 <style scoped>
 .app-layout {
   min-height: 100vh;
-  background: var(--bg);
+  background: transparent;
 }
 
 .app-main {
-  margin-left: 260px;
+  margin-left: 272px;
   min-height: 100vh;
-  padding: 36px 40px 48px;
+  padding: 44px 48px 52px;
   max-width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
@@ -69,8 +69,8 @@ function closeSidebar() {
 
 /* 底部水印 */
 .app-footer {
-  margin-top: 48px;
-  padding-top: 20px;
+  margin-top: 64px;
+  padding-top: 24px;
   border-top: 1px solid var(--border-light);
   display: flex;
   justify-content: center;
@@ -79,7 +79,7 @@ function closeSidebar() {
 .footer-watermark {
   height: 28px;
   width: auto;
-  opacity: 0.85;
+  opacity: 0.58;
   transition: opacity 0.2s;
 }
 
@@ -100,7 +100,7 @@ function closeSidebar() {
 @media (max-width: 900px) {
   .app-main {
     margin-left: 0;
-    padding: 70px 16px 80px;
+    padding: 80px 18px 80px;
   }
 
   .mobile-header {
@@ -114,16 +114,17 @@ function closeSidebar() {
     height: calc(56px + env(safe-area-inset-top, 0px));
     padding: 0 16px;
     padding-top: env(safe-area-inset-top, 0px);
-    background: var(--bg-sidebar);
-    border-bottom: 1px solid var(--border);
+    background: rgba(17, 24, 39, 0.94);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     z-index: 200;
   }
 
   .mobile-title {
-    font-family: var(--font);
+    font-family: var(--font-ui);
     font-size: 15px;
     font-weight: 700;
-    color: var(--text);
+    color: #ffffff;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -140,7 +141,7 @@ function closeSidebar() {
   .mobile-version {
     font-size: 11px;
     font-weight: 500;
-    color: var(--text-tertiary, #999);
+    color: rgba(255, 255, 255, 0.46);
     margin-left: 2px;
     letter-spacing: 0.3px;
   }
@@ -166,7 +167,7 @@ function closeSidebar() {
     display: block;
     width: 22px;
     height: 2px;
-    background: var(--text);
+    background: #ffffff;
     border-radius: 1px;
     transition: all 0.25s;
   }
@@ -184,8 +185,14 @@ function closeSidebar() {
 <style>
 /* 全局：页面标题使用衬线体 */
 .page-title {
-  font-family: var(--font);
+  font-family: var(--font-ui);
   font-weight: 700;
-  letter-spacing: 0.3px;
+  letter-spacing: -0.5px;
+}
+
+@media (max-width: 1100px) and (min-width: 901px) {
+  .app-main {
+    padding: 36px 30px 44px;
+  }
 }
 </style>

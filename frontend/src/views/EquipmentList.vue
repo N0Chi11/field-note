@@ -218,21 +218,27 @@ onMounted(loadEquipment)
 
 <style scoped>
 .page {
-  max-width: 1200px;
+  max-width: 1260px;
   margin: 0 auto;
 }
 
 /* ---------- 页面标题 ---------- */
 .page-header {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
+  padding: 28px 30px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(230, 234, 240, 0.9);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(18px);
 }
 .page-title {
   font-size: 24px;
   font-weight: 700;
   margin: 0 0 6px;
   color: var(--text);
-  font-family: var(--font);
-  letter-spacing: 0.3px;
+  font-family: var(--font-ui);
+  letter-spacing: -0.6px;
 }
 .page-desc {
   font-size: 13px;
@@ -243,7 +249,7 @@ onMounted(loadEquipment)
 
 /* ---------- 类别筛选 ---------- */
 .category-tabs {
-  margin-bottom: 20px;
+  margin: 0 0 26px;
 }
 
 /* ---------- 状态展示 ---------- */
@@ -264,9 +270,9 @@ onMounted(loadEquipment)
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 16px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
+  margin-bottom: 18px;
+  padding: 0 2px 12px;
+  border-bottom: 1px solid var(--border-light);
 }
 .category-icon {
   font-size: 22px;
@@ -276,7 +282,7 @@ onMounted(loadEquipment)
   font-size: 17px;
   font-weight: 600;
   color: var(--text);
-  font-family: var(--font);
+  font-family: var(--font-ui);
 }
 .category-count {
   font-size: 12px;
@@ -291,13 +297,13 @@ onMounted(loadEquipment)
 .equipment-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
+  gap: 18px;
 }
 
 .equipment-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -306,9 +312,9 @@ onMounted(loadEquipment)
   animation: cardFadeIn 0.5s ease both;
 }
 .equipment-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--accent-light);
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+  border-color: #D9D8FF;
 }
 
 /* ---------- 卡片图片区 ---------- */
@@ -316,7 +322,7 @@ onMounted(loadEquipment)
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  background: var(--bg-input);
+  background: linear-gradient(135deg, #EEF0FF 0%, #F8F9FF 52%, #EAF5FF 100%);
   overflow: hidden;
 }
 .card-image img {
@@ -334,11 +340,7 @@ onMounted(loadEquipment)
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(
-    135deg,
-    var(--bg-input) 0%,
-    var(--bg-hover) 100%
-  );
+  background: radial-gradient(circle at 50% 45%, rgba(124, 92, 229, 0.16), transparent 38%), linear-gradient(135deg, #EEF0FF, #F8FAFF);
 }
 .placeholder-icon {
   font-size: 48px;
@@ -375,7 +377,7 @@ onMounted(loadEquipment)
 
 /* ---------- 卡片信息区 ---------- */
 .card-body {
-  padding: 12px 14px 8px;
+  padding: 16px 18px 10px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -383,7 +385,7 @@ onMounted(loadEquipment)
 }
 .card-code {
   font-size: 12px;
-  color: var(--accent);
+  color: #6767D8;
   font-weight: 600;
   font-family: var(--font-ui);
   letter-spacing: 0.5px;
@@ -393,7 +395,7 @@ onMounted(loadEquipment)
   font-weight: 600;
   color: var(--text);
   line-height: 1.4;
-  font-family: var(--font);
+  font-family: var(--font-ui);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -415,14 +417,14 @@ onMounted(loadEquipment)
 
 /* ---------- 卡片操作区 ---------- */
 .card-footer {
-  padding: 8px 14px 14px;
+  padding: 10px 18px 18px;
 }
 .timeline-btn {
   width: 100%;
-  height: 34px;
+  height: 38px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--bg-card);
+  background: #FAFBFF;
   color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
@@ -431,9 +433,9 @@ onMounted(loadEquipment)
   font-family: var(--font-ui);
 }
 .timeline-btn:hover {
-  border-color: var(--accent);
+  border-color: #A4A0F9;
   color: var(--accent);
-  background: var(--accent-bg);
+  background: var(--accent-light);
 }
 
 /* ---------- 卡片淡入动画 ---------- */

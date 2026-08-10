@@ -745,7 +745,13 @@ onMounted(loadRequests)
 
 /* Page Header */
 .page-header {
-  margin-bottom: 28px;
+  margin-bottom: 24px;
+  padding: 28px 30px 24px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(230, 234, 240, 0.9);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(18px);
   animation: slideUp 0.3s ease;
 }
 .page-header h1 {
@@ -753,7 +759,7 @@ onMounted(loadRequests)
   font-weight: 700;
   color: var(--text);
   margin-bottom: 6px;
-  letter-spacing: -0.4px;
+  letter-spacing: -0.7px;
 }
 .page-header p {
   font-size: 14px;
@@ -770,7 +776,7 @@ onMounted(loadRequests)
 .filter-tab {
   padding: 7px 16px;
   border: 1px solid var(--border);
-  background: var(--bg-card);
+  background: #FAFBFF;
   border-radius: 20px;
   font-size: 13px;
   color: var(--text-secondary);
@@ -992,15 +998,15 @@ onMounted(loadRequests)
 .request-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px 22px;
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
   box-shadow: var(--shadow-sm);
   transition: all var(--transition);
   animation: slideUp 0.3s ease backwards;
 }
 .request-card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--border-light);
+  box-shadow: var(--shadow-lg);
+  border-color: #DDDDFE;
 }
 .request-header {
   display: flex;

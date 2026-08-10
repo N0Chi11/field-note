@@ -673,7 +673,13 @@ onMounted(reload)
   margin: 0 auto;
 }
 .page-header {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  padding: 26px 28px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(230, 234, 240, 0.9);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(18px);
 }
 .page-title {
   font-size: 22px;
@@ -691,23 +697,23 @@ onMounted(reload)
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 .stat-card {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 18px 20px;
+  padding: 20px 22px;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 .stat-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
 }
 /* 当前选中：高亮边框 */
 .stat-card.active {

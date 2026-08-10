@@ -18,7 +18,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 /** 应用版本号（每次发版更新此处即可） */
-const APP_VERSION = 'v2.1.4'
+const APP_VERSION = 'v2.1.5'
 
 const user = computed(() => authStore.user)
 
@@ -216,10 +216,12 @@ watch(() => route.path, () => loadStats())
   position: fixed;
   top: 0;
   left: 0;
-  width: 260px;
+  width: 272px;
   height: 100vh;
-  background: var(--bg-sidebar);
-  border-right: 1px solid var(--border);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(124, 92, 229, 0.28), transparent 18rem),
+    linear-gradient(180deg, #141B30 0%, #0D1324 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   flex-direction: column;
   z-index: 300;
@@ -230,17 +232,17 @@ watch(() => route.path, () => loadStats())
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 22px 20px;
-  border-bottom: 1px solid var(--border-light);
+  padding: 26px 22px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .sidebar__header-logo {
   width: 40px;
   height: 40px;
-  border-radius: 10px;
+  border-radius: 13px;
   object-fit: cover;
   flex-shrink: 0;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
 }
 
 .sidebar__header-text {
@@ -251,10 +253,10 @@ watch(() => route.path, () => loadStats())
 }
 
 .sidebar__header-title {
-  font-family: var(--font);
-  font-size: 17px;
+  font-family: var(--font-ui);
+  font-size: 16px;
   font-weight: 700;
-  color: var(--text);
+  color: #FFFFFF;
   margin: 0;
   line-height: 1.2;
   letter-spacing: 0.5px;
@@ -266,7 +268,7 @@ watch(() => route.path, () => loadStats())
 .sidebar__header-subtitle {
   font-family: var(--font-ui);
   font-size: 12px;
-  color: var(--text-tertiary);
+  color: rgba(255, 255, 255, 0.48);
   margin: 3px 0 0 0;
   letter-spacing: 0.5px;
   white-space: nowrap;
@@ -278,7 +280,7 @@ watch(() => route.path, () => loadStats())
 .sidebar__nav {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 12px;
+  padding: 20px 14px;
 }
 
 .sidebar__group {
@@ -289,7 +291,7 @@ watch(() => route.path, () => loadStats())
   font-family: var(--font-ui);
   font-size: 11px;
   font-weight: 600;
-  color: var(--text-tertiary);
+  color: rgba(255, 255, 255, 0.38);
   text-transform: uppercase;
   letter-spacing: 1px;
   padding: 0 12px;
@@ -303,7 +305,7 @@ watch(() => route.path, () => loadStats())
   gap: 12px;
   padding: 8px 12px;
   border-radius: var(--radius-sm);
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.68);
   text-decoration: none;
   font-family: var(--font-ui);
   font-size: 14px;
@@ -313,13 +315,13 @@ watch(() => route.path, () => loadStats())
 }
 
 .nav-item:hover {
-  background: var(--bg-hover);
-  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
 }
 
 .nav-item.active {
-  background: var(--accent-light);
-  color: var(--accent);
+  background: linear-gradient(135deg, rgba(113, 108, 239, 0.32), rgba(83, 122, 237, 0.24));
+  color: #FFFFFF;
   font-weight: 600;
 }
 
@@ -327,28 +329,28 @@ watch(() => route.path, () => loadStats())
 .nav-item.active::before {
   content: '';
   position: absolute;
-  left: 0;
+  left: -14px;
   top: 50%;
   transform: translateY(-50%);
   width: 3px;
-  height: 60%;
-  background: var(--accent);
-  border-radius: 0 3px 3px 0;
+  height: 52%;
+  background: #9A91FF;
+  border-radius: 0 4px 4px 0;
 }
 
 /* 圆角图标 */
 .nav-item__icon {
   width: 30px;
   height: 30px;
-  border-radius: 8px;
-  background: var(--bg-card);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.09);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 16px;
   line-height: 1;
   flex-shrink: 0;
-  box-shadow: var(--shadow-xs);
+  box-shadow: none;
   transition: all var(--transition);
 }
 
@@ -359,13 +361,17 @@ watch(() => route.path, () => loadStats())
   white-space: nowrap;
 }
 
+.nav-item.active .nav-item__icon {
+  background: rgba(255, 255, 255, 0.16);
+}
+
 /* 待办 badge */
 .nav-item__badge {
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
   border-radius: 9px;
-  background: var(--danger);
+  background: #FB7185;
   color: #fff;
   font-size: 11px;
   font-weight: 600;
@@ -378,8 +384,8 @@ watch(() => route.path, () => loadStats())
 
 /* ---------- 底部用户信息 ---------- */
 .sidebar__footer {
-  padding: 16px;
-  border-top: 1px solid var(--border-light);
+  padding: 18px 20px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .sidebar__user {
@@ -393,7 +399,7 @@ watch(() => route.path, () => loadStats())
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--accent-gradient);
   color: #fff;
   display: flex;
   align-items: center;
@@ -402,7 +408,7 @@ watch(() => route.path, () => loadStats())
   font-weight: 600;
   font-size: 16px;
   flex-shrink: 0;
-  box-shadow: var(--shadow-accent);
+  box-shadow: 0 8px 18px rgba(91, 91, 214, 0.36);
 }
 
 .sidebar__user-info {
@@ -420,7 +426,7 @@ watch(() => route.path, () => loadStats())
   font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 600;
-  color: var(--text);
+  color: #FFFFFF;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -432,21 +438,21 @@ watch(() => route.path, () => loadStats())
   font-weight: 600;
   padding: 1px 6px;
   border-radius: 4px;
-  background: var(--bg-card);
-  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.09);
+  color: rgba(255, 255, 255, 0.64);
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .sidebar__user-role.is-admin {
-  background: var(--accent-light);
-  color: var(--accent);
+  background: rgba(136, 126, 255, 0.22);
+  color: #C9C6FF;
 }
 
 .sidebar__user-id {
   font-family: var(--font-ui);
   font-size: 12px;
-  color: var(--text-tertiary);
+  color: rgba(255, 255, 255, 0.42);
   display: block;
   margin-top: 2px;
 }
@@ -458,10 +464,10 @@ watch(() => route.path, () => loadStats())
   justify-content: center;
   gap: 6px;
   padding: 9px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg-card);
-  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
   font-family: var(--font-ui);
   font-size: 13px;
   cursor: pointer;
@@ -469,9 +475,9 @@ watch(() => route.path, () => loadStats())
 }
 
 .sidebar__logout:hover {
-  border-color: var(--danger);
-  color: var(--danger);
-  background: var(--danger-bg);
+  border-color: rgba(251, 113, 133, 0.55);
+  color: #FDA4AF;
+  background: rgba(225, 29, 72, 0.12);
 }
 
 .sidebar__logout-icon {
@@ -481,7 +487,7 @@ watch(() => route.path, () => loadStats())
 .sidebar-version {
   text-align: center;
   font-size: 11px;
-  color: var(--text-tertiary, #999);
+  color: rgba(255, 255, 255, 0.3);
   padding: 8px 0;
   font-weight: 500;
 }
