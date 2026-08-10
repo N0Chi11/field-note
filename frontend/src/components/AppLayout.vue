@@ -5,7 +5,7 @@ import { ref } from 'vue'
 const sidebarOpen = ref(false)
 
 /** 应用版本号（每次发版更新此处即可） */
-const APP_VERSION = 'v2.1.5'
+const APP_VERSION = 'v2.1.6'
 
 function toggleSidebar() {
   sidebarOpen.value = !sidebarOpen.value
@@ -59,9 +59,9 @@ function closeSidebar() {
 }
 
 .app-main {
-  margin-left: 272px;
+  margin-left: 252px;
   min-height: 100vh;
-  padding: 44px 48px 52px;
+  padding: 48px 56px 56px;
   max-width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
@@ -114,9 +114,8 @@ function closeSidebar() {
     height: calc(56px + env(safe-area-inset-top, 0px));
     padding: 0 16px;
     padding-top: env(safe-area-inset-top, 0px);
-    background: rgba(17, 24, 39, 0.94);
-    backdrop-filter: blur(18px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: #191917;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
     z-index: 200;
   }
 
@@ -185,9 +184,9 @@ function closeSidebar() {
 <style>
 /* 全局：页面标题使用衬线体 */
 .page-title {
-  font-family: var(--font-ui);
-  font-weight: 700;
-  letter-spacing: -0.5px;
+  font-family: var(--font);
+  font-weight: 500;
+  letter-spacing: -0.04em;
 }
 
 @media (max-width: 1100px) and (min-width: 901px) {

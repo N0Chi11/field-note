@@ -124,63 +124,79 @@ async function handleAdminLogin() {
   min-height: 100vh;
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: linear-gradient(-45deg, #F5F4EE, #EEEDE5, #FDF4F0, #F0EDE5, #F5F4EE);
-  background-size: 400% 400%;
-  animation: gradientShift 20s ease infinite;
-  padding: 20px;
+  justify-content: flex-end;
+  background: #191917;
+  padding: 48px 7vw;
   position: relative;
+  overflow: hidden;
 }
 
 .login-page::before {
-  content: '';
+  content: 'EQUIPMENT\A ARCHIVE';
+  white-space: pre;
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-image:
-    radial-gradient(circle at 20% 30%, rgba(217,119,87,0.04) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(74,124,181,0.03) 0%, transparent 50%);
+  left: 5vw;
+  top: 50%;
+  transform: translateY(-54%);
+  font-family: var(--font);
+  font-size: clamp(72px, 10vw, 156px);
+  font-weight: 500;
+  letter-spacing: -0.075em;
+  line-height: 0.72;
+  color: #F2EFE7;
   pointer-events: none;
+}
+.login-page::after {
+  content: 'NEW MEDIA CENTER  ·  ISSUE 02 / 2026';
+  position: absolute;
+  left: 5.5vw;
+  top: 9vh;
+  color: #8EA3F2;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
 }
 
 .login-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: var(--radius-lg);
-  padding: 44px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: var(--shadow-lg);
+  background: #F2EFE7;
+  border: 1px solid #F2EFE7;
+  border-top: 7px solid #243FA0;
+  border-radius: 1px;
+  padding: clamp(34px, 4vw, 56px);
+  width: min(44vw, 520px);
+  max-width: none;
+  box-shadow: 18px 18px 0 rgba(0, 0, 0, 0.2);
   animation: scaleIn 0.4s ease;
   position: relative;
   z-index: 1;
 }
 
 .login-logo {
-  text-align: center;
-  margin-bottom: 28px;
+  text-align: left;
+  margin-bottom: 34px;
 }
 
 .login-logo-img {
-  width: 80px;
-  height: 80px;
-  border-radius: 18px;
+  width: 56px;
+  height: 56px;
+  border-radius: 1px;
   object-fit: cover;
-  margin: 0 auto 12px;
-  box-shadow: var(--shadow-md);
+  margin: 0 0 18px;
+  filter: grayscale(1) contrast(1.08);
+  box-shadow: none;
 }
 
 .login-logo-text {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   line-height: 1.3;
 }
 
 .login-logo-line1 {
-  font-size: 22px;
-  font-weight: 700;
+  font-family: var(--font);
+  font-size: 34px;
+  font-weight: 500;
   color: var(--text);
   letter-spacing: -0.3px;
 }
@@ -201,10 +217,12 @@ async function handleAdminLogin() {
 
 .login-tabs {
   display: flex;
-  gap: 4px;
-  background: var(--bg-input);
-  border-radius: var(--radius);
-  padding: 4px;
+  gap: 0;
+  background: transparent;
+  border-top: 1px solid var(--text);
+  border-bottom: 1px solid var(--text);
+  border-radius: 0;
+  padding: 0;
   margin-bottom: 24px;
 }
 
@@ -213,7 +231,7 @@ async function handleAdminLogin() {
   padding: 10px;
   border: none;
   background: transparent;
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   font-size: 13px;
   color: var(--text-secondary);
   cursor: pointer;
@@ -223,9 +241,9 @@ async function handleAdminLogin() {
 }
 
 .login-tabs button.active {
-  background: var(--bg-card);
-  color: var(--text);
-  box-shadow: var(--shadow-sm);
+  background: var(--text);
+  color: var(--bg-card);
+  box-shadow: none;
 }
 
 .form-group {
@@ -245,7 +263,7 @@ async function handleAdminLogin() {
   width: 100%;
   padding: 11px 14px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 1px;
   font-size: 14px;
   background: var(--bg-input);
   color: var(--text);
@@ -271,7 +289,7 @@ async function handleAdminLogin() {
   gap: 6px;
   padding: 10px 18px;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 1px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -281,14 +299,15 @@ async function handleAdminLogin() {
 }
 
 .btn-primary {
-  background: var(--accent-gradient);
+  background: var(--text);
   color: white;
-  box-shadow: var(--shadow-accent);
+  box-shadow: none;
 }
 
 .btn-primary:hover:not(:disabled) {
+  background: var(--accent);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(217, 119, 87, 0.3);
+  box-shadow: 4px 4px 0 rgba(26, 26, 24, 0.2);
 }
 
 .btn-block {
@@ -313,7 +332,8 @@ async function handleAdminLogin() {
   left: 0;
   right: 0;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-left: 5.5vw;
   pointer-events: none;
   z-index: 10;
 }
@@ -321,6 +341,36 @@ async function handleAdminLogin() {
 .login-watermark {
   height: 22px;
   width: auto;
-  opacity: 0.85;
+  opacity: 0.55;
+  filter: grayscale(1) invert(1);
+}
+
+@media (max-width: 860px) {
+  .login-page {
+    justify-content: center;
+    padding: 72px 20px 44px;
+  }
+  .login-page::before {
+    left: 50%;
+    top: 8%;
+    transform: translateX(-50%);
+    font-size: 54px;
+    opacity: 0.12;
+    white-space: nowrap;
+  }
+  .login-page::after {
+    left: 50%;
+    transform: translateX(-50%);
+    top: 28px;
+    white-space: nowrap;
+  }
+  .login-card {
+    width: 100%;
+    max-width: 480px;
+  }
+  .login-footer {
+    justify-content: center;
+    padding-left: 0;
+  }
 }
 </style>

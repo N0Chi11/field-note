@@ -746,20 +746,28 @@ onMounted(loadRequests)
 /* Page Header */
 .page-header {
   margin-bottom: 24px;
-  padding: 28px 30px 24px;
-  background: rgba(255, 255, 255, 0.84);
-  border: 1px solid rgba(230, 234, 240, 0.9);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(18px);
+  padding: 22px 0 26px;
+  border-top: 1px solid var(--text);
+  border-bottom: 1px solid var(--text);
   animation: slideUp 0.3s ease;
 }
-.page-header h1 {
-  font-size: 26px;
+.page-header::before {
+  content: 'BORROWING INDEX / LIVE RECORDS';
+  display: block;
+  margin-bottom: 28px;
+  color: var(--accent);
+  font-size: 10px;
   font-weight: 700;
+  letter-spacing: 0.22em;
+}
+.page-header h1 {
+  font-family: var(--font);
+  font-size: clamp(46px, 5vw, 72px);
+  font-weight: 500;
+  line-height: 0.94;
   color: var(--text);
   margin-bottom: 6px;
-  letter-spacing: -0.7px;
+  letter-spacing: -0.055em;
 }
 .page-header p {
   font-size: 14px;
@@ -769,15 +777,15 @@ onMounted(loadRequests)
 /* Filter Tabs */
 .filter-tabs {
   display: flex;
-  gap: 6px;
-  margin-top: 18px;
+  gap: 0;
+  margin-top: 28px;
   flex-wrap: wrap;
 }
 .filter-tab {
-  padding: 7px 16px;
+  padding: 9px 16px;
   border: 1px solid var(--border);
-  background: #FAFBFF;
-  border-radius: 20px;
+  background: transparent;
+  border-radius: 0;
   font-size: 13px;
   color: var(--text-secondary);
   cursor: pointer;
@@ -790,10 +798,10 @@ onMounted(loadRequests)
   border-color: var(--text-tertiary);
 }
 .filter-tab.active {
-  background: var(--accent);
+  background: var(--text);
   color: white;
-  border-color: var(--accent);
-  box-shadow: var(--shadow-accent);
+  border-color: var(--text);
+  box-shadow: none;
 }
 
 /* Overview Toolbar */
@@ -807,7 +815,7 @@ onMounted(loadRequests)
   flex: 1;
   padding: 8px 14px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 1px;
   font-size: 14px;
   font-family: var(--font-ui);
   background: var(--bg-input);
@@ -827,7 +835,7 @@ onMounted(loadRequests)
 .btn {
   padding: 11px 22px;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 1px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -840,9 +848,9 @@ onMounted(loadRequests)
   white-space: nowrap;
 }
 .btn-primary {
-  background: var(--accent-gradient);
+  background: var(--text);
   color: white;
-  box-shadow: var(--shadow-accent);
+  box-shadow: none;
 }
 .btn-primary:hover {
   transform: translateY(-1px);
@@ -890,7 +898,7 @@ onMounted(loadRequests)
   display: inline-flex;
   align-items: center;
   padding: 4px 12px;
-  border-radius: 20px;
+  border-radius: 1px;
   font-size: 12px;
   font-weight: 600;
 }
@@ -992,21 +1000,23 @@ onMounted(loadRequests)
 .request-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
   margin-top: 20px;
 }
 .request-card {
   background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 22px 24px;
-  box-shadow: var(--shadow-sm);
+  border: 0;
+  border-top: 1px solid var(--text);
+  border-radius: 0;
+  padding: 24px 2px 26px;
+  box-shadow: none;
   transition: all var(--transition);
   animation: slideUp 0.3s ease backwards;
 }
 .request-card:hover {
-  box-shadow: var(--shadow-lg);
-  border-color: #DDDDFE;
+  box-shadow: inset 4px 0 0 var(--accent);
+  padding-left: 18px;
+  border-color: var(--text);
 }
 .request-header {
   display: flex;
@@ -1015,7 +1025,8 @@ onMounted(loadRequests)
   margin-bottom: 14px;
 }
 .work-order {
-  font-size: 14px;
+  font-family: var(--font);
+  font-size: 18px;
   font-weight: 700;
   color: var(--accent);
   letter-spacing: 0.3px;

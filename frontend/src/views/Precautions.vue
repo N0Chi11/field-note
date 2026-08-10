@@ -105,10 +105,25 @@ const liabilityRules: PrecautionItem[] = [
 
 .page-header {
   margin-bottom: 28px;
+  padding: 22px 0 28px;
+  border-top: 1px solid var(--text);
+  border-bottom: 1px solid var(--text);
+}
+.page-header::before {
+  content: 'FIELD NOTES / USAGE GUIDE';
+  display: block;
+  margin-bottom: 26px;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
 }
 
 .page-title {
-  font-size: 26px;
+  font-size: clamp(46px, 5vw, 70px);
+  font-weight: 500;
+  line-height: 0.94;
+  letter-spacing: -0.055em;
   color: var(--text);
   margin-bottom: 8px;
 }
@@ -144,7 +159,7 @@ const liabilityRules: PrecautionItem[] = [
   padding: 16px 18px;
   background: var(--bg-card);
   border: 1px solid var(--border-light);
-  border-radius: var(--radius);
+  border-radius: 1px;
   transition: box-shadow var(--transition), transform var(--transition);
 }
 
@@ -157,7 +172,7 @@ const liabilityRules: PrecautionItem[] = [
   flex-shrink: 0;
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  border-radius: 0;
   background: var(--accent-light);
   color: var(--accent);
   display: flex;

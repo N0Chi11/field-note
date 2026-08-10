@@ -206,11 +206,24 @@ onMounted(loadRecords)
   margin: 0 auto;
 }
 .page-header {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
+  padding: 20px 0 26px;
+  border-top: 1px solid var(--text);
+  border-bottom: 1px solid var(--text);
+}
+.page-header::before {
+  content: 'RETURN DESK / CONDITION REVIEW';
+  display: block;
+  margin-bottom: 24px;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
 }
 .page-title {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: clamp(44px, 5vw, 68px);
+  font-weight: 500;
+  line-height: 0.94;
   margin: 0 0 6px;
   color: var(--text);
 }
@@ -225,13 +238,15 @@ onMounted(loadRecords)
 .return-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 0;
 }
 .return-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px 18px;
+  border: 0;
+  border-top: 1px solid var(--text);
+  border-radius: 0;
+  padding: 22px 2px;
 }
 .card-head {
   display: flex;

@@ -150,11 +150,25 @@ onMounted(loadRequests)
 /* Page Header */
 .page-header {
   margin-bottom: 28px;
+  padding: 22px 0 28px;
+  border-top: 1px solid var(--text);
+  border-bottom: 1px solid var(--text);
   animation: slideUp 0.3s ease;
 }
-.page-header h1 {
-  font-size: 26px;
+.page-header::before {
+  content: 'MEMBER FILE / PERSONAL ARCHIVE';
+  display: block;
+  margin-bottom: 26px;
+  color: var(--accent);
+  font-size: 10px;
   font-weight: 700;
+  letter-spacing: 0.22em;
+}
+.page-header h1 {
+  font-family: var(--font);
+  font-size: clamp(46px, 5vw, 70px);
+  font-weight: 500;
+  line-height: 0.94;
   color: var(--text);
   margin-bottom: 6px;
   letter-spacing: -0.4px;
@@ -168,7 +182,8 @@ onMounted(loadRequests)
 .profile-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: 1px;
+  border-top: 5px solid var(--text);
   padding: 32px;
   max-width: 620px;
   box-shadow: var(--shadow-sm);
@@ -185,8 +200,8 @@ onMounted(loadRequests)
 .profile-avatar-large {
   width: 72px;
   height: 72px;
-  border-radius: 50%;
-  background: var(--accent-gradient);
+  border-radius: 0;
+  background: var(--text);
   color: white;
   display: flex;
   align-items: center;
@@ -210,7 +225,7 @@ onMounted(loadRequests)
   display: inline-block;
   margin-top: 8px;
   padding: 3px 12px;
-  border-radius: 20px;
+  border-radius: 1px;
   font-size: 11px;
   font-weight: 600;
   background: var(--accent-bg);

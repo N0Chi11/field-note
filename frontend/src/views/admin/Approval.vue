@@ -674,17 +674,26 @@ onMounted(reload)
 }
 .page-header {
   margin-bottom: 24px;
-  padding: 26px 28px;
-  background: rgba(255, 255, 255, 0.84);
-  border: 1px solid rgba(230, 234, 240, 0.9);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(18px);
+  padding: 22px 0 30px;
+  border-top: 1px solid var(--text);
+  border-bottom: 1px solid var(--text);
+}
+.page-header::before {
+  content: 'EDITORIAL DESK / APPROVAL QUEUE';
+  display: block;
+  margin-bottom: 28px;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
 }
 .page-title {
-  font-size: 22px;
-  font-weight: 700;
-  margin: 0 0 6px;
+  font-family: var(--font);
+  font-size: clamp(46px, 5vw, 70px);
+  font-weight: 500;
+  line-height: 0.94;
+  letter-spacing: -0.055em;
+  margin: 0 0 14px;
   color: var(--text);
 }
 .page-desc {
@@ -697,48 +706,51 @@ onMounted(reload)
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 0;
   margin-bottom: 24px;
 }
 .stat-card {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 20px 22px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  padding: 18px 16px 20px;
+  background: transparent;
+  border: 0;
+  border-top: 3px solid var(--text);
+  border-right: 1px solid var(--border);
+  border-radius: 0;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 .stat-card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-3px);
+  box-shadow: inset 0 4px 0 var(--card-color);
+  transform: none;
 }
 /* 当前选中：高亮边框 */
 .stat-card.active {
-  border-color: var(--card-color);
-  box-shadow: 0 0 0 1px var(--card-color);
+  border-top-color: var(--card-color);
+  box-shadow: inset 0 4px 0 var(--card-color);
 }
 .stat-card__icon {
   flex-shrink: 0;
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 22px;
   line-height: 1;
-  background: var(--card-bg);
+  background: transparent;
 }
 .stat-card__content {
   flex: 1;
   min-width: 0;
 }
 .stat-card__value {
-  font-size: 24px;
-  font-weight: 700;
+  font-family: var(--font);
+  font-size: 34px;
+  font-weight: 500;
   color: var(--text);
   line-height: 1.2;
 }
@@ -773,13 +785,14 @@ onMounted(reload)
 .request-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 0;
 }
 .request-card {
   background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px 18px;
+  border: 0;
+  border-top: 1px solid var(--text);
+  border-radius: 0;
+  padding: 22px 2px 24px;
 }
 .card-head {
   display: flex;
@@ -791,8 +804,9 @@ onMounted(reload)
   border-bottom: 1px dashed var(--border);
 }
 .work-order {
-  font-weight: 700;
-  font-size: 15px;
+  font-family: var(--font);
+  font-weight: 500;
+  font-size: 19px;
   color: var(--text);
   letter-spacing: 0.3px;
 }

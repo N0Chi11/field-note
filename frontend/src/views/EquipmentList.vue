@@ -224,27 +224,40 @@ onMounted(loadEquipment)
 
 /* ---------- 页面标题 ---------- */
 .page-header {
-  margin-bottom: 22px;
-  padding: 28px 30px;
-  background: rgba(255, 255, 255, 0.84);
-  border: 1px solid rgba(230, 234, 240, 0.9);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(18px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.6fr);
+  align-items: end;
+  gap: 32px;
+  margin-bottom: 26px;
+  padding: 22px 0 34px;
+  border-top: 1px solid var(--text);
+  border-bottom: 1px solid var(--text);
+}
+.page-header::before {
+  content: 'NEW MEDIA CENTER / EQUIPMENT CATALOGUE';
+  grid-column: 1 / -1;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--accent);
 }
 .page-title {
-  font-size: 24px;
-  font-weight: 700;
-  margin: 0 0 6px;
+  font-size: clamp(48px, 6vw, 82px);
+  font-weight: 500;
+  line-height: 0.92;
+  margin: 0;
   color: var(--text);
-  font-family: var(--font-ui);
-  letter-spacing: -0.6px;
+  font-family: var(--font);
+  letter-spacing: -0.055em;
 }
 .page-desc {
   font-size: 13px;
   color: var(--text-secondary);
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.8;
+  max-width: 390px;
+  justify-self: end;
 }
 
 /* ---------- 类别筛选 ---------- */
@@ -261,7 +274,7 @@ onMounted(loadEquipment)
 .categories {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 48px;
 }
 .category-section {
   animation: slideUp 0.4s ease both;
@@ -270,40 +283,39 @@ onMounted(loadEquipment)
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 18px;
-  padding: 0 2px 12px;
-  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 16px;
+  padding: 0 0 10px;
+  border-bottom: 3px solid var(--text);
 }
 .category-icon {
   font-size: 22px;
   line-height: 1;
 }
 .category-name {
-  font-size: 17px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 500;
   color: var(--text);
-  font-family: var(--font-ui);
+  font-family: var(--font);
 }
 .category-count {
   font-size: 12px;
   color: var(--text-tertiary);
-  background: var(--bg);
-  padding: 2px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
+  margin-left: auto;
+  padding: 2px 0;
+  letter-spacing: 0.08em;
 }
 
 /* ---------- 设备卡片网格 ---------- */
 .equipment-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 18px 14px;
 }
 
 .equipment-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: 1px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -312,9 +324,9 @@ onMounted(loadEquipment)
   animation: cardFadeIn 0.5s ease both;
 }
 .equipment-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
-  border-color: #D9D8FF;
+  transform: translateY(-3px);
+  box-shadow: 6px 7px 0 #1A1A18;
+  border-color: var(--text);
 }
 
 /* ---------- 卡片图片区 ---------- */
@@ -322,17 +334,19 @@ onMounted(loadEquipment)
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  background: linear-gradient(135deg, #EEF0FF 0%, #F8F9FF 52%, #EAF5FF 100%);
+  background: #E8E4DA;
   overflow: hidden;
 }
 .card-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  filter: saturate(0.72) contrast(1.04);
+  transition: transform 0.5s ease, filter 0.5s ease;
 }
 .equipment-card:hover .card-image img {
   transform: scale(1.05);
+  filter: saturate(1) contrast(1.02);
 }
 .image-placeholder {
   width: 100%;
@@ -340,7 +354,7 @@ onMounted(loadEquipment)
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at 50% 45%, rgba(124, 92, 229, 0.16), transparent 38%), linear-gradient(135deg, #EEF0FF, #F8FAFF);
+  background: radial-gradient(circle at 35% 30%, rgba(36, 63, 160, 0.2), transparent 34%), linear-gradient(145deg, #D8D4C8, #F4F1E9);
 }
 .placeholder-icon {
   font-size: 48px;
@@ -356,9 +370,9 @@ onMounted(loadEquipment)
   font-size: 12px;
   font-weight: 600;
   padding: 3px 10px;
-  border-radius: 999px;
+  border-radius: 1px;
   backdrop-filter: blur(4px);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  box-shadow: none;
   font-family: var(--font-ui);
   letter-spacing: 0.3px;
 }
@@ -377,7 +391,7 @@ onMounted(loadEquipment)
 
 /* ---------- 卡片信息区 ---------- */
 .card-body {
-  padding: 16px 18px 10px;
+  padding: 18px 18px 10px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -385,17 +399,17 @@ onMounted(loadEquipment)
 }
 .card-code {
   font-size: 12px;
-  color: #6767D8;
+  color: var(--accent);
   font-weight: 600;
   font-family: var(--font-ui);
   letter-spacing: 0.5px;
 }
 .card-name {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 500;
   color: var(--text);
   line-height: 1.4;
-  font-family: var(--font-ui);
+  font-family: var(--font);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -423,8 +437,9 @@ onMounted(loadEquipment)
   width: 100%;
   height: 38px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: #FAFBFF;
+  border-radius: 1px;
+  background: var(--text);
+  color: var(--bg-card);
   color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
@@ -433,9 +448,9 @@ onMounted(loadEquipment)
   font-family: var(--font-ui);
 }
 .timeline-btn:hover {
-  border-color: #A4A0F9;
-  color: var(--accent);
-  background: var(--accent-light);
+  border-color: var(--accent);
+  color: #fff;
+  background: var(--accent);
 }
 
 /* ---------- 卡片淡入动画 ---------- */
@@ -452,12 +467,19 @@ onMounted(loadEquipment)
 
 /* ---------- 响应式 ---------- */
 @media (max-width: 640px) {
+  .page-header {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .page-desc {
+    justify-self: start;
+  }
   .equipment-grid {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 12px;
   }
   .page-title {
-    font-size: 20px;
+    font-size: 46px;
   }
   .category-name {
     font-size: 15px;

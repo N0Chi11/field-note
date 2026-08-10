@@ -417,38 +417,52 @@ onMounted(() => {
 
 <style scoped>
 .page {
-  max-width: 760px;
+  max-width: 1180px;
   margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1.28fr);
+  gap: clamp(36px, 6vw, 76px);
+  align-items: start;
 }
 .page-header {
-  margin-bottom: 22px;
-  padding: 26px 28px;
-  background: rgba(255, 255, 255, 0.84);
-  border: 1px solid rgba(230, 234, 240, 0.9);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(18px);
+  margin: 0;
+  padding: 20px 0 28px;
+  border-top: 1px solid var(--text);
+  border-bottom: 1px solid var(--text);
+  position: sticky;
+  top: 36px;
+}
+.page-header::before {
+  content: 'BORROWING REQUEST / APPLICATION';
+  display: block;
+  margin-bottom: 48px;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
 }
 .page-title {
-  font-size: 24px;
-  font-weight: 700;
-  margin: 0 0 6px;
+  font-size: clamp(48px, 5vw, 74px);
+  font-weight: 500;
+  line-height: 0.94;
+  margin: 0 0 24px;
   color: var(--text);
-  font-family: var(--font-ui);
-  letter-spacing: -0.6px;
+  font-family: var(--font);
+  letter-spacing: -0.055em;
 }
 .page-desc {
   font-size: 13px;
   color: var(--text-secondary);
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.8;
 }
 .form-wrapper {
   background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 30px;
-  box-shadow: var(--shadow-md);
+  border: 1px solid var(--text);
+  border-top-width: 5px;
+  border-radius: 1px;
+  padding: clamp(24px, 4vw, 42px);
+  box-shadow: 8px 9px 0 rgba(26, 26, 24, 0.08);
   animation: slideUp 0.4s ease both;
 }
 .form-row {
@@ -469,6 +483,18 @@ onMounted(() => {
   gap: 12px;
   margin-top: 8px;
 }
+@media (max-width: 900px) {
+  .page {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .page-header {
+    position: static;
+  }
+  .page-header::before {
+    margin-bottom: 28px;
+  }
+}
 @media (max-width: 640px) {
   .form-row {
     grid-template-columns: 1fr;
@@ -477,7 +503,7 @@ onMounted(() => {
     padding: 18px;
   }
   .page-title {
-    font-size: 20px;
+    font-size: 46px;
   }
 }
 </style>

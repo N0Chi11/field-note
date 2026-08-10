@@ -190,11 +190,24 @@ onMounted(loadLogs)
   margin: 0 auto;
 }
 .page-header {
-  margin-bottom: 18px;
+  margin-bottom: 22px;
+  padding: 20px 0 26px;
+  border-top: 1px solid var(--text);
+  border-bottom: 1px solid var(--text);
+}
+.page-header::before {
+  content: 'SYSTEM CHRONICLE / AUDIT LOG';
+  display: block;
+  margin-bottom: 24px;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
 }
 .page-title {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: clamp(44px, 5vw, 68px);
+  font-weight: 500;
+  line-height: 0.94;
   margin: 0 0 6px;
   color: var(--text);
 }
@@ -212,15 +225,16 @@ onMounted(loadLogs)
 .log-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
 }
 .log-item {
   display: flex;
   gap: 14px;
   padding: 14px 16px;
   background: var(--bg-card);
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
+  border-radius: 0;
+  border: 0;
+  border-top: 1px solid var(--text);
   transition: box-shadow 0.15s;
 }
 .log-item:hover {

@@ -37,10 +37,11 @@ function selectTab(key: string) {
 <style scoped>
 .filter-tabs {
   display: flex;
-  gap: 4px;
-  padding: 4px;
-  background: var(--bg);
-  border-radius: var(--radius);
+  gap: 0;
+  padding: 0;
+  background: transparent;
+  border-top: 1px solid var(--text);
+  border-bottom: 1px solid var(--text);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -52,13 +53,14 @@ function selectTab(key: string) {
 .filter-tabs__item {
   flex: 1;
   white-space: nowrap;
-  padding: 8px 16px;
+  padding: 12px 18px;
   border: none;
   background: transparent;
   color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
-  border-radius: 8px;
+  border-radius: 0;
+  border-right: 1px solid var(--border);
   cursor: pointer;
   transition: all 0.2s ease;
   display: inline-flex;
@@ -72,10 +74,10 @@ function selectTab(key: string) {
 }
 
 .filter-tabs__item.active {
-  background: var(--bg-card);
-  color: var(--accent);
+  background: var(--text);
+  color: var(--bg-card);
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: none;
 }
 
 .filter-tabs__icon {

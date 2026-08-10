@@ -10,23 +10,23 @@ import {
 
 const themeOverrides: GlobalThemeOverrides = {
   common: {
-    primaryColor: '#5B5BD6',
-    primaryColorHover: '#6C6CE0',
-    primaryColorPressed: '#4747B8',
-    primaryColorSuppl: '#5B5BD6',
-    infoColor: '#3973E6',
-    successColor: '#159A6A',
-    warningColor: '#C88719',
-    errorColor: '#D14343',
-    borderRadius: '10px',
-    borderRadiusSmall: '8px',
+    primaryColor: '#243FA0',
+    primaryColorHover: '#3152BC',
+    primaryColorPressed: '#172B78',
+    primaryColorSuppl: '#243FA0',
+    infoColor: '#315AA6',
+    successColor: '#277455',
+    warningColor: '#A76A13',
+    errorColor: '#B9362B',
+    borderRadius: '3px',
+    borderRadiusSmall: '2px',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif',
-    bodyColor: '#FFFFFF',
-    cardColor: '#FFFFFF',
-    modalColor: '#FFFFFF',
-    popoverColor: '#FFFFFF',
-    borderColor: '#E6EAF0',
-    textColorBase: '#172033'
+    bodyColor: '#F2EFE7',
+    cardColor: '#FCFBF7',
+    modalColor: '#FCFBF7',
+    popoverColor: '#FCFBF7',
+    borderColor: '#D5D0C5',
+    textColorBase: '#1A1A18'
   }
 }
 </script>

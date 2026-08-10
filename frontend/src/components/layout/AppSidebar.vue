@@ -18,7 +18,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 /** 应用版本号（每次发版更新此处即可） */
-const APP_VERSION = 'v2.1.5'
+const APP_VERSION = 'v2.1.6'
 
 const user = computed(() => authStore.user)
 
@@ -216,12 +216,10 @@ watch(() => route.path, () => loadStats())
   position: fixed;
   top: 0;
   left: 0;
-  width: 272px;
+  width: 252px;
   height: 100vh;
-  background:
-    radial-gradient(circle at 0% 0%, rgba(124, 92, 229, 0.28), transparent 18rem),
-    linear-gradient(180deg, #141B30 0%, #0D1324 100%);
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  background: #191917;
+  border-right: 1px solid rgba(255, 255, 255, 0.14);
   display: flex;
   flex-direction: column;
   z-index: 300;
@@ -239,10 +237,10 @@ watch(() => route.path, () => loadStats())
 .sidebar__header-logo {
   width: 40px;
   height: 40px;
-  border-radius: 13px;
+  border-radius: 2px;
   object-fit: cover;
   flex-shrink: 0;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+  filter: grayscale(1) contrast(1.08);
 }
 
 .sidebar__header-text {
@@ -253,13 +251,13 @@ watch(() => route.path, () => loadStats())
 }
 
 .sidebar__header-title {
-  font-family: var(--font-ui);
-  font-size: 16px;
-  font-weight: 700;
+  font-family: var(--font);
+  font-size: 18px;
+  font-weight: 500;
   color: #FFFFFF;
   margin: 0;
   line-height: 1.2;
-  letter-spacing: 0.5px;
+  letter-spacing: -0.02em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -293,7 +291,7 @@ watch(() => route.path, () => loadStats())
   font-weight: 600;
   color: rgba(255, 255, 255, 0.38);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.18em;
   padding: 0 12px;
   margin: 0 0 8px 0;
 }
@@ -304,7 +302,7 @@ watch(() => route.path, () => loadStats())
   align-items: center;
   gap: 12px;
   padding: 8px 12px;
-  border-radius: var(--radius-sm);
+  border-radius: 1px;
   color: rgba(255, 255, 255, 0.68);
   text-decoration: none;
   font-family: var(--font-ui);
@@ -320,8 +318,8 @@ watch(() => route.path, () => loadStats())
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, rgba(113, 108, 239, 0.32), rgba(83, 122, 237, 0.24));
-  color: #FFFFFF;
+  background: #F2EFE7;
+  color: #191917;
   font-weight: 600;
 }
 
@@ -332,18 +330,17 @@ watch(() => route.path, () => loadStats())
   left: -14px;
   top: 50%;
   transform: translateY(-50%);
-  width: 3px;
-  height: 52%;
-  background: #9A91FF;
-  border-radius: 0 4px 4px 0;
+  width: 4px;
+  height: 100%;
+  background: #243FA0;
 }
 
 /* 圆角图标 */
 .nav-item__icon {
   width: 30px;
   height: 30px;
-  border-radius: 9px;
-  background: rgba(255, 255, 255, 0.09);
+  border-radius: 0;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -362,7 +359,7 @@ watch(() => route.path, () => loadStats())
 }
 
 .nav-item.active .nav-item__icon {
-  background: rgba(255, 255, 255, 0.16);
+  background: transparent;
 }
 
 /* 待办 badge */
@@ -398,9 +395,9 @@ watch(() => route.path, () => loadStats())
 .sidebar__user-avatar {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  background: var(--accent-gradient);
-  color: #fff;
+  border-radius: 0;
+  background: #F2EFE7;
+  color: #191917;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -408,7 +405,7 @@ watch(() => route.path, () => loadStats())
   font-weight: 600;
   font-size: 16px;
   flex-shrink: 0;
-  box-shadow: 0 8px 18px rgba(91, 91, 214, 0.36);
+  box-shadow: none;
 }
 
 .sidebar__user-info {
@@ -465,7 +462,7 @@ watch(() => route.path, () => loadStats())
   gap: 6px;
   padding: 9px 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
+  border-radius: 1px;
   background: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.7);
   font-family: var(--font-ui);
@@ -521,7 +518,7 @@ watch(() => route.path, () => loadStats())
 
   /* 移动端导航项颜色更清晰 */
   .nav-item {
-    color: var(--text);
+    color: rgba(255, 255, 255, 0.74);
     padding: 12px 12px;
     font-size: 15px;
   }
