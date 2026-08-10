@@ -2,7 +2,15 @@
 
 from typing import Optional
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    File,
+    HTTPException,
+    Query,
+    UploadFile,
+)
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
 
@@ -24,6 +32,7 @@ from app.schemas.common import ApiResponse
 from app.services.conflict_service import check_conflict, generate_work_order_no
 from app.services.log_service import add_log
 from app.services.upload_service import save_image_upload
+from app.services.wecom_notification_service import notify_new_borrow_request
 
 settings = get_settings()
 
@@ -162,6 +171,7 @@ def list_requests(
 @router.post("/", response_model=ApiResponse[BorrowResponse])
 def create_request(
     req: BorrowCreate,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -244,7 +254,20 @@ def create_request(
     except Exception:
         pass
 
-    # 6. 组装返回信息（soft 冲突包含警告）
+    # 6. 异步通知管理员。通知失败只记录日志，不影响已经成功提交的申请。
+    background_tasks.add_task(
+        notify_new_borrow_request,
+        work_order_no=wo,
+        user_name=current_user.name,
+        student_id=current_user.student_id,
+        equipment_name=equipment.name,
+        equipment_code=equipment.code,
+        borrow_time=req.borrow_time,
+        return_time=req.return_time,
+        reason=req.reason,
+    )
+
+    # 7. 组装返回信息（soft 冲突包含警告）
     message = "提交成功"
     if conflict["has_conflict"] and conflict["conflict_type"] == "soft":
         message = (

@@ -33,6 +33,15 @@ class Settings(BaseSettings):
     # ===== Upload =====
     UPLOAD_DIR: str = "/app/uploads"
 
+    # ===== WeCom notifications =====
+    # Keep the webhook secret in the server .env file. Never commit a real URL.
+    WECOM_BOT_WEBHOOK: str = ""
+    WECOM_MENTIONED_MOBILES: str = ""
+    SYSTEM_PUBLIC_URL: str = ""
+
+    # ===== Timezone =====
+    TZ: str = "Asia/Shanghai"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -49,6 +58,17 @@ class Settings(BaseSettings):
             origin.strip()
             for origin in self.CORS_ORIGINS.split(",")
             if origin.strip()
+        ]
+
+    @property
+    def wecom_mentioned_mobiles_list(self) -> List[str]:
+        """Return admin mobile numbers used for WeCom @mentions."""
+        if not self.WECOM_MENTIONED_MOBILES:
+            return []
+        return [
+            mobile.strip()
+            for mobile in self.WECOM_MENTIONED_MOBILES.split(",")
+            if mobile.strip()
         ]
 
 
