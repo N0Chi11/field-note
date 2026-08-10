@@ -16,7 +16,7 @@ export function getEquipment(params?: EquipmentQuery) {
 
 /** 查询单个器材 */
 export function getEquipmentById(id: number) {
-  return request<Equipment>({
+  return request<{ equipment: Equipment }>({
     method: 'GET',
     url: `/equipment/${id}`
   })

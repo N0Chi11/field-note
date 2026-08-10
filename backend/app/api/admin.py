@@ -53,6 +53,7 @@ def _to_detail(r: BorrowRequest) -> BorrowDetail:
         card_id=r.card_id,
         borrow_time=r.borrow_time,
         return_time=r.return_time,
+        actual_return=r.actual_return,
         reason=r.reason,
         status=_status_value(r.status),
         approver_id=r.approver_id,
@@ -286,7 +287,10 @@ def confirm_pickup(
     # 检查设备是否已被借用（有 borrowing 状态的记录）
     active_borrow = db.query(BorrowRequest).filter(
         BorrowRequest.equipment_id == r.equipment_id,
-        BorrowRequest.status == BorrowStatus.borrowing,
+        BorrowRequest.status.in_([
+            BorrowStatus.borrowing,
+            BorrowStatus.return_pending,
+        ]),
         BorrowRequest.id != request_id,
     ).first()
     if active_borrow:
@@ -317,6 +321,8 @@ def confirm_pickup(
 
     try:
         r.status = BorrowStatus.borrowing
+        if r.equipment:
+            r.equipment.status = EquipmentStatus.borrowed
         eq_name = r.equipment.name if r.equipment else str(r.equipment_id)
         detail = f"工单 {r.work_order_no} · {eq_name}"
         if card_name:
@@ -378,6 +384,8 @@ def confirm_return(
     try:
         r.status = BorrowStatus.returned
         r.actual_return = datetime.utcnow()
+        if r.equipment:
+            r.equipment.status = EquipmentStatus.available
         eq_name = r.equipment.name if r.equipment else str(r.equipment_id)
         detail = f"工单 {r.work_order_no} · {eq_name}"
         if card_released:

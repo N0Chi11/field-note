@@ -18,7 +18,8 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api import admin, auth, borrow, card, equipment, logs
 from app.config import get_settings
-from app.database import Base, engine
+from app.database import Base, SessionLocal, engine
+from app.services.resource_state_service import reconcile_resource_states
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -39,6 +40,13 @@ async def lifespan(app: FastAPI):
         logger.info("数据库表已就绪")
     except Exception as e:
         logger.warning(f"数据库表创建失败（可能已存在或数据库未连接）: {e}")
+    try:
+        with SessionLocal() as db:
+            changed = reconcile_resource_states(db)
+        if changed:
+            logger.info("已修复 %s 条设备或内存卡状态", changed)
+    except Exception as e:
+        logger.warning(f"资源状态校准失败: {e}")
     yield
     logger.info("应用关闭")
 

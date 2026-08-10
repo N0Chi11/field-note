@@ -7,8 +7,6 @@
 
 from __future__ import annotations
 
-import os
-import uuid
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
@@ -29,6 +27,7 @@ from app.schemas.equipment import (
     EquipmentUpdate,
 )
 from app.services.log_service import add_log
+from app.services.upload_service import save_image_upload
 
 router = APIRouter(prefix="/equipment", tags=["设备管理"])
 
@@ -417,41 +416,7 @@ def upload_equipment_image(
             status_code=status.HTTP_404_NOT_FOUND, detail="设备不存在"
         )
 
-    # 读取文件内容
-    try:
-        contents = file.file.read()
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="文件读取失败"
-        )
-    if not contents:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="上传文件为空"
-        )
-
-    # 文件名：uuid + 原扩展名
-    original_name = file.filename or ""
-    ext = os.path.splitext(original_name)[1].lower()
-    filename = f"{uuid.uuid4().hex}{ext}"
-
-    upload_dir = settings.UPLOAD_DIR
-    try:
-        os.makedirs(upload_dir, exist_ok=True)
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="服务器内部错误",
-        )
-
-    save_path = os.path.join(upload_dir, filename)
-    try:
-        with open(save_path, "wb") as f:
-            f.write(contents)
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="文件保存失败",
-        )
+    filename = save_image_upload(file, settings.UPLOAD_DIR)
 
     # 静态访问路径
     image_url = f"/uploads/{filename}"
@@ -471,8 +436,8 @@ def upload_equipment_image(
         db.rollback()
         # 数据库更新失败时清理已落盘文件，保持一致
         try:
-            os.remove(save_path)
-        except Exception:
+            os.remove(os.path.join(settings.UPLOAD_DIR, filename))
+        except OSError:
             pass
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -339,11 +339,11 @@ async function loadData() {
   if (!props.equipmentId) return
   loading.value = true
   try {
-    const [eq, reqs] = await Promise.all([
+    const [equipmentDetail, reqs] = await Promise.all([
       getEquipmentById(props.equipmentId),
       fetchRequestsByEquipment(props.equipmentId)
     ])
-    equipment.value = eq
+    equipment.value = equipmentDetail.equipment
     requests.value = reqs
   } catch (e: any) {
     toast.error(errMsg(e, '加载时间轴数据失败'))

@@ -1,7 +1,5 @@
 """借用申请路由：列表、详情、提交、取消/删除、提交归还、实时冲突检测。"""
 
-import os
-import uuid
 from typing import Optional
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
@@ -13,7 +11,7 @@ from app.core.deps import get_current_user
 from app.database import get_db
 from app.models.borrow_request import BorrowRequest, BorrowStatus
 from app.models.card import Card, CardStatus
-from app.models.equipment import Equipment
+from app.models.equipment import Equipment, EquipmentStatus
 from app.models.user import User
 from app.schemas.borrow import (
     BorrowCreate,
@@ -25,6 +23,7 @@ from app.schemas.borrow import (
 from app.schemas.common import ApiResponse
 from app.services.conflict_service import check_conflict, generate_work_order_no
 from app.services.log_service import add_log
+from app.services.upload_service import save_image_upload
 
 settings = get_settings()
 
@@ -51,6 +50,7 @@ def _to_response(r: BorrowRequest) -> BorrowResponse:
         card_id=r.card_id,
         borrow_time=r.borrow_time,
         return_time=r.return_time,
+        actual_return=r.actual_return,
         reason=r.reason,
         status=_status_value(r.status),
         approver_id=r.approver_id,
@@ -70,6 +70,7 @@ def _to_detail(r: BorrowRequest) -> BorrowDetail:
         card_id=r.card_id,
         borrow_time=r.borrow_time,
         return_time=r.return_time,
+        actual_return=r.actual_return,
         reason=r.reason,
         status=_status_value(r.status),
         approver_id=r.approver_id,
@@ -362,17 +363,21 @@ def delete_request(
             log_detail = f"工单 {wo}"
             msg = "已取消"
         else:
-            # 删除：borrowing 状态需先释放内存卡
-            if st == "borrowing" and r.card_id:
+            # 删除仍在占用实物的记录时，释放内存卡和设备。
+            # return_pending 代表归还尚未确认，实物同样不能继续占用。
+            is_holding_equipment = st in ("borrowing", "return_pending")
+            if is_holding_equipment and r.card_id:
                 card = db.query(Card).filter(Card.id == r.card_id).first()
                 if card:
                     card.status = CardStatus.available
+            if is_holding_equipment and r.equipment:
+                r.equipment.status = EquipmentStatus.available
             db.delete(r)
             db.commit()
             log_action = "删除申请"
             log_detail = (
                 f"工单 {wo}（已释放内存卡）"
-                if st == "borrowing" and r.card_id
+                if is_holding_equipment and r.card_id
                 else f"工单 {wo}"
             )
             msg = "已删除"
@@ -415,23 +420,8 @@ def submit_return(
         raise HTTPException(status_code=400, detail="当前状态无法提交归还")
 
     # 保存归还照片到 UPLOAD_DIR
-    upload_dir = settings.UPLOAD_DIR
-    try:
-        os.makedirs(upload_dir, exist_ok=True)
-        ext = os.path.splitext(file.filename or "")[1].lower()
-        if not ext:
-            ext = ".jpg"
-        filename = f"{uuid.uuid4().hex}{ext}"
-        filepath = os.path.join(upload_dir, filename)
-        with open(filepath, "wb") as f:
-            # 流式写入，避免大文件一次性读入内存
-            import shutil
-            shutil.copyfileobj(file.file, f)
-        photo_url = f"/uploads/{filename}"
-    except Exception:
-        raise HTTPException(status_code=500, detail="照片保存失败")
-    finally:
-        file.file.close()
+    filename = save_image_upload(file, settings.UPLOAD_DIR)
+    photo_url = f"/uploads/{filename}"
 
     # 更新归还照片与状态
     try:

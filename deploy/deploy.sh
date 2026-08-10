@@ -78,6 +78,11 @@ else
     echo -e "  ${GREEN}.env 配置文件已存在${NC}"
 fi
 
+if grep -qE 'ChangeMe|REPLACE_WITH' "$PROJECT_DIR/.env"; then
+    echo -e "  ${RED}⚠️  .env 仍包含示例密码或密钥，请先替换后再部署。${NC}"
+    exit 1
+fi
+
 # ===== 3. 生成自签名 HTTPS 证书 =====
 echo ""
 echo -e "${YELLOW}[3/5] 检查 SSL 证书...${NC}"
