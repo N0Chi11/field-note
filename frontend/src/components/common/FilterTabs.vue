@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import EditorialIcon from './EditorialIcon.vue'
+import type { EditorialIconName } from './EditorialIcon.vue'
+
 interface Tab {
   key: string
   label: string
-  icon?: string
+  icon?: EditorialIconName
 }
 
 defineProps<{
@@ -28,7 +31,7 @@ function selectTab(key: string) {
       :class="{ active: modelValue === tab.key }"
       @click="selectTab(tab.key)"
     >
-      <span v-if="tab.icon" class="filter-tabs__icon">{{ tab.icon }}</span>
+      <EditorialIcon v-if="tab.icon" class="filter-tabs__icon" :name="tab.icon" :size="24" />
       <span class="filter-tabs__label">{{ tab.label }}</span>
     </button>
   </div>
@@ -81,8 +84,11 @@ function selectTab(key: string) {
 }
 
 .filter-tabs__icon {
-  font-size: 15px;
-  line-height: 1;
+  filter: saturate(.84) contrast(1.06);
+}
+
+.filter-tabs__item.active .filter-tabs__icon {
+  filter: grayscale(1) brightness(2.4) contrast(1.2);
 }
 
 .filter-tabs__label {

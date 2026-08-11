@@ -13,6 +13,8 @@ import {
 } from 'naive-ui'
 import AppLayout from '@/components/AppLayout.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import EditorialIcon from '@/components/common/EditorialIcon.vue'
+import type { EditorialIconName } from '@/components/common/EditorialIcon.vue'
 import {
   getStats,
   approveRequest,
@@ -100,7 +102,7 @@ interface StatItem {
   value: number
   color: string
   bg: string
-  icon: string
+  icon: EditorialIconName
 }
 const statItems = computed<StatItem[]>(() => [
   {
@@ -109,7 +111,7 @@ const statItems = computed<StatItem[]>(() => [
     value: stats.value.pending,
     color: '#d9a421',
     bg: 'rgba(217, 164, 33, 0.12)',
-    icon: '⏳'
+    icon: 'pending'
   },
   {
     key: 'borrowing',
@@ -117,7 +119,7 @@ const statItems = computed<StatItem[]>(() => [
     value: stats.value.borrowing,
     color: 'var(--success)',
     bg: 'var(--success-bg)',
-    icon: '📦'
+    icon: 'parcel'
   },
   {
     key: 'return_pending',
@@ -125,7 +127,7 @@ const statItems = computed<StatItem[]>(() => [
     value: stats.value.return_pending,
     color: 'var(--info)',
     bg: 'rgba(91, 124, 153, 0.12)',
-    icon: '📥'
+    icon: 'return'
   },
   {
     key: 'all',
@@ -133,7 +135,7 @@ const statItems = computed<StatItem[]>(() => [
     value: stats.value.total,
     color: 'var(--text-tertiary)',
     bg: 'rgba(153, 153, 153, 0.12)',
-    icon: '📋'
+    icon: 'clipboard'
   }
 ])
 
@@ -383,7 +385,7 @@ onMounted(reload)
           :style="{ '--card-color': item.color, '--card-bg': item.bg }"
           @click="selectFilter(item.key)"
         >
-          <div class="stat-card__icon">{{ item.icon }}</div>
+          <div class="stat-card__icon"><EditorialIcon :name="item.icon" :size="46" /></div>
           <div class="stat-card__content">
             <div class="stat-card__value">{{ item.value }}</div>
             <div class="stat-card__label">{{ item.label }}</div>
@@ -533,7 +535,7 @@ onMounted(reload)
           </div>
           <EmptyState
             v-else-if="!loading"
-            icon="📋"
+            icon="clipboard"
             text="暂无符合条件的借用记录"
           />
         </div>

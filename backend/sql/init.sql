@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS equipment (
     code       VARCHAR(64)  NOT NULL                               COMMENT '器材编码',
     name       VARCHAR(128) NOT NULL                               COMMENT '器材名称',
     category   VARCHAR(64)  NOT NULL                               COMMENT '分类',
-    icon       VARCHAR(16)  NOT NULL DEFAULT '📦'                  COMMENT '图标(emoji)',
+    icon       VARCHAR(20)  NOT NULL DEFAULT 'equipment'           COMMENT '画报图标标识',
     image_url  VARCHAR(512) DEFAULT NULL                           COMMENT '图片 URL',
     notes      TEXT         DEFAULT NULL                           COMMENT '备注',
     status     ENUM('available','borrowed','repair') NOT NULL DEFAULT 'available' COMMENT '状态: available-可用 borrowed-已借出 repair-维修中',
@@ -176,22 +176,22 @@ INSERT INTO users (student_id, name, password_hash, role, is_active) VALUES
 -- 种子设备数据（与原始 HTML 版本一致，共 16 台设备）
 -- ============================================================================
 INSERT INTO equipment (code, name, category, icon, notes, status) VALUES
-    ('EQ001', '索尼A6400',                  '相机',     '📷', '配SELP18105G镜头、SD卡*1', 'available'),
-    ('EQ002', '大疆如影SC-2',                '稳定器',   '🎯', '配快装板', 'available'),
-    ('EQ003', '无线领夹麦克风01',            '麦克风',   '🎙️', '接收器发射器各一个，配盒子、线材、说明书', 'available'),
-    ('EQ004', '无线领夹麦克风02',            '麦克风',   '🎙️', '接收器发射器各一个，配盒子、线材、说明书', 'available'),
-    ('EQ005', '三脚架(大-01)',               '三脚架',   '📐', '配快装板', 'available'),
-    ('EQ006', '三脚架(大-02)',               '三脚架',   '📐', '配快装板（损坏）', 'repair'),
-    ('EQ007', '尼康D7000_1',                 '相机',     '📷', '配(有遮光罩)AF-S DX 尼克尔 18-105mm f/3.5-5.6G ED VR镜头', 'available'),
-    ('EQ008', '尼康D7000_2',                 '相机',     '📷', '配(无遮光罩)AF-S DX 尼克尔 18-105mm f/3.5-5.6G ED VR镜头', 'available'),
-    ('EQ009', '索尼FDR-AXP55',               '相机',     '🎥', 'SD卡*1', 'available'),
-    ('EQ010', '斯威声BM-8无线麦克风',        '麦克风',   '🎙️', '发射器接收器各一(有一个发射器已损坏)，配盒子、线材、监听耳机', 'available'),
-    ('EQ011', 'DJI Pocket3 01',              '相机',     '🎥', '三角架、无线麦克风+麦克风套、充电线', 'available'),
-    ('EQ012', '斯丹德RGB-B320手持补光灯',    '灯具',     '💡', '', 'available'),
-    ('EQ013', '反光板01',                    '灯具',     '🪞', '便携袋', 'available'),
-    ('EQ014', 'DJI Pocket3 02',              '相机',     '🎥', '包', 'available'),
-    ('EQ015', '三脚架（大）03',               '三脚架',   '📐', '配快装板', 'available'),
-    ('EQ016', '索尼a6000',                   '相机',     '📷', '2025.1月遗失', 'repair');
+ ('EQ001', '索尼A6400',                  '相机',     'camera', '配SELP18105G镜头、SD卡*1', 'available'),
+ ('EQ002', '大疆如影SC-2',                '稳定器',   'gimbal', '配快装板', 'available'),
+ ('EQ003', '无线领夹麦克风01',            '麦克风',   'microphone', '接收器发射器各一个，配盒子、线材、说明书', 'available'),
+ ('EQ004', '无线领夹麦克风02',            '麦克风',   'microphone', '接收器发射器各一个，配盒子、线材、说明书', 'available'),
+ ('EQ005', '三脚架(大-01)',               '三脚架',   'tripod', '配快装板', 'available'),
+ ('EQ006', '三脚架(大-02)',               '三脚架',   'tripod', '配快装板（损坏）', 'repair'),
+ ('EQ007', '尼康D7000_1',                 '相机',     'camera', '配(有遮光罩)AF-S DX 尼克尔 18-105mm f/3.5-5.6G ED VR镜头', 'available'),
+ ('EQ008', '尼康D7000_2',                 '相机',     'camera', '配(无遮光罩)AF-S DX 尼克尔 18-105mm f/3.5-5.6G ED VR镜头', 'available'),
+ ('EQ009', '索尼FDR-AXP55',               '相机',     'camera', 'SD卡*1', 'available'),
+ ('EQ010', '斯威声BM-8无线麦克风',        '麦克风',   'microphone', '发射器接收器各一(有一个发射器已损坏)，配盒子、线材、监听耳机', 'available'),
+ ('EQ011', 'DJI Pocket3 01',              '相机',     'camera', '三角架、无线麦克风+麦克风套、充电线', 'available'),
+ ('EQ012', '斯丹德RGB-B320手持补光灯',    '灯具',     'light', '', 'available'),
+ ('EQ013', '反光板01',                    '灯具',     'light', '便携袋', 'available'),
+ ('EQ014', 'DJI Pocket3 02',              '相机',     'camera', '包', 'available'),
+ ('EQ015', '三脚架（大）03',               '三脚架',   'tripod', '配快装板', 'available'),
+ ('EQ016', '索尼a6000',                   '相机',     'camera', '2025.1月遗失', 'repair');
 
 -- ============================================================================
 -- 种子内存卡数据（与原始 HTML 版本一致）

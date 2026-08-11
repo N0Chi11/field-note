@@ -116,7 +116,7 @@
               </div>
               <div v-if="r.card_name">
                 <span class="label">配套内存卡</span>
-                <span class="value">💾 {{ r.card_name }}</span>
+                <span class="value value-with-icon"><EditorialIcon name="memory-card" :size="20" /> {{ r.card_name }}</span>
               </div>
               <div class="full">
                 <span class="label">借用理由</span>
@@ -221,7 +221,7 @@
             </div>
           </div>
         </div>
-        <EmptyState v-else icon="📋" text="暂无借用记录" />
+        <EmptyState v-else icon="clipboard" text="暂无借用记录" />
       </n-spin>
 
       <!-- 归还照片上传弹窗 -->
@@ -381,6 +381,7 @@ import {
 } from 'naive-ui'
 import AppLayout from '@/components/AppLayout.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import EditorialIcon from '@/components/common/EditorialIcon.vue'
 import BorrowPassCard from '@/components/BorrowPassCard.vue'
 import {
   getRequests,

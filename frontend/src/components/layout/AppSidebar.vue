@@ -22,7 +22,7 @@ const authStore = useAuthStore()
 const toast = useToastStore()
 
 /** 应用版本号（每次发版更新此处即可） */
-const APP_VERSION = 'v2.2.0'
+const APP_VERSION = 'v2.2.1'
 
 const user = computed(() => authStore.user)
 
@@ -256,7 +256,7 @@ watch(() => route.path, () => loadStats())
         </div>
       </div>
       <button class="sidebar__logout" @click="handleLogout(); handleNavClick()">
-        <span class="sidebar__logout-icon">⏏</span>
+        <span class="sidebar__logout-icon" aria-hidden="true"></span>
         退出登录
       </button>
       <div class="sidebar-version">{{ APP_VERSION }}</div>
@@ -549,7 +549,32 @@ watch(() => route.path, () => loadStats())
 }
 
 .sidebar__logout-icon {
-  font-size: 14px;
+  position: relative;
+  width: 13px;
+  height: 13px;
+  border: 1px solid currentColor;
+  border-top: 0;
+}
+.sidebar__logout-icon::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  width: 1px;
+  height: 9px;
+  background: currentColor;
+  transform: translateX(-50%);
+}
+.sidebar__logout-icon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  width: 5px;
+  height: 5px;
+  border-left: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: translateX(-50%) rotate(-45deg);
 }
 
 .sidebar-version {

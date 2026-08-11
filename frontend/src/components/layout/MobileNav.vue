@@ -2,23 +2,31 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import EditorialIcon from '@/components/common/EditorialIcon.vue'
+import type { EditorialIconName } from '@/components/common/EditorialIcon.vue'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 
-const userTabs = [
-  { path: '/equipment', icon: '📦', label: '设备' },
-  { path: '/borrow', icon: '📝', label: '借用' },
-  { path: '/overview', icon: '📊', label: '记录' },
-  { path: '/profile', icon: '👤', label: '我的' },
+interface MobileTab {
+  path: string
+  icon: EditorialIconName
+  label: string
+}
+
+const userTabs: MobileTab[] = [
+  { path: '/equipment', icon: 'equipment', label: '设备' },
+  { path: '/borrow', icon: 'tag', label: '借用' },
+  { path: '/overview', icon: 'clipboard', label: '记录' },
+  { path: '/profile', icon: 'profile', label: '我的' },
 ]
 
-const adminTabs = [
-  { path: '/equipment', icon: '📦', label: '设备' },
-  { path: '/borrow', icon: '📝', label: '借用' },
-  { path: '/admin/approval', icon: '✅', label: '审批' },
-  { path: '/profile', icon: '👤', label: '我的' },
+const adminTabs: MobileTab[] = [
+  { path: '/equipment', icon: 'equipment', label: '设备' },
+  { path: '/borrow', icon: 'tag', label: '借用' },
+  { path: '/admin/approval', icon: 'approved', label: '审批' },
+  { path: '/profile', icon: 'profile', label: '我的' },
 ]
 
 const tabs = computed(() => (authStore.isAdmin ? adminTabs : userTabs))
@@ -48,7 +56,7 @@ function navigate(path: string) {
       @click.prevent="navigate(item.path)"
     >
       <span class="mobile-nav__icon-wrap">
-        <span class="mobile-nav__icon">{{ item.icon }}</span>
+        <EditorialIcon class="mobile-nav__icon" :name="item.icon" :size="28" />
         <span
           v-if="item.path === '/admin/approval' && pendingCount > 0"
           class="mobile-nav__badge"
@@ -101,10 +109,8 @@ function navigate(path: string) {
   justify-content: center;
 }
 
-.mobile-nav__icon {
-  font-size: 20px;
-  line-height: 1;
-}
+.mobile-nav__icon { filter: saturate(.7) contrast(1.04); }
+.mobile-nav__item.active .mobile-nav__icon { filter: saturate(1.1) contrast(1.12); }
 
 .mobile-nav__badge {
   position: absolute;

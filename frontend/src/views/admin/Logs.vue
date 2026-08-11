@@ -4,6 +4,8 @@ import { NSpin } from 'naive-ui'
 import AppLayout from '@/components/AppLayout.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import FilterTabs from '@/components/common/FilterTabs.vue'
+import EditorialIcon from '@/components/common/EditorialIcon.vue'
+import type { EditorialIconName } from '@/components/common/EditorialIcon.vue'
 import { getLogs } from '@/api/admin'
 import { useToastStore } from '@/stores/toast'
 import { formatSystemDateTime, parseSystemDateTime } from '@/utils/dateTime'
@@ -13,33 +15,32 @@ const toast = useToastStore()
 
 /** 操作类型元数据：图标、颜色 */
 interface ActionMeta {
-  icon: string
+  icon: EditorialIconName
   color: string
 }
 
 /** 后端实际写入的 action 字符串（中文）与图标/颜色映射 */
 const ACTION_META: Record<string, ActionMeta> = {
-  提交申请: { icon: '📝', color: 'var(--info)' },
-  审批通过: { icon: '✅', color: 'var(--success)' },
-  拒绝申请: { icon: '❌', color: 'var(--danger)' },
-  确认领取: { icon: '📦', color: 'var(--warning)' },
-  提交归还: { icon: '📷', color: 'var(--warning)' },
-  确认归还: { icon: '🔄', color: 'var(--success)' },
-  取消申请: { icon: '🚫', color: 'var(--text-tertiary)' },
-  删除记录: { icon: '🗑️', color: 'var(--danger)' },
-  添加设备: { icon: '➕', color: 'var(--success)' },
-  编辑设备: { icon: '✏️', color: 'var(--warning)' },
-  删除设备: { icon: '🗑️', color: 'var(--danger)' },
-  设备设为维修: { icon: '🔧', color: 'var(--warning)' },
-  设备设为可用: { icon: '✓', color: 'var(--success)' },
-  添加内存卡: { icon: '➕', color: 'var(--success)' },
-  编辑内存卡: { icon: '✏️', color: 'var(--warning)' },
-  删除内存卡: { icon: '🗑️', color: 'var(--danger)' }
+  提交申请: { icon: 'tag', color: 'var(--info)' },
+  审批通过: { icon: 'approved', color: 'var(--success)' },
+  拒绝申请: { icon: 'rejected', color: 'var(--danger)' },
+  确认领取: { icon: 'parcel', color: 'var(--warning)' },
+  提交归还: { icon: 'camera', color: 'var(--warning)' },
+  确认归还: { icon: 'refresh', color: 'var(--success)' },
+  取消申请: { icon: 'cancelled', color: 'var(--text-tertiary)' },
+  删除记录: { icon: 'delete', color: 'var(--danger)' },
+  添加设备: { icon: 'add', color: 'var(--success)' },
+  编辑设备: { icon: 'edit', color: 'var(--warning)' },
+  删除设备: { icon: 'delete', color: 'var(--danger)' },
+  设备设为维修: { icon: 'maintenance', color: 'var(--warning)' },
+  设备设为可用: { icon: 'approved', color: 'var(--success)' },
+  添加内存卡: { icon: 'add', color: 'var(--success)' },
+  编辑内存卡: { icon: 'edit', color: 'var(--warning)' },
+  删除内存卡: { icon: 'delete', color: 'var(--danger)' }
 }
 
-/** 默认元数据：无图标用 • */
 const DEFAULT_META: ActionMeta = {
-  icon: '•',
+  icon: 'clipboard',
   color: 'var(--text-tertiary)'
 }
 
@@ -160,7 +161,7 @@ onMounted(loadLogs)
                   background: `color-mix(in srgb, ${meta.color} 14%, transparent)`
                 }"
               >
-                {{ meta.icon }}
+                <EditorialIcon :name="meta.icon" :size="34" />
               </div>
 
               <!-- 中间主体 -->
@@ -178,7 +179,7 @@ onMounted(loadLogs)
               </div>
             </div>
           </div>
-          <EmptyState v-else-if="!loading" icon="🗒️" text="暂无操作日志" />
+          <EmptyState v-else-if="!loading" icon="clipboard" text="暂无操作日志" />
         </div>
       </n-spin>
     </div>

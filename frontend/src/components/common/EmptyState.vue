@@ -1,19 +1,22 @@
 <script setup lang="ts">
+import EditorialIcon from './EditorialIcon.vue'
+import type { EditorialIconName } from './EditorialIcon.vue'
+
 withDefaults(
   defineProps<{
-    icon?: string
+    icon?: EditorialIconName
     text: string
     subText?: string
   }>(),
   {
-    icon: '📋',
+    icon: 'clipboard',
   },
 )
 </script>
 
 <template>
   <div class="empty-state">
-    <div class="empty-state__icon">{{ icon }}</div>
+    <EditorialIcon class="empty-state__icon" :name="icon" :size="68" />
     <p class="empty-state__text">{{ text }}</p>
     <p v-if="subText" class="empty-state__sub-text">{{ subText }}</p>
   </div>
@@ -30,10 +33,8 @@ withDefaults(
 }
 
 .empty-state__icon {
-  font-size: 48px;
-  line-height: 1;
   margin-bottom: 16px;
-  opacity: 0.6;
+  opacity: 0.76;
 }
 
 .empty-state__text {

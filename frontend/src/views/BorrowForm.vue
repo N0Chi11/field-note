@@ -26,14 +26,14 @@
                 readonly
               >
                 <template #prefix>
-                  <span class="field-icon">🔖</span>
+                  <EditorialIcon class="field-icon" name="tag" :size="28" />
                 </template>
               </n-input>
             </n-form-item>
             <n-form-item label="借用人">
               <n-input :value="borrowerText" placeholder="—" readonly>
                 <template #prefix>
-                  <span class="field-icon">👤</span>
+                  <EditorialIcon class="field-icon" name="profile" :size="28" />
                 </template>
               </n-input>
             </n-form-item>
@@ -162,6 +162,7 @@ import {
   type SelectOption
 } from 'naive-ui'
 import AppLayout from '@/components/AppLayout.vue'
+import EditorialIcon from '@/components/common/EditorialIcon.vue'
 import { getEquipment } from '@/api/equipment'
 import { createRequest, checkConflict } from '@/api/borrow'
 import { useToastStore } from '@/stores/toast'

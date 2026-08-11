@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AppLayout from '@/components/AppLayout.vue'
+import AvatarCropper from '@/components/common/AvatarCropper.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 import { getRequests } from '@/api/borrow'
@@ -20,6 +21,7 @@ const isAdmin = computed(() => !!authStore.isAdmin)
 const requests = ref<BorrowDetail[]>([])
 const avatarInput = ref<HTMLInputElement | null>(null)
 const avatarUploading = ref(false)
+const avatarCropFile = ref<File | null>(null)
 
 // 姓名首字（用于头像）
 function getInitials(name?: string): string {
@@ -94,6 +96,16 @@ async function handleAvatarChange(event: Event) {
     return
   }
 
+  avatarCropFile.value = file
+  input.value = ''
+}
+
+function cancelAvatarCrop() {
+  avatarCropFile.value = null
+}
+
+async function uploadCroppedAvatar(file: File) {
+  avatarCropFile.value = null
   avatarUploading.value = true
   try {
     await uploadAvatar(file)
@@ -103,7 +115,6 @@ async function handleAvatarChange(event: Event) {
     toast.error(errMsg(e, '头像上传失败'))
   } finally {
     avatarUploading.value = false
-    input.value = ''
   }
 }
 
@@ -199,6 +210,11 @@ onMounted(loadRequests)
         </div>
       </div>
     </div>
+    <AvatarCropper
+      :file="avatarCropFile"
+      @cancel="cancelAvatarCrop"
+      @confirm="uploadCroppedAvatar"
+    />
   </AppLayout>
 </template>
 

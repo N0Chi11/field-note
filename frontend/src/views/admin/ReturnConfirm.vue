@@ -188,7 +188,7 @@ onMounted(loadRecords)
           </div>
           <EmptyState
             v-else-if="!loading"
-            icon="📦"
+            icon="parcel"
             text="暂无待归还确认的记录"
           />
         </div>

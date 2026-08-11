@@ -194,7 +194,7 @@ onMounted(loadCalendar)
         </div>
         <EmptyState
           v-if="!loading && !hasVisibleEntries"
-          icon="—"
+          icon="calendar"
           text="这个月还没有预约"
           sub-text="日历很安静，正适合安排下一次创作"
         />

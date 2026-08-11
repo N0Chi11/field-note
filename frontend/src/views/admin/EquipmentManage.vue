@@ -19,6 +19,8 @@ import {
 } from 'naive-ui'
 import AppLayout from '@/components/AppLayout.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import EditorialIcon from '@/components/common/EditorialIcon.vue'
+import type { EditorialIconName } from '@/components/common/EditorialIcon.vue'
 import EquipmentTimeline from '@/components/EquipmentTimeline.vue'
 import {
   getEquipment,
@@ -54,9 +56,25 @@ const categoryOptions = [
   { label: '镜头', value: '镜头' },
   { label: '灯光', value: '灯光' },
   { label: '录音设备', value: '录音设备' },
+  { label: '稳定器', value: '稳定器' },
   { label: '三脚架', value: '三脚架' },
   { label: '其他', value: '其他' }
 ]
+
+const CATEGORY_ICONS: Record<string, EditorialIconName> = {
+  相机: 'camera',
+  镜头: 'lens',
+  灯光: 'light',
+  灯具: 'light',
+  录音设备: 'microphone',
+  麦克风: 'microphone',
+  稳定器: 'gimbal',
+  三脚架: 'tripod'
+}
+
+function categoryIcon(category: string): EditorialIconName {
+  return CATEGORY_ICONS[category] || 'equipment'
+}
 
 /** 设备状态可手动设置项（borrowed 不可手动设置） */
 const equipmentStatusOptions: { label: string; value: EquipmentStatus }[] = [
@@ -128,7 +146,7 @@ const equipForm = reactive<EquipmentForm>({
   code: '',
   name: '',
   category: '相机',
-  icon: '📦',
+  icon: 'equipment',
   status: 'available',
   notes: ''
 })
@@ -142,15 +160,14 @@ const equipRules: FormRules = {
   ],
   category: [
     { required: true, message: '请选择设备类别', trigger: ['change', 'blur'] }
-  ],
-  icon: [{ required: true, message: '请输入图标', trigger: ['blur', 'input'] }]
+  ]
 }
 
 function resetEquipForm() {
   equipForm.code = ''
   equipForm.name = ''
   equipForm.category = '相机'
-  equipForm.icon = '📦'
+  equipForm.icon = 'equipment'
   equipForm.status = 'available'
   equipForm.notes = ''
   equipEditing.value = null
@@ -165,7 +182,7 @@ function openEquipModal(item?: Equipment) {
     equipForm.code = item.code
     equipForm.name = item.name
     equipForm.category = item.category
-    equipForm.icon = item.icon || '📦'
+    equipForm.icon = 'equipment'
     equipForm.status =
       item.status === 'borrowed' ? 'available' : (item.status as 'available' | 'repair')
     equipForm.notes = item.notes || ''
@@ -207,7 +224,7 @@ async function saveEquipment() {
       code: equipForm.code,
       name: equipForm.name,
       category: equipForm.category,
-      icon: equipForm.icon || '📦',
+      icon: equipForm.icon || 'equipment',
       status: equipForm.status,
       notes: equipForm.notes || undefined
     }
@@ -465,7 +482,7 @@ onMounted(() => {
         <n-spin :show="equipmentLoading">
           <empty-state
             v-if="!equipmentLoading && equipmentList.length === 0"
-            icon="📦"
+            icon="equipment"
             text="暂无设备"
             sub-text="点击右上角「添加设备」创建第一个设备"
           />
@@ -483,7 +500,7 @@ onMounted(() => {
                   :alt="item.name"
                   class="equip-card__img"
                 />
-                <span v-else class="equip-card__icon">{{ item.icon || '📦' }}</span>
+                <EditorialIcon v-else class="equip-card__icon" :name="categoryIcon(item.category)" :size="86" />
                 <n-tag
                   class="equip-card__status"
                   :type="equipmentStatusMeta(item.status).type"
@@ -580,7 +597,7 @@ onMounted(() => {
         <n-spin :show="cardLoading">
           <empty-state
             v-if="!cardLoading && cardList.length === 0"
-            icon="💾"
+            icon="memory-card"
             text="暂无内存卡"
             sub-text="点击右上角「添加内存卡」创建第一张卡"
           />
@@ -594,7 +611,7 @@ onMounted(() => {
                   :alt="card.name"
                   class="card-item__img"
                 />
-                <span v-else class="card-item__icon">💾</span>
+                <EditorialIcon v-else class="card-item__icon" name="memory-card" :size="76" />
                 <n-tag
                   class="card-item__status"
                   :type="cardStatusMeta(card.status).type"
@@ -661,22 +678,13 @@ onMounted(() => {
             </n-form-item>
           </div>
 
-          <div class="form-row">
-            <n-form-item label="类别" path="category">
-              <n-select
-                v-model:value="equipForm.category"
-                :options="categoryOptions"
-                placeholder="选择类别"
-              />
-            </n-form-item>
-            <n-form-item label="图标" path="icon">
-              <n-input
-                v-model:value="equipForm.icon"
-                placeholder="emoji，如 📷"
-                maxlength="4"
-              />
-            </n-form-item>
-          </div>
+          <n-form-item label="类别" path="category">
+            <n-select
+              v-model:value="equipForm.category"
+              :options="categoryOptions"
+              placeholder="选择类别"
+            />
+          </n-form-item>
 
           <n-form-item label="状态" path="status">
             <n-select
@@ -867,8 +875,7 @@ onMounted(() => {
   object-fit: cover;
 }
 .equip-card__icon {
-  font-size: 56px;
-  line-height: 1;
+  filter: saturate(.82) contrast(1.04);
 }
 .equip-card__status {
   position: absolute;
@@ -945,8 +952,7 @@ onMounted(() => {
   object-fit: cover;
 }
 .card-item__icon {
-  font-size: 48px;
-  line-height: 1;
+  filter: saturate(.82) contrast(1.04);
 }
 .card-item__status {
   position: absolute;

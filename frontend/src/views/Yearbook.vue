@@ -111,7 +111,7 @@ onMounted(load)
           </div>
           <EmptyState
             v-else
-            icon="—"
+            icon="clipboard"
             text="这一年的故事还没有开始"
             sub-text="完成第一笔有效借用后，年鉴会自动生长"
           />

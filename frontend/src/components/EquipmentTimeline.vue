@@ -8,6 +8,8 @@ import { NModal, NSpin } from 'naive-ui'
 import { getEquipmentById } from '@/api/equipment'
 import { getRequests } from '@/api/borrow'
 import { useToastStore } from '@/stores/toast'
+import EditorialIcon from '@/components/common/EditorialIcon.vue'
+import type { EditorialIconName } from '@/components/common/EditorialIcon.vue'
 import {
   formatApiDateTime,
   parseApiDateTime,
@@ -84,19 +86,19 @@ function barClass(status: RequestStatus): string {
 const fmt = formatApiDateTime
 
 /** 类别图标 */
-const CATEGORY_ICONS: Record<string, string> = {
-  相机: '📷',
-  镜头: '🔭',
-  灯光: '💡',
-  灯具: '💡',
-  录音设备: '🎙️',
-  麦克风: '🎙️',
-  三脚架: '📐',
-  稳定器: '🎯'
+const CATEGORY_ICONS: Record<string, EditorialIconName> = {
+  相机: 'camera',
+  镜头: 'lens',
+  灯光: 'light',
+  灯具: 'light',
+  录音设备: 'microphone',
+  麦克风: 'microphone',
+  三脚架: 'tripod',
+  稳定器: 'gimbal'
 }
 
-function categoryIcon(category: string): string {
-  return CATEGORY_ICONS[category] || '📦'
+function categoryIcon(category: string): EditorialIconName {
+  return CATEGORY_ICONS[category] || 'equipment'
 }
 
 /** 统一错误信息提取 */
@@ -397,9 +399,7 @@ watch(
                   :src="equipment.image_url"
                   :alt="equipment.name"
                 />
-                <div v-else class="timeline-header-emoji">
-                  {{ equipment.icon || categoryIcon(equipment.category) }}
-                </div>
+                <EditorialIcon v-else :name="categoryIcon(equipment.category)" :size="68" />
               </div>
               <div class="timeline-header-info">
                 <h3>{{ equipment.name }}</h3>
@@ -412,7 +412,7 @@ watch(
               v-if="isBorrowed && currentBorrower"
               class="timeline-status-card borrowed"
             >
-              <div class="status-card-icon">📦</div>
+              <div class="status-card-icon"><EditorialIcon name="parcel" :size="42" /></div>
               <div class="timeline-status-text">
                 <strong>当前状态：借用中</strong>
                 <span class="sub">
@@ -423,7 +423,7 @@ watch(
               </div>
             </div>
             <div v-else class="timeline-status-card available">
-              <div class="status-card-icon">✅</div>
+              <div class="status-card-icon"><EditorialIcon name="approved" :size="42" /></div>
               <div class="timeline-status-text">
                 <strong>当前状态：可借用</strong>
                 <span class="sub">设备目前可提交借用申请</span>

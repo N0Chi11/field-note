@@ -34,7 +34,7 @@ class Equipment(Base):
     )
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     category: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
-    icon: Mapped[str] = mapped_column(String(10), default="📦", nullable=False)
+    icon: Mapped[str] = mapped_column(String(20), default="equipment", nullable=False)
     image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     status: Mapped[EquipmentStatus] = mapped_column(

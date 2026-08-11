@@ -16,7 +16,7 @@ class EquipmentBase(BaseModel):
     code: str
     name: str
     category: str
-    icon: str = "📦"
+    icon: str = "equipment"
     notes: Optional[str] = None
 
 

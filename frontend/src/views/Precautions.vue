@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/components/AppLayout.vue'
+import EditorialIcon from '@/components/common/EditorialIcon.vue'
 
 interface PrecautionItem {
   title: string
@@ -88,7 +89,7 @@ const liabilityRules: PrecautionItem[] = [
 
       <!-- 提示 -->
       <div class="notice">
-        <span class="notice-icon">⚠️</span>
+        <EditorialIcon class="notice-icon" name="warning" :size="50" />
         <span class="notice-text">
           如有疑问请联系新媒体中心设备管理员，最终解释权归新媒体中心所有。
         </span>

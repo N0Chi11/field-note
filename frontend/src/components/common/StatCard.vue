@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import EditorialIcon from './EditorialIcon.vue'
+import type { EditorialIconName } from './EditorialIcon.vue'
+
 const props = withDefaults(
   defineProps<{
-    icon: string
+    icon: EditorialIconName
     value: number | string
     label: string
     color?: string
@@ -28,7 +31,7 @@ function handleClick() {
     :class="[`stat-card--${props.color}`, { 'stat-card--active': props.active }]"
     @click="handleClick"
   >
-    <div class="stat-card__icon">{{ icon }}</div>
+    <div class="stat-card__icon"><EditorialIcon :name="icon" :size="42" /></div>
     <div class="stat-card__content">
       <div class="stat-card__value">{{ value }}</div>
       <div class="stat-card__label">{{ label }}</div>
@@ -86,7 +89,6 @@ function handleClick() {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  font-size: 24px;
   background: var(--card-bg);
   flex-shrink: 0;
 }

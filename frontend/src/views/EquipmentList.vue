@@ -3,6 +3,8 @@ import { ref, computed, onMounted } from 'vue'
 import AppLayout from '@/components/AppLayout.vue'
 import FilterTabs from '@/components/common/FilterTabs.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import EditorialIcon from '@/components/common/EditorialIcon.vue'
+import type { EditorialIconName } from '@/components/common/EditorialIcon.vue'
 import EquipmentTimeline from '@/components/EquipmentTimeline.vue'
 import { getEquipment } from '@/api/equipment'
 import { addFavorite, getFavorites, removeFavorite } from '@/api/experience'
@@ -24,16 +26,19 @@ const favoriteLoadingId = ref<number | null>(null)
 const activeCategory = ref('all')
 
 /** 类别图标映射（与原 HTML 设计一致） */
-const CATEGORY_ICONS: Record<string, string> = {
-  相机: '📷',
-  稳定器: '🎯',
-  麦克风: '🎙️',
-  灯具: '💡',
-  三脚架: '📐'
+const CATEGORY_ICONS: Record<string, EditorialIconName> = {
+  相机: 'camera',
+  镜头: 'lens',
+  稳定器: 'gimbal',
+  录音设备: 'microphone',
+  麦克风: 'microphone',
+  灯光: 'light',
+  灯具: 'light',
+  三脚架: 'tripod'
 }
 
-function categoryIcon(category: string): string {
-  return CATEGORY_ICONS[category] || '📦'
+function categoryIcon(category: string): EditorialIconName {
+  return CATEGORY_ICONS[category] || 'equipment'
 }
 
 /** 状态配置：文本 + 颜色 */
@@ -53,7 +58,7 @@ function statusText(status: EquipmentStatus): string {
 /** 按类别分组 */
 interface CategoryGroup {
   category: string
-  icon: string
+  icon: EditorialIconName
   items: Equipment[]
   count: number
 }
@@ -75,11 +80,11 @@ const groupedByCategory = computed<CategoryGroup[]>(() => {
 
 /** 顶部类别筛选标签（含数量） */
 const categoryTabs = computed(() => [
-  { key: 'all', label: `全部 (${equipmentList.value.length})`, icon: '📋' },
+  { key: 'all', label: `全部 (${equipmentList.value.length})`, icon: 'catalog' as const },
   {
     key: 'favorites',
     label: `我的收藏 (${favoriteIds.value.size})`,
-    icon: '♡'
+    icon: 'favorite' as const
   },
   ...groupedByCategory.value.map((g) => ({
     key: g.category,
@@ -94,7 +99,7 @@ const visibleGroups = computed(() => {
   if (activeCategory.value === 'favorites') {
     const items = equipmentList.value.filter((e) => favoriteIds.value.has(e.id))
     return items.length
-      ? [{ category: '我的收藏', icon: '♡', items, count: items.length }]
+      ? [{ category: '我的收藏', icon: 'favorite' as const, items, count: items.length }]
       : []
   }
   return groupedByCategory.value.filter(
@@ -192,13 +197,13 @@ onMounted(loadEquipment)
 
       <!-- 加载中 -->
       <div v-if="loading" class="state-wrap">
-        <EmptyState icon="⏳" text="正在加载设备清单..." />
+        <EmptyState icon="pending" text="正在加载设备清单..." />
       </div>
 
       <!-- 空状态 -->
       <EmptyState
         v-else-if="!equipmentList.length"
-        icon="📦"
+        icon="equipment"
         text="暂无设备"
         sub-text="设备将在管理员录入后显示"
       />
@@ -207,7 +212,7 @@ onMounted(loadEquipment)
       <div v-else class="categories">
         <EmptyState
           v-if="activeCategory === 'favorites' && !visibleGroups.length"
-          icon="♡"
+          icon="favorite"
           text="还没有收藏设备"
           sub-text="点击设备图片左上角的「收藏」，设备恢复可借时会通知你"
         />
@@ -218,7 +223,7 @@ onMounted(loadEquipment)
         >
           <!-- 类别标题：图标 + 名称 + 数量 -->
           <div class="category-header">
-            <span class="category-icon">{{ group.icon }}</span>
+            <EditorialIcon class="category-icon" :name="group.icon" :size="34" />
             <span class="category-name">{{ group.category }}</span>
             <span class="category-count">{{ group.count }} 件</span>
           </div>
@@ -235,9 +240,7 @@ onMounted(loadEquipment)
               <div class="card-image">
                 <img v-if="e.image_url" :src="e.image_url" :alt="e.name" />
                 <div v-else class="image-placeholder">
-                  <span class="placeholder-icon">{{
-                    e.icon || categoryIcon(e.category)
-                  }}</span>
+                  <EditorialIcon class="placeholder-icon" :name="categoryIcon(e.category)" :size="82" />
                 </div>
                 <!-- 状态标签：覆盖在图片右上角 -->
                 <span class="status-tag" :class="e.status">
@@ -260,7 +263,10 @@ onMounted(loadEquipment)
                 <div class="card-code">{{ e.code }}</div>
                 <div class="card-name" :title="e.name">{{ e.name }}</div>
                 <div class="card-category">{{ e.category }}</div>
-                <div v-if="e.notes" class="card-notes">⚠️ {{ e.notes }}</div>
+                <div v-if="e.notes" class="card-notes">
+                  <EditorialIcon name="warning" :size="18" />
+                  <span>{{ e.notes }}</span>
+                </div>
               </div>
 
               <!-- 操作区 -->
@@ -355,8 +361,7 @@ onMounted(loadEquipment)
   border-bottom: 3px solid var(--text);
 }
 .category-icon {
-  font-size: 22px;
-  line-height: 1;
+  filter: saturate(.82) contrast(1.04);
 }
 .category-name {
   font-size: 22px;
@@ -424,9 +429,8 @@ onMounted(loadEquipment)
   background: radial-gradient(circle at 35% 30%, rgba(36, 63, 160, 0.2), transparent 34%), linear-gradient(145deg, #D8D4C8, #F4F1E9);
 }
 .placeholder-icon {
-  font-size: 48px;
   opacity: 0.5;
-  line-height: 1;
+  filter: saturate(.72) contrast(1.05);
 }
 
 /* ---------- 状态标签 ---------- */
@@ -511,6 +515,9 @@ onMounted(loadEquipment)
   color: var(--text-tertiary);
 }
 .card-notes {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
   font-size: 12px;
   color: var(--warning);
   background: var(--warning-bg);
