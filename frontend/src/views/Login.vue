@@ -11,6 +11,8 @@
         <div class="login-logo-sub">Equipment Borrow System</div>
       </div>
 
+      <EditorialPoem variant="login" />
+
       <!-- 登录标签切换 -->
       <div class="login-tabs">
         <button :class="{ active: loginTab === 'user' }" @click="loginTab = 'user'">用户登录</button>
@@ -61,6 +63,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
+import EditorialPoem from '@/components/EditorialPoem.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -128,7 +131,8 @@ async function handleAdminLogin() {
   background: #191917;
   padding: 48px 7vw;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .login-page::before {
@@ -348,6 +352,7 @@ async function handleAdminLogin() {
 @media (max-width: 860px) {
   .login-page {
     justify-content: center;
+    align-items: flex-start;
     padding: 72px 20px 44px;
   }
   .login-page::before {

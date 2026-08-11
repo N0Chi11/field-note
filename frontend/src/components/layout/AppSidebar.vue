@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getStats } from '@/api/admin'
 import type { AdminStats } from '@/types/models'
+import EditorialPoem from '@/components/EditorialPoem.vue'
 
 defineProps<{
   mobileOpen?: boolean
@@ -18,7 +19,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 /** 应用版本号（每次发版更新此处即可） */
-const APP_VERSION = 'v2.1.8'
+const APP_VERSION = 'v2.1.9'
 
 const user = computed(() => authStore.user)
 
@@ -183,6 +184,8 @@ watch(() => route.path, () => loadStats())
           <span class="nav-item__text">{{ item.label }}</span>
         </router-link>
       </div>
+
+      <EditorialPoem variant="sidebar" />
     </nav>
 
     <!-- 底部用户信息 -->
