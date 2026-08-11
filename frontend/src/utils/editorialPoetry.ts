@@ -124,6 +124,192 @@ export const EDITORIAL_POEMS: readonly EditorialPoem[] = [
     author: 'Fernando Pessoa',
     title: 'Autopsychography',
     lines: ['诗人是一个善于假装的人', '他把假装做得如此彻底', '甚至把真实的痛也写成另一种痛']
+  },
+  {
+    id: 'donne-sun-rising',
+    author: 'John Donne',
+    title: 'The Sun Rising',
+    lines: ['忙碌而年迈的太阳，你为何这样', '穿过窗与帘，来召唤我们', '难道爱人的季节也听从你的运转']
+  },
+  {
+    id: 'marvell-coy-mistress',
+    author: 'Andrew Marvell',
+    title: 'To His Coy Mistress',
+    lines: ['如果我们拥有足够的世界与时间', '这份羞怯，姑娘，便不算罪过', '我们可以坐下，选择向哪边漫步']
+  },
+  {
+    id: 'milton-mind',
+    author: 'John Milton',
+    title: 'Paradise Lost',
+    lines: ['心自成一方天地', '它能把地狱变成天堂', '也能把天堂变成地狱']
+  },
+  {
+    id: 'coleridge-xanadu',
+    author: 'Samuel Taylor Coleridge',
+    title: 'Kubla Khan',
+    lines: ['在上都，忽必烈下令建造', '一座庄严的欢乐宫殿', '神圣的阿尔河在那里奔流']
+  },
+  {
+    id: 'tennyson-newer-world',
+    author: 'Alfred, Lord Tennyson',
+    title: 'Ulysses',
+    lines: ['来吧，我的朋友', '去寻找一个更新的世界还不算太迟', '推开船，让整齐的桨击打海水']
+  },
+  {
+    id: 'arnold-dover',
+    author: 'Matthew Arnold',
+    title: 'Dover Beach',
+    lines: ['今夜的海很平静', '潮水正满，月亮安静地躺在海峡上', '法国海岸的灯光忽明忽灭']
+  },
+  {
+    id: 'hopkins-pied-beauty',
+    author: 'Gerard Manley Hopkins',
+    title: 'Pied Beauty',
+    lines: ['愿荣耀归于上帝，为一切斑斓之物', '为像花斑母牛一样双色的天空', '为游鳟身上玫瑰色的斑点']
+  },
+  {
+    id: 'hardy-darkling-thrush',
+    author: 'Thomas Hardy',
+    title: 'The Darkling Thrush',
+    lines: ['我倚在灌木丛生的门前', '寒霜是幽灵般的灰', '冬日的沉渣使白昼荒凉']
+  },
+  {
+    id: 'housman-cherry',
+    author: 'A. E. Housman',
+    title: 'Loveliest of Trees',
+    lines: ['最可爱的树，樱桃此刻', '沿着林间小径挂满花朵', '穿着白衣迎接复活节']
+  },
+  {
+    id: 'rilke-apollo',
+    author: 'Rainer Maria Rilke',
+    title: 'Archaic Torso of Apollo',
+    lines: ['我们未曾见过他不可思议的头颅', '双眼曾在其中成熟', '但他的躯干仍像枝形灯般燃烧']
+  },
+  {
+    id: 'goethe-night-song',
+    author: 'Johann Wolfgang von Goethe',
+    title: "Wanderer's Nightsong II",
+    lines: ['群峰之上', '是一片安静', '树梢之间几乎感不到一丝风']
+  },
+  {
+    id: 'heine-pine',
+    author: 'Heinrich Heine',
+    title: 'A Pine Tree Stands Lonely',
+    lines: ['一棵松树孤独地站在北方', '站在高高的荒岭上', '冰雪用白色的毯子将它包裹']
+  },
+  {
+    id: 'novalis-night',
+    author: 'Novalis',
+    title: 'Hymns to the Night',
+    lines: ['我转身投向神圣而不可言说的夜', '世界躺得很远', '沉入一座深深的墓穴']
+  },
+  {
+    id: 'holderlin-half-life',
+    author: 'Friedrich Hölderlin',
+    title: 'Half of Life',
+    lines: ['大地挂满黄梨', '也挂满野玫瑰', '你们美丽的天鹅沉醉于亲吻']
+  },
+  {
+    id: 'pushkin-winter',
+    author: 'Alexander Pushkin',
+    title: 'Winter Evening',
+    lines: ['风暴用雾遮住天空', '旋转着狂野的雪', '时而像野兽咆哮']
+  },
+  {
+    id: 'lermontov-sail',
+    author: 'Mikhail Lermontov',
+    title: 'The Sail',
+    lines: ['孤独的白帆闪耀', '在蓝色海雾里', '它在遥远的国度寻找什么']
+  },
+  {
+    id: 'dante-dark-wood',
+    author: 'Dante Alighieri',
+    title: 'Inferno, Canto I',
+    lines: ['在人生旅途的中途', '我发现自己置身于幽暗森林', '因为笔直的道路已经失落']
+  },
+  {
+    id: 'petrarch-golden-hair',
+    author: 'Francesco Petrarca',
+    title: 'Canzoniere 90',
+    lines: ['她曾让金色的头发随风飘散', '那头发缠成千百甜蜜的结', '眼里的光燃烧得不可估量']
+  },
+  {
+    id: 'leopardi-infinite',
+    author: 'Giacomo Leopardi',
+    title: "L'Infinito",
+    lines: ['这座孤独的小丘一直令我亲切', '还有这道树篱', '它遮住远处大半的地平线']
+  },
+  {
+    id: 'rossetti-echo',
+    author: 'Christina Rossetti',
+    title: 'Echo',
+    lines: ['来吧，在寂静中回到我身边', '来吧，如记忆一般', '如从前那样，迟来的，冰冷的']
+  },
+  {
+    id: 'browning-meeting',
+    author: 'Robert Browning',
+    title: 'Meeting at Night',
+    lines: ['灰色的海，漫长的黑色陆地', '黄色的半月又低又大', '受惊的小浪跃成火焰般的发卷']
+  },
+  {
+    id: 'dickinson-frigate',
+    author: 'Emily Dickinson',
+    title: 'There Is No Frigate like a Book',
+    lines: ['没有哪艘战舰能像一本书', '把我们带往遥远的国度', '也没有骏马能像一页跃动的诗']
+  },
+  {
+    id: 'whitman-captain',
+    author: 'Walt Whitman',
+    title: 'O Captain! My Captain!',
+    lines: ['哦，船长，我的船长', '我们可怕的航程已经结束', '船已渡过每一道险关']
+  },
+  {
+    id: 'poe-annabel-lee',
+    author: 'Edgar Allan Poe',
+    title: 'Annabel Lee',
+    lines: ['许多许多年前', '在海边的一个王国里', '住着一位名叫安娜贝尔·李的少女']
+  },
+  {
+    id: 'blake-tyger',
+    author: 'William Blake',
+    title: 'The Tyger',
+    lines: ['老虎，老虎，燃烧得明亮', '在黑夜的森林里', '怎样不朽的手与眼塑造你可怖的匀称']
+  },
+  {
+    id: 'shelley-skylark',
+    author: 'Percy Bysshe Shelley',
+    title: 'To a Skylark',
+    lines: ['向你致敬，欢乐的精灵', '你从来不像一只鸟', '从天堂附近倾泻完整的心']
+  },
+  {
+    id: 'keats-nightingale',
+    author: 'John Keats',
+    title: 'Ode to a Nightingale',
+    lines: ['我的心在疼，一种昏沉的麻木', '刺痛我的感官', '仿佛我刚刚饮下毒芹']
+  },
+  {
+    id: 'byron-solitude',
+    author: 'Lord Byron',
+    title: "Childe Harold's Pilgrimage",
+    lines: ['有一种快乐，在无路的树林', '有一种狂喜，在孤独的海岸', '有人群无法闯入的社会，在深海旁']
+  },
+  {
+    id: 'yeats-innisfree',
+    author: 'W. B. Yeats',
+    title: 'The Lake Isle of Innisfree',
+    lines: ['现在我要起身，去往茵尼斯弗里', '在那里建一间小屋', '用泥土与细枝筑成']
+  },
+  {
+    id: 'longfellow-rainy-day',
+    author: 'Henry Wadsworth Longfellow',
+    title: 'The Rainy Day',
+    lines: ['白日寒冷、黑暗而阴沉', '雨落着，风从不疲倦', '藤蔓仍攀附在朽坏的墙上']
+  },
+  {
+    id: 'frost-woods',
+    author: 'Robert Frost',
+    title: 'Stopping by Woods on a Snowy Evening',
+    lines: ['我想我知道这片树林属于谁', '他的房子却在村庄里', '他不会看见我停在这里']
   }
 ]
 

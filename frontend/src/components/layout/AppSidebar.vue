@@ -19,37 +19,48 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 /** 应用版本号（每次发版更新此处即可） */
-const APP_VERSION = 'v2.1.10'
+const APP_VERSION = 'v2.1.11'
 
 const user = computed(() => authStore.user)
 
 interface NavItem {
   path: string
-  icon: string
+  icon: SidebarIcon
   label: string
   /** 待办 badge 类型，对应 AdminStats 字段 */
   badge?: 'pending' | 'return_pending'
 }
 
+type SidebarIcon =
+  | 'equipment'
+  | 'application'
+  | 'overview'
+  | 'precautions'
+  | 'maintenance'
+  | 'approval'
+  | 'return'
+  | 'logs'
+  | 'profile'
+
 /** 设备管理组 */
 const equipmentNav: NavItem[] = [
-  { path: '/equipment', icon: '📦', label: '器材设备清单' },
-  { path: '/borrow', icon: '📝', label: '借用申请' },
-  { path: '/overview', icon: '📊', label: '借用一览' },
-  { path: '/precautions', icon: '⚠️', label: '注意事项' }
+  { path: '/equipment', icon: 'equipment', label: '器材设备清单' },
+  { path: '/borrow', icon: 'application', label: '借用申请' },
+  { path: '/overview', icon: 'overview', label: '借用一览' },
+  { path: '/precautions', icon: 'precautions', label: '注意事项' }
 ]
 
 /** 管理员组（仅管理员可见） */
 const adminNav: NavItem[] = [
-  { path: '/admin/equipment', icon: '⚙️', label: '设备维护' },
-  { path: '/admin/approval', icon: '✅', label: '借用审批', badge: 'pending' },
-  { path: '/admin/return', icon: '📦', label: '归还确认', badge: 'return_pending' },
-  { path: '/admin/logs', icon: '📋', label: '操作日志' }
+  { path: '/admin/equipment', icon: 'maintenance', label: '设备维护' },
+  { path: '/admin/approval', icon: 'approval', label: '借用审批', badge: 'pending' },
+  { path: '/admin/return', icon: 'return', label: '归还确认', badge: 'return_pending' },
+  { path: '/admin/logs', icon: 'logs', label: '操作日志' }
 ]
 
 /** 账户组 */
 const accountNav: NavItem[] = [
-  { path: '/profile', icon: '👤', label: '个人中心' }
+  { path: '/profile', icon: 'profile', label: '个人中心' }
 ]
 
 /* ---------------- 待处理数量 badge ---------------- */
@@ -145,7 +156,11 @@ watch(() => route.path, () => loadStats())
           :class="{ active: isActive(item.path) }"
           @click="handleNavClick"
         >
-          <span class="nav-item__icon">{{ item.icon }}</span>
+          <span
+            class="nav-item__icon"
+            :class="`nav-item__icon--${item.icon}`"
+            aria-hidden="true"
+          ></span>
           <span class="nav-item__text">{{ item.label }}</span>
         </router-link>
       </div>
@@ -161,7 +176,11 @@ watch(() => route.path, () => loadStats())
           :class="{ active: isActive(item.path) }"
           @click="handleNavClick"
         >
-          <span class="nav-item__icon">{{ item.icon }}</span>
+          <span
+            class="nav-item__icon"
+            :class="`nav-item__icon--${item.icon}`"
+            aria-hidden="true"
+          ></span>
           <span class="nav-item__text">{{ item.label }}</span>
           <span v-if="badgeCount(item) > 0" class="nav-item__badge">
             {{ badgeCount(item) }}
@@ -180,7 +199,11 @@ watch(() => route.path, () => loadStats())
           :class="{ active: isActive(item.path) }"
           @click="handleNavClick"
         >
-          <span class="nav-item__icon">{{ item.icon }}</span>
+          <span
+            class="nav-item__icon"
+            :class="`nav-item__icon--${item.icon}`"
+            aria-hidden="true"
+          ></span>
           <span class="nav-item__text">{{ item.label }}</span>
         </router-link>
       </div>
@@ -345,20 +368,35 @@ watch(() => route.path, () => loadStats())
   background: #243FA0;
 }
 
-/* 圆角图标 */
+/* 画报风图标精灵：统一材质、尺度与对齐 */
 .nav-item__icon {
   width: 30px;
   height: 30px;
-  border-radius: 0;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  line-height: 1;
+  background-image: url('/assets/sidebar-icon-sprite-v1.webp');
+  background-repeat: no-repeat;
+  background-size: 300% 300%;
   flex-shrink: 0;
-  box-shadow: none;
-  transition: all var(--transition);
+  filter: saturate(0.82) contrast(1.04);
+  transition: filter var(--transition), transform var(--transition);
+}
+
+.nav-item:hover .nav-item__icon {
+  filter: saturate(1) contrast(1.08);
+  transform: translateX(1px);
+}
+
+.nav-item__icon--equipment { background-position: 0 0; }
+.nav-item__icon--application { background-position: 50% 0; }
+.nav-item__icon--overview { background-position: 100% 0; }
+.nav-item__icon--precautions { background-position: 0 50%; }
+.nav-item__icon--maintenance { background-position: 50% 50%; }
+.nav-item__icon--approval { background-position: 100% 50%; }
+.nav-item__icon--return { background-position: 0 100%; }
+.nav-item__icon--logs { background-position: 50% 100%; }
+.nav-item__icon--profile { background-position: 100% 100%; }
+
+.nav-item.active .nav-item__icon {
+  filter: grayscale(1) brightness(0.38) sepia(0.25) contrast(1.25);
 }
 
 .nav-item__text {
@@ -366,10 +404,6 @@ watch(() => route.path, () => loadStats())
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.nav-item.active .nav-item__icon {
-  background: transparent;
 }
 
 /* 待办 badge */
@@ -543,7 +577,6 @@ watch(() => route.path, () => loadStats())
   .nav-item__icon {
     width: 34px;
     height: 34px;
-    font-size: 18px;
   }
 }
 </style>
