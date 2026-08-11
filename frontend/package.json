@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/clean-stale-source-artifacts.mjs",
     "build": "vue-tsc && vite build",
     "preview": "vite preview"
   },
