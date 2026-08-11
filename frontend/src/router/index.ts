@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { clearTokens } from '@/api/request'
-import { playPageTurnSound } from '@/utils/editorialSound'
 
 /** 路由元信息 */
 declare module 'vue-router' {
@@ -170,10 +169,6 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   next()
-})
-
-router.afterEach((to, from) => {
-  if (from.name && to.fullPath !== from.fullPath) playPageTurnSound()
 })
 
 export default router

@@ -26,7 +26,6 @@ import { getRequests, deleteRequest } from '@/api/borrow'
 import { getCards } from '@/api/card'
 import { useToastStore } from '@/stores/toast'
 import { formatApiDateTime } from '@/utils/dateTime'
-import { playStampSound } from '@/utils/editorialSound'
 import type {
   BorrowDetail,
   BorrowRequestQuery,
@@ -273,7 +272,6 @@ async function submitApprove() {
       approveComment.value.trim() || undefined
     )
     toast.success('已审批通过')
-    playStampSound()
     showApproveModal.value = false
     await reload()
   } catch (e: any) {
@@ -293,7 +291,6 @@ async function submitReject() {
   try {
     await rejectRequest(currentRecord.value.id, rejectComment.value.trim())
     toast.success('已拒绝申请')
-    playStampSound()
     showRejectModal.value = false
     await reload()
   } catch (e: any) {
@@ -327,7 +324,6 @@ async function submitPickup() {
       pickupCardId.value === NO_CARD ? undefined : pickupCardId.value
     )
     toast.success('已确认领取')
-    playStampSound()
     showPickupModal.value = false
     await reload()
   } catch (e: any) {
@@ -344,7 +340,6 @@ async function handleConfirmReturn(r: BorrowDetail) {
   try {
     await confirmReturn(r.id)
     toast.success('归还确认完成')
-    playStampSound()
     await reload()
   } catch (e: any) {
     toast.error(errMsg(e, '确认归还失败'))

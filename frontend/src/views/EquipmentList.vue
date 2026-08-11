@@ -10,7 +10,6 @@ import { getEquipment } from '@/api/equipment'
 import { addFavorite, getFavorites, removeFavorite } from '@/api/experience'
 import { useToastStore } from '@/stores/toast'
 import type { Equipment, EquipmentStatus } from '@/types/models'
-import { playBookmarkSound } from '@/utils/editorialSound'
 
 const toast = useToastStore()
 
@@ -143,7 +142,6 @@ async function toggleFavorite(e: Equipment) {
       await removeFavorite(e.id)
       next.delete(e.id)
       toast.success(`已取消收藏 ${e.name}`)
-      playBookmarkSound()
     } else {
       await addFavorite(e.id)
       next.add(e.id)
@@ -152,7 +150,6 @@ async function toggleFavorite(e: Equipment) {
           ? `已收藏 ${e.name}`
           : `已收藏，${e.name} 恢复可借时会提醒你`
       )
-      playBookmarkSound()
     }
     favoriteIds.value = next
   } catch (error: any) {

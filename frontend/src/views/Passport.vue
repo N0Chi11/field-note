@@ -6,7 +6,6 @@ import EditorialIcon from '@/components/common/EditorialIcon.vue'
 import type { EditorialIconName } from '@/components/common/EditorialIcon.vue'
 import { getCreativePassport } from '@/api/experience'
 import { useToastStore } from '@/stores/toast'
-import { playStampSound } from '@/utils/editorialSound'
 import type { CreativePassport, PassportStamp } from '@/types/models'
 
 const toast = useToastStore()
@@ -38,7 +37,6 @@ function memberDate(value: string): string {
 
 function touchStamp(stamp: PassportStamp) {
   if (!stamp.earned) return
-  playStampSound()
   toast.success(`印章「${stamp.title}」已收入创作护照`)
 }
 

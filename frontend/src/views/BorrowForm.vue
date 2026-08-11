@@ -163,7 +163,6 @@ import {
 } from 'naive-ui'
 import AppLayout from '@/components/AppLayout.vue'
 import EditorialIcon from '@/components/common/EditorialIcon.vue'
-import { playStampSound } from '@/utils/editorialSound'
 import { getEquipment } from '@/api/equipment'
 import { createRequest, checkConflict } from '@/api/borrow'
 import { useToastStore } from '@/stores/toast'
@@ -419,7 +418,6 @@ async function handleSubmit() {
       /* ignore */
     }
     toast.success('申请已提交，请等待管理员审核')
-    playStampSound()
     router.push('/overview')
   } catch (e: any) {
     toast.error(errMsg(e, '提交失败'))

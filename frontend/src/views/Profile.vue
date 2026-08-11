@@ -7,14 +7,6 @@ import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 import { getRequests } from '@/api/borrow'
 import { uploadAvatar } from '@/api/auth'
-import {
-  editorialSoundEnabled,
-  editorialSoundVolume,
-  playPageTurnSound,
-  playStampSound,
-  setEditorialSoundEnabled,
-  setEditorialSoundVolume
-} from '@/utils/editorialSound'
 import type {
   BorrowDetail,
   BorrowRequestQuery,
@@ -84,14 +76,6 @@ function goOverview() {
   router.push('/overview')
 }
 
-function toggleEditorialSound() {
-  setEditorialSoundEnabled(!editorialSoundEnabled.value)
-}
-
-function changeSoundVolume(event: Event) {
-  setEditorialSoundVolume(Number((event.target as HTMLInputElement).value))
-}
-
 function chooseAvatar() {
   if (!avatarUploading.value) avatarInput.value?.click()
 }
@@ -127,7 +111,6 @@ async function uploadCroppedAvatar(file: File) {
     await uploadAvatar(file)
     await authStore.fetchUser()
     toast.success('头像已更新')
-    playStampSound()
   } catch (e: any) {
     toast.error(errMsg(e, '头像上传失败'))
   } finally {
@@ -215,41 +198,6 @@ onMounted(loadRequests)
             <div class="profile-stat-label">已拒绝</div>
           </div>
         </div>
-
-        <section class="experience-setting">
-          <div>
-            <span class="experience-kicker">EDITORIAL EXPERIENCE</span>
-            <strong>界面声音</strong>
-            <p>开启后可听到轻微的翻页、书签和盖章声，设置仅保存在当前设备。</p>
-          </div>
-          <div class="sound-actions">
-            <label class="sound-volume" :class="{ disabled: !editorialSoundEnabled }">
-              <span>音量 {{ Math.round(editorialSoundVolume * 100) }}%</span>
-              <input
-                type="range"
-                min="0.08"
-                max="0.65"
-                step="0.01"
-                :value="editorialSoundVolume"
-                :disabled="!editorialSoundEnabled"
-                aria-label="界面声音音量"
-                @input="changeSoundVolume"
-                @change="playPageTurnSound"
-              />
-            </label>
-            <button
-              type="button"
-              class="sound-switch"
-              :class="{ active: editorialSoundEnabled }"
-              role="switch"
-              :aria-checked="editorialSoundEnabled"
-              @click="toggleEditorialSound"
-            >
-              <span></span>
-              {{ editorialSoundEnabled ? '已开启' : '已关闭' }}
-            </button>
-          </div>
-        </section>
 
         <!-- 操作按钮 -->
         <div class="profile-actions">
@@ -429,39 +377,6 @@ onMounted(loadRequests)
   margin-top: 2px;
 }
 
-.experience-setting {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 22px;
-  margin: 0 0 24px;
-  padding: 18px 0;
-  border-top: 1px solid var(--border-light);
-  border-bottom: 1px solid var(--border-light);
-}
-.experience-setting strong { display: block; margin-top: 8px; font: 600 16px/1 var(--font); }
-.experience-setting p { max-width: 350px; margin: 7px 0 0; color: var(--text-tertiary); font: 11px/1.6 var(--font-ui); }
-.experience-kicker { color: var(--accent); font: 700 9px/1 var(--font-ui); letter-spacing: .16em; }
-.sound-actions { display: flex; align-items: center; gap: 12px; }
-.sound-volume { display: grid; gap: 6px; min-width: 120px; color: var(--text-tertiary); font: 600 9px/1 var(--font-ui); letter-spacing: .08em; }
-.sound-volume input { width: 120px; accent-color: #9d604d; cursor: pointer; }
-.sound-volume.disabled { opacity: .35; }
-.sound-switch {
-  min-width: 92px;
-  padding: 8px 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid var(--border);
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  font: 600 11px/1 var(--font-ui);
-  cursor: pointer;
-}
-.sound-switch span { width: 11px; height: 11px; border-radius: 50%; background: var(--text-tertiary); box-shadow: 0 0 0 4px var(--bg-input); }
-.sound-switch.active { border-color: #9d604d; color: #9d604d; }
-.sound-switch.active span { background: #9d604d; box-shadow: 0 0 0 4px rgba(157,96,77,.15); }
-
 /* Profile Actions */
 .profile-actions {
   display: flex;
@@ -522,7 +437,5 @@ onMounted(loadRequests)
   .profile-actions {
     flex-direction: column;
   }
-  .experience-setting { align-items: flex-start; flex-direction: column; }
-  .sound-actions { width: 100%; justify-content: space-between; }
 }
 </style>

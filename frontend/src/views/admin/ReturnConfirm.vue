@@ -7,7 +7,6 @@ import { getRequests, deleteRequest } from '@/api/borrow'
 import { confirmReturn } from '@/api/admin'
 import { useToastStore } from '@/stores/toast'
 import { formatApiDateTime } from '@/utils/dateTime'
-import { playStampSound } from '@/utils/editorialSound'
 import type { BorrowDetail, PaginatedResponse } from '@/types/models'
 
 const toast = useToastStore()
@@ -76,7 +75,6 @@ async function handleConfirm(r: BorrowDetail) {
   try {
     await confirmReturn(r.id)
     toast.success('归还确认完成')
-    playStampSound()
     // 刷新列表
     await loadRecords()
   } catch (e: any) {

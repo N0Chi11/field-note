@@ -382,7 +382,6 @@ import {
 import AppLayout from '@/components/AppLayout.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import EditorialIcon from '@/components/common/EditorialIcon.vue'
-import { playStampSound } from '@/utils/editorialSound'
 import BorrowPassCard from '@/components/BorrowPassCard.vue'
 import {
   getRequests,
@@ -628,7 +627,6 @@ function customUpload(options: UploadCustomRequestOptions) {
     .then(() => {
       onFinish()
       toast.success('归还已提交，待管理员确认')
-      playStampSound()
       showUploadModal.value = false
       loadRequests()
     })
@@ -688,11 +686,9 @@ async function submitAction() {
         actionComment.value.trim() || undefined
       )
       toast.success('已审批通过')
-      playStampSound()
     } else {
       await rejectRequest(currentAction.value.id, actionComment.value.trim())
       toast.success('已拒绝申请')
-      playStampSound()
     }
     showActionModal.value = false
     loadRequests()
@@ -755,7 +751,6 @@ async function confirmPickupWithCard() {
       selectedCardId.value === NO_CARD ? undefined : selectedCardId.value
     )
     toast.success('已确认领取')
-    playStampSound()
     showPickupModal.value = false
     loadRequests()
   } catch (e: any) {
@@ -770,7 +765,6 @@ async function confirmReturnHandler(r: BorrowDetail) {
   try {
     await confirmReturn(r.id)
     toast.success('归还确认完成')
-    playStampSound()
     loadRequests()
   } catch (e: any) {
     toast.error(errMsg(e, '操作失败'))
