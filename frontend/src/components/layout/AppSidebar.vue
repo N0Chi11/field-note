@@ -22,7 +22,7 @@ const authStore = useAuthStore()
 const toast = useToastStore()
 
 /** 应用版本号（每次发版更新此处即可） */
-const APP_VERSION = 'v2.2.2'
+const APP_VERSION = 'v2.3.0'
 
 const user = computed(() => authStore.user)
 
@@ -65,7 +65,8 @@ const adminNav: NavItem[] = [
 /** 账户组 */
 const accountNav: NavItem[] = [
   { path: '/profile', icon: 'profile', label: '个人中心' },
-  { path: '/yearbook', icon: 'profile', label: '借用年鉴' }
+  { path: '/yearbook', icon: 'profile', label: '借用年鉴' },
+  { path: '/passport', icon: 'logs', label: '创作护照' }
 ]
 
 /* ---------------- 待处理数量 badge ---------------- */
@@ -108,6 +109,11 @@ function isActive(path: string): boolean {
 /** 导航点击：移动端自动关闭抽屉 */
 function handleNavClick() {
   emit('close')
+}
+
+function showDailyCover() {
+  window.dispatchEvent(new Event('editorial-open-cover'))
+  handleNavClick()
 }
 
 async function handleLogout() {
@@ -229,6 +235,10 @@ watch(() => route.path, () => loadStats())
       </div>
 
       <EditorialPoem variant="sidebar" />
+      <button type="button" class="daily-cover-trigger" @click="showDailyCover">
+        <span>DAILY COVER</span>
+        <span>重看今日封面</span>
+      </button>
     </nav>
 
     <!-- 底部用户信息 -->
@@ -555,6 +565,22 @@ watch(() => route.path, () => loadStats())
   border: 1px solid currentColor;
   border-top: 0;
 }
+
+.daily-cover-trigger {
+  width: calc(100% - 20px);
+  margin: 2px 10px 18px;
+  padding: 10px 2px;
+  display: flex;
+  justify-content: space-between;
+  border: 0;
+  border-bottom: 1px solid rgba(255,255,255,.12);
+  background: transparent;
+  color: rgba(255,255,255,.52);
+  font: 600 9px/1 var(--font-ui);
+  letter-spacing: .12em;
+  cursor: pointer;
+}
+.daily-cover-trigger:hover { color: #f2efe7; border-color: #8ea3f2; }
 .sidebar__logout-icon::before {
   content: '';
   position: absolute;

@@ -2,6 +2,7 @@
 export type EditorialIconName =
   | 'catalog'
   | 'calendar'
+  | 'passport'
   | 'favorite'
   | 'camera'
   | 'gimbal'
@@ -54,6 +55,7 @@ const props = withDefaults(
 const positions: Record<EditorialIconName, IconPosition> = {
   catalog: { sheet: 'equipment', column: 0, row: 0, grid: 3 },
   calendar: { sheet: 'equipment', column: 0, row: 0, grid: 3 },
+  passport: { sheet: 'action', column: 3, row: 0, grid: 4 },
   favorite: { sheet: 'equipment', column: 1, row: 0, grid: 3 },
   camera: { sheet: 'equipment', column: 2, row: 0, grid: 3 },
   gimbal: { sheet: 'equipment', column: 0, row: 1, grid: 3 },

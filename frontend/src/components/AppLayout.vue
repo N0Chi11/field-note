@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import AppSidebar from '@/components/layout/AppSidebar.vue'
-import { ref } from 'vue'
+import DailyCover from '@/components/DailyCover.vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 
 const sidebarOpen = ref(false)
+const dailyCoverVisible = ref(false)
+const authStore = useAuthStore()
+let coverTimer: number | undefined
 
 /** 应用版本号（每次发版更新此处即可） */
-const APP_VERSION = 'v2.2.2'
+const APP_VERSION = 'v2.3.0'
 
 function toggleSidebar() {
   sidebarOpen.value = !sidebarOpen.value
@@ -14,6 +19,37 @@ function toggleSidebar() {
 function closeSidebar() {
   sidebarOpen.value = false
 }
+
+function todayKey(): string {
+  const now = new Date()
+  const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  return `equipment-daily-cover:${authStore.user?.id || 'guest'}:${date}`
+}
+
+function openDailyCover() {
+  dailyCoverVisible.value = true
+  try {
+    window.localStorage.setItem(todayKey(), 'seen')
+  } catch {
+    // 本地存储不可用时只影响每日展示记录。
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('editorial-open-cover', openDailyCover)
+  try {
+    if (window.localStorage.getItem(todayKey()) !== 'seen') {
+      coverTimer = window.setTimeout(openDailyCover, 280)
+    }
+  } catch {
+    coverTimer = window.setTimeout(openDailyCover, 280)
+  }
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('editorial-open-cover', openDailyCover)
+  if (coverTimer) window.clearTimeout(coverTimer)
+})
 </script>
 
 <template>
@@ -43,12 +79,17 @@ function closeSidebar() {
 
     <!-- 主内容区域 -->
     <main class="app-main">
-      <slot />
+      <div class="editorial-page"><slot /></div>
       <!-- 底部水印 -->
       <footer class="app-footer">
         <img src="/watermark.png" alt="Designed by @N0Chi11" class="footer-watermark" />
       </footer>
     </main>
+    <DailyCover
+      :show="dailyCoverVisible"
+      :user-name="authStore.user?.name"
+      @close="dailyCoverVisible = false"
+    />
   </div>
 </template>
 
@@ -65,6 +106,15 @@ function closeSidebar() {
   max-width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
+}
+
+.editorial-page {
+  animation: editorial-page-enter .45s cubic-bezier(.22,.72,.3,1) both;
+}
+
+@keyframes editorial-page-enter {
+  from { opacity: 0; transform: translateY(12px); clip-path: inset(0 0 9% 0); }
+  to { opacity: 1; transform: translateY(0); clip-path: inset(0); }
 }
 
 /* 底部水印 */
@@ -178,6 +228,10 @@ function closeSidebar() {
     background: rgba(0, 0, 0, 0.4);
     z-index: 150;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editorial-page { animation: none; }
 }
 </style>
 

@@ -239,6 +239,29 @@ export interface YearbookData {
   recent_projects: YearbookProject[]
 }
 
+export interface PassportStamp {
+  key: string
+  title: string
+  description: string
+  current: number
+  target: number
+  earned: boolean
+  icon: string
+}
+
+export interface CreativePassport {
+  user_name: string
+  student_id: string
+  member_since: string
+  total_projects: number
+  completed_returns: number
+  unique_equipment: number
+  total_hours: number
+  categories: string[]
+  earned_stamps: number
+  stamps: PassportStamp[]
+}
+
 /** 修改密码 payload */
 export interface ChangePasswordPayload {
   old_password: string

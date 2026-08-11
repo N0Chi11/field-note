@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -268,3 +268,101 @@ def personal_yearbook(
     }
     return ApiResponse(data=data, message="ok")
 
+
+@router.get("/passport", response_model=ApiResponse)
+def creative_passport(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """根据当前用户的历史记录，实时计算创作护照与成就印章。"""
+    records = (
+        db.query(BorrowRequest)
+        .options(joinedload(BorrowRequest.equipment))
+        .filter(BorrowRequest.user_id == current_user.id)
+        .order_by(BorrowRequest.created_at.asc())
+        .all()
+    )
+    valid = [
+        r
+        for r in records
+        if _status_value(r.status) in ("approved", "borrowing", "return_pending", "returned")
+    ]
+    started = [
+        r
+        for r in valid
+        if _status_value(r.status) in ("borrowing", "return_pending", "returned")
+    ]
+    returned = [r for r in started if _status_value(r.status) == "returned"]
+    equipment_ids = {r.equipment_id for r in started}
+    categories = {
+        r.equipment.category
+        for r in started
+        if r.equipment and r.equipment.category
+    }
+    total_hours = sum(
+        max(0.0, ((r.actual_return or r.return_time) - r.borrow_time).total_seconds() / 3600)
+        for r in started
+    )
+    on_time_returns = sum(
+        1
+        for r in returned
+        if r.actual_return is not None and r.actual_return <= r.return_time
+    )
+    night_projects = sum(
+        1
+        for r in started
+        if (r.borrow_time + timedelta(hours=8)).hour >= 18
+        or (r.borrow_time + timedelta(hours=8)).hour < 6
+    )
+    audio_projects = sum(
+        1
+        for r in started
+        if r.equipment and r.equipment.category in ("麦克风", "录音设备")
+    )
+    support_projects = sum(
+        1
+        for r in started
+        if r.equipment and r.equipment.category in ("稳定器", "三脚架")
+    )
+
+    def stamp(
+        key: str,
+        title: str,
+        description: str,
+        current: float,
+        target: float,
+        icon: str,
+    ) -> dict:
+        return {
+            "key": key,
+            "title": title,
+            "description": description,
+            "current": round(current, 1),
+            "target": target,
+            "earned": current >= target,
+            "icon": icon,
+        }
+
+    stamps = [
+        stamp("first-frame", "第一格胶片", "完成第一次设备领取", len(started), 1, "camera"),
+        stamp("three-tools", "器材漫游者", "使用三台不同的设备", len(equipment_ids), 3, "equipment"),
+        stamp("ten-returns", "可靠的归档人", "完成十次设备归还", len(returned), 10, "return"),
+        stamp("night-editor", "夜间编辑部", "完成一次夜间创作", night_projects, 1, "light"),
+        stamp("sound-hunter", "声音采集者", "使用一次录音设备", audio_projects, 1, "microphone"),
+        stamp("steady-hand", "稳定构图", "使用一次稳定器或三脚架", support_projects, 1, "tripod"),
+        stamp("punctual", "准时抵达", "累计三次按时归还", on_time_returns, 3, "approved"),
+        stamp("hundred-hours", "一百小时计划", "累计创作时长达到一百小时", total_hours, 100, "pending"),
+    ]
+    data = {
+        "user_name": current_user.name,
+        "student_id": current_user.student_id,
+        "member_since": current_user.created_at,
+        "total_projects": len(valid),
+        "completed_returns": len(returned),
+        "unique_equipment": len(equipment_ids),
+        "total_hours": round(total_hours, 1),
+        "categories": sorted(categories),
+        "earned_stamps": sum(1 for item in stamps if item["earned"]),
+        "stamps": stamps,
+    }
+    return ApiResponse(data=data, message="ok")

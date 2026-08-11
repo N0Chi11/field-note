@@ -10,6 +10,7 @@ import { getEquipment } from '@/api/equipment'
 import { addFavorite, getFavorites, removeFavorite } from '@/api/experience'
 import { useToastStore } from '@/stores/toast'
 import type { Equipment, EquipmentStatus } from '@/types/models'
+import { playBookmarkSound } from '@/utils/editorialSound'
 
 const toast = useToastStore()
 
@@ -142,6 +143,7 @@ async function toggleFavorite(e: Equipment) {
       await removeFavorite(e.id)
       next.delete(e.id)
       toast.success(`已取消收藏 ${e.name}`)
+      playBookmarkSound()
     } else {
       await addFavorite(e.id)
       next.add(e.id)
@@ -150,6 +152,7 @@ async function toggleFavorite(e: Equipment) {
           ? `已收藏 ${e.name}`
           : `已收藏，${e.name} 恢复可借时会提醒你`
       )
+      playBookmarkSound()
     }
     favoriteIds.value = next
   } catch (error: any) {
@@ -480,6 +483,13 @@ onMounted(loadEquipment)
   border-color: #9d604d;
   color: #fffaf0;
 }
+.favorite-btn.active {
+  animation: bookmark-slip .32s cubic-bezier(.22,.75,.28,1) both;
+}
+@keyframes bookmark-slip {
+  from { transform: translateY(-9px); opacity: .2; }
+  to { transform: translateY(0); opacity: 1; }
+}
 .favorite-btn:disabled {
   opacity: 0.55;
   cursor: wait;
@@ -583,5 +593,9 @@ onMounted(loadEquipment)
   .category-name {
     font-size: 15px;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .favorite-btn.active { animation: none; }
 }
 </style>

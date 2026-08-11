@@ -3,6 +3,7 @@ import type {
   AvailabilityNotice,
   CalendarEntry,
   EquipmentFavorite,
+  CreativePassport,
   YearbookData
 } from '@/types/models'
 
@@ -47,3 +48,9 @@ export function getYearbook(year: number) {
   })
 }
 
+export function getCreativePassport() {
+  return request<CreativePassport>({
+    method: 'GET',
+    url: '/passport'
+  })
+}

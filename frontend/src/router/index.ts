@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { clearTokens } from '@/api/request'
+import { playPageTurnSound } from '@/utils/editorialSound'
 
 /** 路由元信息 */
 declare module 'vue-router' {
@@ -68,6 +69,12 @@ const routes: RouteRecordRaw[] = [
     name: 'Yearbook',
     component: () => import('@/views/Yearbook.vue'),
     meta: { auth: true, title: '借用年鉴' }
+  },
+  {
+    path: '/passport',
+    name: 'Passport',
+    component: () => import('@/views/Passport.vue'),
+    meta: { auth: true, title: '创作护照' }
   },
   {
     path: '/admin/equipment',
@@ -163,6 +170,10 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   next()
+})
+
+router.afterEach((to, from) => {
+  if (from.name && to.fullPath !== from.fullPath) playPageTurnSound()
 })
 
 export default router
