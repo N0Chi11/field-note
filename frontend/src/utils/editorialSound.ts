@@ -1,6 +1,7 @@
 import { readonly, ref } from 'vue'
 
 const SOUND_KEY = 'equipment-editorial-sound-enabled'
+const SOUND_VOLUME_KEY = 'equipment-editorial-sound-volume'
 
 function readPreference(): boolean {
   try {
@@ -11,6 +12,15 @@ function readPreference(): boolean {
 }
 
 const enabled = ref(typeof window !== 'undefined' ? readPreference() : false)
+const volume = ref(0.32)
+try {
+  const savedVolume = Number(window.localStorage.getItem(SOUND_VOLUME_KEY))
+  if (Number.isFinite(savedVolume) && savedVolume >= 0 && savedVolume <= 1) {
+    volume.value = savedVolume
+  }
+} catch {
+  // 使用柔和的默认音量。
+}
 let audioContext: AudioContext | null = null
 
 function context(): AudioContext | null {
@@ -25,6 +35,7 @@ function context(): AudioContext | null {
 }
 
 export const editorialSoundEnabled = readonly(enabled)
+export const editorialSoundVolume = readonly(volume)
 
 export function setEditorialSoundEnabled(value: boolean) {
   enabled.value = value
@@ -39,27 +50,48 @@ export function setEditorialSoundEnabled(value: boolean) {
   }
 }
 
-function noise(duration: number, frequency: number, volume: number) {
+export function setEditorialSoundVolume(value: number) {
+  volume.value = Math.min(1, Math.max(0.08, value))
+  try {
+    window.localStorage.setItem(SOUND_VOLUME_KEY, String(volume.value))
+  } catch {
+    // 隐私模式下仍可调节当前页面音量。
+  }
+}
+
+function paperNoise(
+  duration: number,
+  lowFrequency: number,
+  highFrequency: number,
+  baseVolume: number
+) {
   if (!enabled.value) return
   const ctx = context()
   if (!ctx) return
   const frames = Math.floor(ctx.sampleRate * duration)
   const buffer = ctx.createBuffer(1, frames, ctx.sampleRate)
   const values = buffer.getChannelData(0)
+  let brown = 0
   for (let index = 0; index < frames; index++) {
-    const fade = 1 - index / frames
-    values[index] = (Math.random() * 2 - 1) * fade
+    const white = Math.random() * 2 - 1
+    brown = (brown + 0.025 * white) / 1.025
+    const position = index / frames
+    const envelope = Math.pow(Math.sin(Math.PI * position), 0.7)
+    values[index] = brown * 3.2 * envelope
   }
   const source = ctx.createBufferSource()
-  const filter = ctx.createBiquadFilter()
+  const highPass = ctx.createBiquadFilter()
+  const lowPass = ctx.createBiquadFilter()
   const gain = ctx.createGain()
   source.buffer = buffer
-  filter.type = 'bandpass'
-  filter.frequency.value = frequency
-  filter.Q.value = 0.7
-  gain.gain.setValueAtTime(volume, ctx.currentTime)
-  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration)
-  source.connect(filter).connect(gain).connect(ctx.destination)
+  highPass.type = 'highpass'
+  highPass.frequency.value = lowFrequency
+  highPass.Q.value = 0.45
+  lowPass.type = 'lowpass'
+  lowPass.frequency.value = highFrequency
+  lowPass.Q.value = 0.55
+  gain.gain.value = baseVolume * volume.value
+  source.connect(highPass).connect(lowPass).connect(gain).connect(ctx.destination)
   source.start()
 }
 
@@ -67,18 +99,17 @@ function tone(
   frequency: number,
   endFrequency: number,
   duration: number,
-  volume: number,
-  type: OscillatorType = 'sine'
+  baseVolume: number
 ) {
   if (!enabled.value) return
   const ctx = context()
   if (!ctx) return
   const oscillator = ctx.createOscillator()
   const gain = ctx.createGain()
-  oscillator.type = type
+  oscillator.type = 'sine'
   oscillator.frequency.setValueAtTime(frequency, ctx.currentTime)
   oscillator.frequency.exponentialRampToValueAtTime(endFrequency, ctx.currentTime + duration)
-  gain.gain.setValueAtTime(volume, ctx.currentTime)
+  gain.gain.setValueAtTime(baseVolume * volume.value, ctx.currentTime)
   gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration)
   oscillator.connect(gain).connect(ctx.destination)
   oscillator.start()
@@ -87,16 +118,17 @@ function tone(
 
 /** 轻微纸张翻页声，用于路由切换。 */
 export function playPageTurnSound() {
-  noise(0.16, 1850, 0.035)
+  paperNoise(0.14, 420, 3600, 0.026)
+  window.setTimeout(() => paperNoise(0.09, 720, 4200, 0.015), 46)
 }
 
 /** 低沉盖章声，用于申请、审批、归还与头像归档。 */
 export function playStampSound() {
-  tone(128, 72, 0.13, 0.09, 'triangle')
-  window.setTimeout(() => noise(0.055, 620, 0.055), 38)
+  tone(86, 48, 0.095, 0.055)
+  paperNoise(0.055, 70, 920, 0.038)
 }
 
 /** 轻巧纸签声，用于收藏与开关确认。 */
 export function playBookmarkSound() {
-  tone(720, 460, 0.09, 0.035, 'sine')
+  paperNoise(0.052, 900, 4400, 0.019)
 }

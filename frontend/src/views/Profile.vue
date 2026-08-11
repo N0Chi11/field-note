@@ -9,8 +9,11 @@ import { getRequests } from '@/api/borrow'
 import { uploadAvatar } from '@/api/auth'
 import {
   editorialSoundEnabled,
+  editorialSoundVolume,
+  playPageTurnSound,
   playStampSound,
-  setEditorialSoundEnabled
+  setEditorialSoundEnabled,
+  setEditorialSoundVolume
 } from '@/utils/editorialSound'
 import type {
   BorrowDetail,
@@ -83,6 +86,10 @@ function goOverview() {
 
 function toggleEditorialSound() {
   setEditorialSoundEnabled(!editorialSoundEnabled.value)
+}
+
+function changeSoundVolume(event: Event) {
+  setEditorialSoundVolume(Number((event.target as HTMLInputElement).value))
 }
 
 function chooseAvatar() {
@@ -215,17 +222,33 @@ onMounted(loadRequests)
             <strong>界面声音</strong>
             <p>开启后可听到轻微的翻页、书签和盖章声，设置仅保存在当前设备。</p>
           </div>
-          <button
-            type="button"
-            class="sound-switch"
-            :class="{ active: editorialSoundEnabled }"
-            role="switch"
-            :aria-checked="editorialSoundEnabled"
-            @click="toggleEditorialSound"
-          >
-            <span></span>
-            {{ editorialSoundEnabled ? '已开启' : '已关闭' }}
-          </button>
+          <div class="sound-actions">
+            <label class="sound-volume" :class="{ disabled: !editorialSoundEnabled }">
+              <span>音量 {{ Math.round(editorialSoundVolume * 100) }}%</span>
+              <input
+                type="range"
+                min="0.08"
+                max="0.65"
+                step="0.01"
+                :value="editorialSoundVolume"
+                :disabled="!editorialSoundEnabled"
+                aria-label="界面声音音量"
+                @input="changeSoundVolume"
+                @change="playPageTurnSound"
+              />
+            </label>
+            <button
+              type="button"
+              class="sound-switch"
+              :class="{ active: editorialSoundEnabled }"
+              role="switch"
+              :aria-checked="editorialSoundEnabled"
+              @click="toggleEditorialSound"
+            >
+              <span></span>
+              {{ editorialSoundEnabled ? '已开启' : '已关闭' }}
+            </button>
+          </div>
         </section>
 
         <!-- 操作按钮 -->
@@ -419,6 +442,10 @@ onMounted(loadRequests)
 .experience-setting strong { display: block; margin-top: 8px; font: 600 16px/1 var(--font); }
 .experience-setting p { max-width: 350px; margin: 7px 0 0; color: var(--text-tertiary); font: 11px/1.6 var(--font-ui); }
 .experience-kicker { color: var(--accent); font: 700 9px/1 var(--font-ui); letter-spacing: .16em; }
+.sound-actions { display: flex; align-items: center; gap: 12px; }
+.sound-volume { display: grid; gap: 6px; min-width: 120px; color: var(--text-tertiary); font: 600 9px/1 var(--font-ui); letter-spacing: .08em; }
+.sound-volume input { width: 120px; accent-color: #9d604d; cursor: pointer; }
+.sound-volume.disabled { opacity: .35; }
 .sound-switch {
   min-width: 92px;
   padding: 8px 10px;
@@ -496,5 +523,6 @@ onMounted(loadRequests)
     flex-direction: column;
   }
   .experience-setting { align-items: flex-start; flex-direction: column; }
+  .sound-actions { width: 100%; justify-content: space-between; }
 }
 </style>
