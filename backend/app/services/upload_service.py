@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import uuid
+from urllib.parse import urlparse
 
 from fastapi import HTTPException, UploadFile, status
 
@@ -71,3 +72,22 @@ def save_image_upload(file: UploadFile, upload_dir: str) -> str:
             except OSError:
                 pass
         file.file.close()
+
+
+def delete_managed_upload(image_url: str | None, upload_dir: str) -> None:
+    """Delete an old file only when it resolves inside the managed upload directory."""
+    if not image_url:
+        return
+    filename = os.path.basename(urlparse(image_url).path)
+    if not filename:
+        return
+
+    upload_root = os.path.abspath(upload_dir)
+    target = os.path.abspath(os.path.join(upload_root, filename))
+    try:
+        if os.path.commonpath([upload_root, target]) != upload_root:
+            return
+        os.remove(target)
+    except (OSError, ValueError):
+        # Old files may already be gone; cleanup must not break the request.
+        pass

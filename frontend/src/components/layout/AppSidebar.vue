@@ -18,7 +18,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 /** 应用版本号（每次发版更新此处即可） */
-const APP_VERSION = 'v2.1.7'
+const APP_VERSION = 'v2.1.8'
 
 const user = computed(() => authStore.user)
 
@@ -188,7 +188,14 @@ watch(() => route.path, () => loadStats())
     <!-- 底部用户信息 -->
     <div class="sidebar__footer">
       <div class="sidebar__user">
-        <div class="sidebar__user-avatar">{{ initials }}</div>
+        <div class="sidebar__user-avatar">
+          <img
+            v-if="user?.avatar_url"
+            :src="user.avatar_url"
+            :alt="`${user.name}的头像`"
+          />
+          <span v-else>{{ initials }}</span>
+        </div>
         <div class="sidebar__user-info">
           <div class="sidebar__user-row">
             <span class="sidebar__user-name">{{ user?.name }}</span>
@@ -406,6 +413,13 @@ watch(() => route.path, () => loadStats())
   font-size: 16px;
   flex-shrink: 0;
   box-shadow: none;
+  overflow: hidden;
+}
+
+.sidebar__user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .sidebar__user-info {

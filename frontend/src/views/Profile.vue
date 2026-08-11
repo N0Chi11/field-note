@@ -5,6 +5,7 @@ import AppLayout from '@/components/AppLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 import { getRequests } from '@/api/borrow'
+import { uploadAvatar } from '@/api/auth'
 import type {
   BorrowDetail,
   BorrowRequestQuery,
@@ -17,6 +18,8 @@ const toast = useToastStore()
 
 const isAdmin = computed(() => !!authStore.isAdmin)
 const requests = ref<BorrowDetail[]>([])
+const avatarInput = ref<HTMLInputElement | null>(null)
+const avatarUploading = ref(false)
 
 // 姓名首字（用于头像）
 function getInitials(name?: string): string {
@@ -71,6 +74,39 @@ function goOverview() {
   router.push('/overview')
 }
 
+function chooseAvatar() {
+  if (!avatarUploading.value) avatarInput.value?.click()
+}
+
+async function handleAvatarChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)) {
+    toast.warning('仅支持 JPEG、PNG、GIF 或 WebP 图片')
+    input.value = ''
+    return
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    toast.warning('头像图片不能超过 10MB')
+    input.value = ''
+    return
+  }
+
+  avatarUploading.value = true
+  try {
+    await uploadAvatar(file)
+    await authStore.fetchUser()
+    toast.success('头像已更新')
+  } catch (e: any) {
+    toast.error(errMsg(e, '头像上传失败'))
+  } finally {
+    avatarUploading.value = false
+    input.value = ''
+  }
+}
+
 async function handleLogout() {
   await authStore.logout()
   router.replace('/login')
@@ -91,8 +127,33 @@ onMounted(loadRequests)
       <!-- 个人信息卡片 -->
       <div v-if="authStore.user" class="profile-card">
         <div class="profile-header">
-          <div class="profile-avatar-large">
-            {{ getInitials(authStore.user.name) }}
+          <div class="profile-avatar-wrap">
+            <div
+              class="profile-avatar-large"
+              :class="{ 'is-uploading': avatarUploading }"
+            >
+              <img
+                v-if="authStore.user.avatar_url"
+                :src="authStore.user.avatar_url"
+                :alt="`${authStore.user.name}的头像`"
+              />
+              <span v-else>{{ getInitials(authStore.user.name) }}</span>
+            </div>
+            <button
+              type="button"
+              class="avatar-edit"
+              :disabled="avatarUploading"
+              @click="chooseAvatar"
+            >
+              {{ avatarUploading ? '上传中' : '更换头像' }}
+            </button>
+            <input
+              ref="avatarInput"
+              class="avatar-input"
+              type="file"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              @change="handleAvatarChange"
+            />
           </div>
           <div class="profile-info">
             <div class="profile-name">{{ authStore.user.name }}</div>
@@ -210,6 +271,44 @@ onMounted(loadRequests)
   font-weight: 700;
   flex-shrink: 0;
   box-shadow: var(--shadow-accent);
+  overflow: hidden;
+  transition: opacity var(--transition);
+}
+.profile-avatar-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.profile-avatar-large.is-uploading {
+  opacity: 0.45;
+}
+.profile-avatar-wrap {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.avatar-edit {
+  width: 72px;
+  padding: 5px 0;
+  border: 0;
+  border-bottom: 1px solid var(--text);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  cursor: pointer;
+}
+.avatar-edit:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.avatar-edit:disabled {
+  cursor: wait;
+}
+.avatar-input {
+  display: none;
 }
 .profile-name {
   font-size: 22px;
@@ -241,7 +340,7 @@ onMounted(loadRequests)
 /* Profile Stats */
 .profile-stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 12px;
   margin-bottom: 24px;
 }

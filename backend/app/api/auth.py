@@ -1,7 +1,9 @@
 """认证路由：登录、刷新、登出、当前用户、修改密码。"""
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+import os
+
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
@@ -25,6 +27,7 @@ from app.schemas.auth import (
     UserResponse,
 )
 from app.schemas.common import ApiResponse
+from app.services.upload_service import delete_managed_upload, save_image_upload
 
 settings = get_settings()
 
@@ -244,14 +247,40 @@ def logout(
 @router.get("/me", response_model=ApiResponse[UserResponse])
 def get_me(current_user: User = Depends(get_current_user)):
     """获取当前登录用户信息。"""
-    user_resp = UserResponse(
-        id=current_user.id,
-        student_id=current_user.student_id,
-        name=current_user.name,
-        role=current_user.role,
-        is_active=current_user.is_active,
-    )
+    user_resp = UserResponse.model_validate(current_user)
     return ApiResponse[UserResponse](data=user_resp, message="ok")
+
+
+@router.post("/avatar", response_model=ApiResponse[UserResponse])
+def upload_avatar(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Upload or replace the current user's avatar."""
+    avatar_upload_dir = os.path.join(settings.UPLOAD_DIR, "avatars")
+    filename = save_image_upload(file, avatar_upload_dir)
+    avatar_url = f"/uploads/avatars/{filename}"
+    previous_avatar = current_user.avatar_url
+
+    try:
+        current_user.avatar_url = avatar_url
+        db.commit()
+        db.refresh(current_user)
+    except Exception:
+        db.rollback()
+        try:
+            os.remove(os.path.join(avatar_upload_dir, filename))
+        except OSError:
+            pass
+        raise HTTPException(status_code=500, detail="头像更新失败")
+
+    # Delete the previous managed file only after the database update succeeds.
+    delete_managed_upload(previous_avatar, avatar_upload_dir)
+    return ApiResponse[UserResponse](
+        data=UserResponse.model_validate(current_user),
+        message="头像更新成功",
+    )
 
 
 @router.put("/password", response_model=ApiResponse)

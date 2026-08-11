@@ -44,6 +44,20 @@ export function getMe() {
   })
 }
 
+/** 上传或更换当前用户头像 */
+export function uploadAvatar(file: File) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request<User>({
+    method: 'POST',
+    url: '/auth/avatar',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
+
 /** 修改密码 */
 export function changePassword(old_password: string, new_password: string) {
   return request<void>({
