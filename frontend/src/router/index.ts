@@ -46,6 +46,12 @@ const routes: RouteRecordRaw[] = [
     meta: { auth: true, title: '我的借用' }
   },
   {
+    path: '/calendar',
+    name: 'Calendar',
+    component: () => import('@/views/Calendar.vue'),
+    meta: { auth: true, title: '预约日历' }
+  },
+  {
     path: '/precautions',
     name: 'Precautions',
     component: () => import('@/views/Precautions.vue'),
@@ -56,6 +62,12 @@ const routes: RouteRecordRaw[] = [
     name: 'Profile',
     component: () => import('@/views/Profile.vue'),
     meta: { auth: true, title: '个人中心' }
+  },
+  {
+    path: '/yearbook',
+    name: 'Yearbook',
+    component: () => import('@/views/Yearbook.vue'),
+    meta: { auth: true, title: '借用年鉴' }
   },
   {
     path: '/admin/equipment',

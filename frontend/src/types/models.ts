@@ -178,6 +178,67 @@ export interface CheckConflictPayload {
   exclude_request_id?: number
 }
 
+/** 收藏设备 */
+export interface EquipmentFavorite {
+  id: number
+  equipment_id: number
+  equipment_code: string
+  equipment_name: string
+  equipment_category: string
+  image_url?: string
+  status: EquipmentStatus
+  is_available: boolean
+  created_at: string
+}
+
+export type AvailabilityNotice = EquipmentFavorite
+
+/** 全局预约日历中的隐私安全记录 */
+export interface CalendarEntry {
+  id: number
+  work_order_no: string
+  equipment_id: number
+  equipment_code: string
+  equipment_name: string
+  equipment_category: string
+  borrow_time: string
+  return_time: string
+  status: RequestStatus
+  is_mine: boolean
+  user_name: string
+  reason: string
+}
+
+export interface YearbookEquipmentStat {
+  equipment_id: number
+  name: string
+  code: string
+  count: number
+}
+
+export interface YearbookProject {
+  work_order_no: string
+  equipment_name: string
+  reason: string
+  borrow_time: string
+  status: RequestStatus
+}
+
+export interface YearbookData {
+  year: number
+  available_years: number[]
+  user_name: string
+  student_id: string
+  total_requests: number
+  successful_borrows: number
+  returned_count: number
+  on_time_rate: number
+  total_hours: number
+  top_equipment: YearbookEquipmentStat[]
+  categories: Array<{ name: string; count: number }>
+  recent_projects: YearbookProject[]
+}
+
 /** 修改密码 payload */
 export interface ChangePasswordPayload {
   old_password: string

@@ -27,6 +27,7 @@ from app.models.user import User
 from app.schemas.borrow import ApproveRequest, BorrowDetail, PickupRequest, RejectRequest
 from app.schemas.common import ApiResponse
 from app.services.conflict_service import check_conflict, validate_transition
+from app.services.favorite_service import mark_favorites_unavailable
 from app.services.log_service import add_log
 
 router = APIRouter(
@@ -323,6 +324,7 @@ def confirm_pickup(
         r.status = BorrowStatus.borrowing
         if r.equipment:
             r.equipment.status = EquipmentStatus.borrowed
+            mark_favorites_unavailable(db, r.equipment_id)
         eq_name = r.equipment.name if r.equipment else str(r.equipment_id)
         detail = f"工单 {r.work_order_no} · {eq_name}"
         if card_name:

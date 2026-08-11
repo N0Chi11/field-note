@@ -27,6 +27,7 @@ from app.schemas.equipment import (
     EquipmentUpdate,
 )
 from app.services.log_service import add_log
+from app.services.favorite_service import mark_favorites_unavailable
 from app.services.upload_service import save_image_upload
 
 router = APIRouter(prefix="/equipment", tags=["设备管理"])
@@ -246,6 +247,8 @@ def update_equipment(
                     )
             setattr(eq, field, value)
             changed_fields.append(field)
+        if eq.status in (EquipmentStatus.borrowed, EquipmentStatus.repair):
+            mark_favorites_unavailable(db, equipment_id)
         add_log(
             db,
             current_user.id,
@@ -369,6 +372,8 @@ def change_equipment_status(
 
     try:
         eq.status = new_status
+        if new_status == EquipmentStatus.repair:
+            mark_favorites_unavailable(db, equipment_id)
         action_text = (
             "设备设为维修"
             if new_status == EquipmentStatus.repair

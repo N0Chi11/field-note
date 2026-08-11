@@ -7,6 +7,7 @@
 from app.models.borrow_request import BorrowRequest, BorrowStatus
 from app.models.card import Card, CardStatus
 from app.models.equipment import Equipment, EquipmentStatus
+from app.models.equipment_favorite import EquipmentFavorite
 from app.models.operation_log import OperationLog
 from app.models.refresh_token import RefreshToken
 from app.models.system_config import SystemConfig
@@ -17,6 +18,7 @@ __all__ = [
     "UserRole",
     "Equipment",
     "EquipmentStatus",
+    "EquipmentFavorite",
     "Card",
     "CardStatus",
     "BorrowRequest",

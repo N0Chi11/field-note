@@ -139,6 +139,14 @@
 
             <!-- 操作按钮 -->
             <div v-if="hasActions(r)" class="request-actions">
+              <button
+                v-if="canShowPass(r)"
+                type="button"
+                class="btn btn-secondary btn-sm"
+                @click="openPass(r)"
+              >
+                查看借用凭证
+              </button>
               <!-- 借用人本人（含管理员自己借的）：borrowing 状态可上传归还照片 -->
               <button
                 v-if="r.status === 'borrowing' && r.user_id === currentUserId"
@@ -339,6 +347,21 @@
           </div>
         </template>
       </n-modal>
+
+      <n-modal
+        v-model:show="showPassModal"
+        preset="card"
+        title="电子借用凭证"
+        style="max-width: 780px"
+      >
+        <BorrowPassCard v-if="passRecord" :record="passRecord" />
+        <template #footer>
+          <div class="modal-footer">
+            <n-button @click="showPassModal = false">关闭</n-button>
+            <n-button type="primary" @click="downloadPass">下载高清凭证</n-button>
+          </div>
+        </template>
+      </n-modal>
     </div>
   </AppLayout>
 </template>
@@ -358,6 +381,7 @@ import {
 } from 'naive-ui'
 import AppLayout from '@/components/AppLayout.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import BorrowPassCard from '@/components/BorrowPassCard.vue'
 import {
   getRequests,
   deleteRequest,
@@ -377,6 +401,7 @@ import {
   formatSystemDateTime,
   parseApiDateTime
 } from '@/utils/dateTime'
+import { downloadBorrowPass } from '@/utils/posterExport'
 import type {
   BorrowDetail,
   BorrowRequestQuery,
@@ -462,7 +487,29 @@ const filtered = computed(() => {
 // 是否有操作按钮（管理员始终可删除）
 function hasActions(r: BorrowDetail): boolean {
   if (isAdmin.value) return true
-  return r.status === 'borrowing' || r.status === 'pending'
+  return r.status === 'borrowing' || r.status === 'pending' || canShowPass(r)
+}
+
+function canShowPass(r: BorrowDetail): boolean {
+  return ['approved', 'borrowing', 'return_pending', 'returned'].includes(r.status)
+}
+
+const showPassModal = ref(false)
+const passRecord = ref<BorrowDetail | null>(null)
+
+function openPass(record: BorrowDetail) {
+  passRecord.value = record
+  showPassModal.value = true
+}
+
+function downloadPass() {
+  if (!passRecord.value) return
+  try {
+    downloadBorrowPass(passRecord.value)
+    toast.success('电子凭证已下载')
+  } catch (error: any) {
+    toast.error(error?.message || '凭证生成失败')
+  }
 }
 
 // 首次加载：分页拉取全部记录（本地过滤）

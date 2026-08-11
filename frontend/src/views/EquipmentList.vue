@@ -5,6 +5,7 @@ import FilterTabs from '@/components/common/FilterTabs.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import EquipmentTimeline from '@/components/EquipmentTimeline.vue'
 import { getEquipment } from '@/api/equipment'
+import { addFavorite, getFavorites, removeFavorite } from '@/api/experience'
 import { useToastStore } from '@/stores/toast'
 import type { Equipment, EquipmentStatus } from '@/types/models'
 
@@ -18,6 +19,8 @@ const timelineEquipmentId = ref<number | null>(null)
 
 const loading = ref(false)
 const equipmentList = ref<Equipment[]>([])
+const favoriteIds = ref<Set<number>>(new Set())
+const favoriteLoadingId = ref<number | null>(null)
 const activeCategory = ref('all')
 
 /** 类别图标映射（与原 HTML 设计一致） */
@@ -73,6 +76,11 @@ const groupedByCategory = computed<CategoryGroup[]>(() => {
 /** 顶部类别筛选标签（含数量） */
 const categoryTabs = computed(() => [
   { key: 'all', label: `全部 (${equipmentList.value.length})`, icon: '📋' },
+  {
+    key: 'favorites',
+    label: `我的收藏 (${favoriteIds.value.size})`,
+    icon: '♡'
+  },
   ...groupedByCategory.value.map((g) => ({
     key: g.category,
     label: `${g.category} (${g.count})`,
@@ -83,6 +91,12 @@ const categoryTabs = computed(() => [
 /** 当前可见的分组 */
 const visibleGroups = computed(() => {
   if (activeCategory.value === 'all') return groupedByCategory.value
+  if (activeCategory.value === 'favorites') {
+    const items = equipmentList.value.filter((e) => favoriteIds.value.has(e.id))
+    return items.length
+      ? [{ category: '我的收藏', icon: '♡', items, count: items.length }]
+      : []
+  }
   return groupedByCategory.value.filter(
     (g) => g.category === activeCategory.value
   )
@@ -90,9 +104,16 @@ const visibleGroups = computed(() => {
 
 function loadEquipment() {
   loading.value = true
-  getEquipment()
-    .then((data) => {
+  Promise.allSettled([getEquipment(), getFavorites()])
+    .then(([equipmentResult, favoriteResult]) => {
+      if (equipmentResult.status === 'rejected') throw equipmentResult.reason
+      const data = equipmentResult.value
       equipmentList.value = Array.isArray(data) ? data : []
+      if (favoriteResult.status === 'fulfilled') {
+        favoriteIds.value = new Set(
+          (favoriteResult.value || []).map((favorite) => favorite.equipment_id)
+        )
+      }
     })
     .catch((e: any) => {
       toast.error(errMsg(e, '加载设备列表失败'))
@@ -101,6 +122,36 @@ function loadEquipment() {
     .finally(() => {
       loading.value = false
     })
+}
+
+function isFavorite(equipmentId: number): boolean {
+  return favoriteIds.value.has(equipmentId)
+}
+
+async function toggleFavorite(e: Equipment) {
+  if (favoriteLoadingId.value === e.id) return
+  favoriteLoadingId.value = e.id
+  try {
+    const next = new Set(favoriteIds.value)
+    if (next.has(e.id)) {
+      await removeFavorite(e.id)
+      next.delete(e.id)
+      toast.success(`已取消收藏 ${e.name}`)
+    } else {
+      await addFavorite(e.id)
+      next.add(e.id)
+      toast.success(
+        e.status === 'available'
+          ? `已收藏 ${e.name}`
+          : `已收藏，${e.name} 恢复可借时会提醒你`
+      )
+    }
+    favoriteIds.value = next
+  } catch (error: any) {
+    toast.error(errMsg(error, '收藏操作失败'))
+  } finally {
+    favoriteLoadingId.value = null
+  }
 }
 
 /** 查看设备借用时间轴：打开时间轴弹窗 */
@@ -154,6 +205,12 @@ onMounted(loadEquipment)
 
       <!-- 分组设备列表 -->
       <div v-else class="categories">
+        <EmptyState
+          v-if="activeCategory === 'favorites' && !visibleGroups.length"
+          icon="♡"
+          text="还没有收藏设备"
+          sub-text="点击设备图片左上角的「收藏」，设备恢复可借时会通知你"
+        />
         <section
           v-for="group in visibleGroups"
           :key="group.category"
@@ -186,6 +243,16 @@ onMounted(loadEquipment)
                 <span class="status-tag" :class="e.status">
                   {{ statusText(e.status) }}
                 </span>
+                <button
+                  type="button"
+                  class="favorite-btn"
+                  :class="{ active: isFavorite(e.id) }"
+                  :disabled="favoriteLoadingId === e.id"
+                  :aria-label="isFavorite(e.id) ? `取消收藏${e.name}` : `收藏${e.name}`"
+                  @click.stop="toggleFavorite(e)"
+                >
+                  {{ isFavorite(e.id) ? '已收藏' : '收藏' }}
+                </button>
               </div>
 
               <!-- 信息区 -->
@@ -387,6 +454,31 @@ onMounted(loadEquipment)
 .status-tag.repair {
   color: var(--danger);
   background: var(--danger-bg);
+}
+
+.favorite-btn {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 2;
+  border: 1px solid rgba(25, 25, 23, 0.35);
+  background: rgba(242, 239, 231, 0.9);
+  color: #191917;
+  padding: 4px 9px;
+  font: 600 11px/1 var(--font-ui);
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+.favorite-btn:hover,
+.favorite-btn.active {
+  background: #9d604d;
+  border-color: #9d604d;
+  color: #fffaf0;
+}
+.favorite-btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
 }
 
 /* ---------- 卡片信息区 ---------- */

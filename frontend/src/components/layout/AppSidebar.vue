@@ -3,6 +3,8 @@ import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getStats } from '@/api/admin'
+import { getAvailabilityNotifications } from '@/api/experience'
+import { useToastStore } from '@/stores/toast'
 import type { AdminStats } from '@/types/models'
 import EditorialPoem from '@/components/EditorialPoem.vue'
 
@@ -17,9 +19,10 @@ const emit = defineEmits<{
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const toast = useToastStore()
 
 /** 应用版本号（每次发版更新此处即可） */
-const APP_VERSION = 'v2.1.11'
+const APP_VERSION = 'v2.2.0'
 
 const user = computed(() => authStore.user)
 
@@ -47,6 +50,7 @@ const equipmentNav: NavItem[] = [
   { path: '/equipment', icon: 'equipment', label: '器材设备清单' },
   { path: '/borrow', icon: 'application', label: '借用申请' },
   { path: '/overview', icon: 'overview', label: '借用一览' },
+  { path: '/calendar', icon: 'overview', label: '预约日历' },
   { path: '/precautions', icon: 'precautions', label: '注意事项' }
 ]
 
@@ -60,12 +64,14 @@ const adminNav: NavItem[] = [
 
 /** 账户组 */
 const accountNav: NavItem[] = [
-  { path: '/profile', icon: 'profile', label: '个人中心' }
+  { path: '/profile', icon: 'profile', label: '个人中心' },
+  { path: '/yearbook', icon: 'profile', label: '借用年鉴' }
 ]
 
 /* ---------------- 待处理数量 badge ---------------- */
 const stats = ref<AdminStats | null>(null)
 let timer: number | undefined
+let availabilityTimer: number | undefined
 
 /** 拉取管理员统计（待审批 / 待归还确认数量） */
 async function loadStats() {
@@ -74,6 +80,17 @@ async function loadStats() {
     stats.value = await getStats()
   } catch {
     // 静默失败，badge 不影响主流程
+  }
+}
+
+async function loadAvailabilityNotifications() {
+  try {
+    const notices = await getAvailabilityNotifications()
+    for (const notice of notices || []) {
+      toast.success(`你收藏的「${notice.equipment_name}」已恢复可借`)
+    }
+  } catch {
+    // 收藏提醒失败不影响主流程。
   }
 }
 
@@ -115,12 +132,15 @@ const roleLabel = computed(() => (authStore.isAdmin ? '管理员' : '学生'))
 onMounted(() => {
   // 延迟 3 秒加载待办统计，避免登录时并发过多请求
   setTimeout(() => loadStats(), 3000)
+  setTimeout(() => loadAvailabilityNotifications(), 4000)
   // 每 120s 刷新一次待办数量（降低频率）
   timer = window.setInterval(loadStats, 120000)
+  availabilityTimer = window.setInterval(loadAvailabilityNotifications, 120000)
 })
 
 onUnmounted(() => {
   if (timer) window.clearInterval(timer)
+  if (availabilityTimer) window.clearInterval(availabilityTimer)
 })
 
 // 用户信息加载完成 / 角色变化时拉取统计
@@ -579,4 +599,5 @@ watch(() => route.path, () => loadStats())
     height: 34px;
   }
 }
+
 </style>

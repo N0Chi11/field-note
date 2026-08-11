@@ -147,7 +147,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import {
   NForm,
   NFormItem,
@@ -169,6 +169,7 @@ import { useAuthStore } from '@/stores/auth'
 import type { Equipment, ConflictResult } from '@/types/models'
 
 const router = useRouter()
+const route = useRoute()
 const toast = useToastStore()
 const authStore = useAuthStore()
 
@@ -367,6 +368,29 @@ function resetDraft() {
   toast.success('已清空草稿')
 }
 
+function applyRoutePreset() {
+  const equipmentId = Number(route.query.equipment_id)
+  if (Number.isInteger(equipmentId) && equipmentId > 0) {
+    form.equipmentId = equipmentId
+  }
+
+  const dateValue = typeof route.query.date === 'string' ? route.query.date : ''
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) return
+  const [year, month, day] = dateValue.split('-').map(Number)
+  let borrow = new Date(year, month - 1, day, 9, 0, 0, 0)
+  if (borrow.getTime() <= Date.now()) {
+    const nextHour = new Date(Date.now() + 3600000)
+    nextHour.setMinutes(0, 0, 0)
+    borrow = nextHour
+  }
+  const returnDate = new Date(borrow)
+  returnDate.setDate(returnDate.getDate() + 1)
+  form.borrowTime = borrow.getTime()
+  form.returnTime = returnDate.getTime()
+  saveDraft()
+  scheduleConflictCheck()
+}
+
 // 提交申请
 async function handleSubmit() {
   try {
@@ -412,6 +436,7 @@ function errMsg(e: any, fallback = '操作失败'): string {
 onMounted(() => {
   loadEquipment()
   loadDraft()
+  applyRoutePreset()
 })
 </script>
 
