@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, UniqueConstraint, func
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -18,16 +18,19 @@ class EquipmentFavorite(Base):
         UniqueConstraint("user_id", "equipment_id", name="uq_favorite_user_equipment"),
     )
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    # 生产库的 users.id / equipment.id 均为 BIGINT，外键列必须完全同型。
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+        BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     equipment_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("equipment.id", ondelete="CASCADE"), nullable=False, index=True
+        BigInteger,
+        ForeignKey("equipment.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     last_known_available: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=False
     )
-

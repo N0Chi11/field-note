@@ -22,7 +22,7 @@ const authStore = useAuthStore()
 const toast = useToastStore()
 
 /** 应用版本号（每次发版更新此处即可） */
-const APP_VERSION = 'v2.2.1'
+const APP_VERSION = 'v2.2.2'
 
 const user = computed(() => authStore.user)
 
