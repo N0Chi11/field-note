@@ -39,6 +39,12 @@ class Settings(BaseSettings):
     WECOM_MENTIONED_MOBILES: str = ""
     SYSTEM_PUBLIC_URL: str = ""
 
+    # ===== WxPusher notifications =====
+    # Keep the real app token in the server .env file only.
+    WXPUSHER_APP_TOKEN: str = ""
+    WXPUSHER_TOPIC_IDS: str = ""
+    WXPUSHER_UIDS: str = ""
+
     # ===== Timezone =====
     TZ: str = "Asia/Shanghai"
 
@@ -69,6 +75,28 @@ class Settings(BaseSettings):
             mobile.strip()
             for mobile in self.WECOM_MENTIONED_MOBILES.split(",")
             if mobile.strip()
+        ]
+
+    @property
+    def wxpusher_topic_ids_list(self) -> List[int]:
+        """Return valid positive Topic IDs from a comma-separated value."""
+        if not self.WXPUSHER_TOPIC_IDS:
+            return []
+        return [
+            int(value.strip())
+            for value in self.WXPUSHER_TOPIC_IDS.split(",")
+            if value.strip().isdigit() and int(value.strip()) > 0
+        ]
+
+    @property
+    def wxpusher_uids_list(self) -> List[str]:
+        """Return WxPusher UIDs used for direct test notifications."""
+        if not self.WXPUSHER_UIDS:
+            return []
+        return [
+            uid.strip()
+            for uid in self.WXPUSHER_UIDS.split(",")
+            if uid.strip()
         ]
 
 

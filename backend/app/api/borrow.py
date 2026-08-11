@@ -33,6 +33,7 @@ from app.services.conflict_service import check_conflict, generate_work_order_no
 from app.services.log_service import add_log
 from app.services.upload_service import save_image_upload
 from app.services.wecom_notification_service import notify_new_borrow_request
+from app.services.wxpusher_notification_service import notify_borrow_request_via_wxpusher
 
 settings = get_settings()
 
@@ -257,6 +258,17 @@ def create_request(
     # 6. 异步通知管理员。通知失败只记录日志，不影响已经成功提交的申请。
     background_tasks.add_task(
         notify_new_borrow_request,
+        work_order_no=wo,
+        user_name=current_user.name,
+        student_id=current_user.student_id,
+        equipment_name=equipment.name,
+        equipment_code=equipment.code,
+        borrow_time=req.borrow_time,
+        return_time=req.return_time,
+        reason=req.reason,
+    )
+    background_tasks.add_task(
+        notify_borrow_request_via_wxpusher,
         work_order_no=wo,
         user_name=current_user.name,
         student_id=current_user.student_id,
