@@ -18,7 +18,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 /** 应用版本号（每次发版更新此处即可） */
-const APP_VERSION = 'v2.1.9'
+const APP_VERSION = 'v2.1.8'
 
 const user = computed(() => authStore.user)
 
