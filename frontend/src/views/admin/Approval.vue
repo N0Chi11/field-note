@@ -23,6 +23,7 @@ import {
 import { getRequests, deleteRequest } from '@/api/borrow'
 import { getCards } from '@/api/card'
 import { useToastStore } from '@/stores/toast'
+import { formatApiDateTime } from '@/utils/dateTime'
 import type {
   BorrowDetail,
   BorrowRequestQuery,
@@ -67,15 +68,8 @@ function statusTagType(status: RequestStatus) {
     | 'info'
 }
 
-// ===== 日期格式化 =====
-function fmt(dateStr: string): string {
-  const d = new Date(dateStr)
-  if (isNaN(d.getTime())) return dateStr || '-'
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(
-    d.getHours()
-  )}:${p(d.getMinutes())}`
-}
+// 后端返回无 Z 的 UTC 时间，统一按上海时区显示。
+const fmt = formatApiDateTime
 
 // ===== 错误信息提取 =====
 function errMsg(e: any, fallback = '操作失败'): string {

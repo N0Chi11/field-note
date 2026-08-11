@@ -372,6 +372,11 @@ import {
 import { getCards } from '@/api/card'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
+import {
+  formatApiDateTime,
+  formatSystemDateTime,
+  parseApiDateTime
+} from '@/utils/dateTime'
 import type {
   BorrowDetail,
   BorrowRequestQuery,
@@ -408,8 +413,9 @@ function statusClass(status: RequestStatus): string {
 // 归还紧迫度标签（仅 borrowing 状态显示）
 function urgencyTag(r: BorrowDetail): { type: string; text: string } | null {
   if (r.status !== 'borrowing') return null
-  const returnTs = new Date(r.return_time).getTime()
-  if (isNaN(returnTs)) return null
+  const returnDate = parseApiDateTime(r.return_time)
+  if (!returnDate) return null
+  const returnTs = returnDate.getTime()
   const diff = returnTs - Date.now()
   if (diff < 0)
     return { type: 'overdue', text: `已逾期 ${Math.ceil(-diff / 3600000)} 小时` }
@@ -418,17 +424,8 @@ function urgencyTag(r: BorrowDetail): { type: string; text: string } | null {
   return null
 }
 
-// 日期格式化
-function fmt(dateStr: string): string {
-  const d = new Date(dateStr)
-  if (isNaN(d.getTime())) return dateStr
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
-    2,
-    '0'
-  )}-${String(d.getDate()).padStart(2, '0')} ${String(
-    d.getHours()
-  ).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-}
+// 后端返回无 Z 的 UTC 时间，统一按上海时区显示。
+const fmt = formatApiDateTime
 
 const loading = ref(false)
 const requests = ref<BorrowDetail[]>([])
@@ -521,13 +518,13 @@ function exportCSV() {
       r.user_student_id,
       r.equipment_name,
       r.card_name || '',
-      r.borrow_time,
-      r.return_time,
+      fmt(r.borrow_time),
+      fmt(r.return_time),
       r.reason,
       statusText(r.status),
       r.approver_name || '',
       r.admin_comment || '',
-      r.created_at
+      formatSystemDateTime(r.created_at)
     ])
   })
   const csv =

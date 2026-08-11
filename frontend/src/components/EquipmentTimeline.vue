@@ -8,6 +8,11 @@ import { NModal, NSpin } from 'naive-ui'
 import { getEquipmentById } from '@/api/equipment'
 import { getRequests } from '@/api/borrow'
 import { useToastStore } from '@/stores/toast'
+import {
+  formatApiDateTime,
+  parseApiDateTime,
+  parseSystemDateTime
+} from '@/utils/dateTime'
 import type {
   Equipment,
   BorrowDetail,
@@ -75,19 +80,8 @@ function barClass(status: RequestStatus): string {
 /* ------------------------------------------------------------------ *
  * 工具函数
  * ------------------------------------------------------------------ */
-/** 日期格式化（与原 HTML fmt 一致） */
-function fmt(dateStr: string): string {
-  if (!dateStr) return '-'
-  const d = new Date(dateStr)
-  if (isNaN(d.getTime())) return dateStr
-  return d.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
+/** 后端返回无 Z 的 UTC 时间，统一按上海时区显示。 */
+const fmt = formatApiDateTime
 
 /** 类别图标 */
 const CATEGORY_ICONS: Record<string, string> = {
@@ -156,8 +150,8 @@ const dateRange = computed<DateRange>(() => {
  */
 function dateToPercent(date: Date | string): number {
   const { startDate, endDate } = dateRange.value
-  const d = new Date(date)
-  if (isNaN(d.getTime())) return 0
+  const d = typeof date === 'string' ? parseApiDateTime(date) : date
+  if (!d || isNaN(d.getTime())) return 0
   const clamped = Math.max(
     startDate.getTime(),
     Math.min(endDate.getTime(), d.getTime())
@@ -263,10 +257,10 @@ const bars = computed<GanttBar[]>(() => {
   const startTs = startDate.getTime()
   const endTs = endDate.getTime()
   const range = requests.value.filter((r) => {
-    const bStart = new Date(r.borrow_time).getTime()
+    const bStart = parseApiDateTime(r.borrow_time)?.getTime() ?? NaN
     // 已归还的记录用实际归还时间作为结束时间
     const endTime = r.actual_return || r.return_time
-    const rEnd = new Date(endTime).getTime()
+    const rEnd = parseApiDateTime(endTime)?.getTime() ?? NaN
     return bStart <= endTs && rEnd >= startTs
   })
   return range.map((r) => {
@@ -301,7 +295,8 @@ const rowLabel = computed(() => {
 const historyList = computed<BorrowDetail[]>(() => {
   return [...requests.value].sort(
     (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      (parseSystemDateTime(b.created_at)?.getTime() ?? 0) -
+      (parseSystemDateTime(a.created_at)?.getTime() ?? 0)
   )
 })
 

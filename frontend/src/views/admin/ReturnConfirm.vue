@@ -6,6 +6,7 @@ import EmptyState from '@/components/common/EmptyState.vue'
 import { getRequests, deleteRequest } from '@/api/borrow'
 import { confirmReturn } from '@/api/admin'
 import { useToastStore } from '@/stores/toast'
+import { formatApiDateTime } from '@/utils/dateTime'
 import type { BorrowDetail, PaginatedResponse } from '@/types/models'
 
 const toast = useToastStore()
@@ -15,12 +16,8 @@ const confirmingId = ref<number | null>(null)
 const deletingId = ref<number | null>(null)
 const records = ref<BorrowDetail[]>([])
 
-/** 日期格式化：YYYY-MM-DD HH:mm */
-function fmt(dateStr: string): string {
-  const d = new Date(dateStr)
-  if (isNaN(d.getTime())) return dateStr
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-}
+/** 后端返回无 Z 的 UTC 时间，统一按上海时区显示。 */
+const fmt = formatApiDateTime
 
 /** 统一错误信息提取 */
 function errMsg(e: any, fallback = '操作失败'): string {
