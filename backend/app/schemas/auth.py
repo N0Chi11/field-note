@@ -53,3 +53,9 @@ class PasswordChangeRequest(BaseModel):
 
     old_password: str
     new_password: str
+
+
+class DefaultAvatarRequest(BaseModel):
+    """选择系统内置的画报头像。"""
+
+    avatar_key: str

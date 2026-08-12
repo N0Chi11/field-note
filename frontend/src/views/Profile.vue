@@ -6,7 +6,7 @@ import AvatarCropper from '@/components/common/AvatarCropper.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 import { getRequests } from '@/api/borrow'
-import { uploadAvatar } from '@/api/auth'
+import { selectDefaultAvatar, uploadAvatar } from '@/api/auth'
 import type {
   BorrowDetail,
   BorrowRequestQuery,
@@ -22,6 +22,11 @@ const requests = ref<BorrowDetail[]>([])
 const avatarInput = ref<HTMLInputElement | null>(null)
 const avatarUploading = ref(false)
 const avatarCropFile = ref<File | null>(null)
+const avatarPickerOpen = ref(false)
+const defaultAvatars = Array.from({ length: 8 }, (_, index) => ({
+  key: `editorial-${index + 1}`,
+  src: `/assets/default-avatars/editorial-${index + 1}.png`
+}))
 
 // 姓名首字（用于头像）
 function getInitials(name?: string): string {
@@ -78,6 +83,24 @@ function goOverview() {
 
 function chooseAvatar() {
   if (!avatarUploading.value) avatarInput.value?.click()
+}
+
+function openAvatarPicker() {
+  if (!avatarUploading.value) avatarPickerOpen.value = true
+}
+
+async function chooseDefaultAvatar(avatarKey: string) {
+  avatarUploading.value = true
+  try {
+    await selectDefaultAvatar(avatarKey)
+    await authStore.fetchUser()
+    avatarPickerOpen.value = false
+    toast.success('已更换默认头像')
+  } catch (e: any) {
+    toast.error(errMsg(e, '默认头像更换失败'))
+  } finally {
+    avatarUploading.value = false
+  }
 }
 
 async function handleAvatarChange(event: Event) {
@@ -150,14 +173,24 @@ onMounted(loadRequests)
               />
               <span v-else>{{ getInitials(authStore.user.name) }}</span>
             </div>
-            <button
-              type="button"
-              class="avatar-edit"
-              :disabled="avatarUploading"
-              @click="chooseAvatar"
-            >
-              {{ avatarUploading ? '上传中' : '更换头像' }}
-            </button>
+            <div class="avatar-actions">
+              <button
+                type="button"
+                class="avatar-edit"
+                :disabled="avatarUploading"
+                @click="openAvatarPicker"
+              >
+                {{ avatarUploading ? '处理中' : '选择头像' }}
+              </button>
+              <button
+                type="button"
+                class="avatar-edit avatar-edit--upload"
+                :disabled="avatarUploading"
+                @click="chooseAvatar"
+              >
+                自己上传
+              </button>
+            </div>
             <input
               ref="avatarInput"
               class="avatar-input"
@@ -215,6 +248,28 @@ onMounted(loadRequests)
       @cancel="cancelAvatarCrop"
       @confirm="uploadCroppedAvatar"
     />
+    <div v-if="avatarPickerOpen" class="avatar-picker-mask" @click.self="avatarPickerOpen = false">
+      <section class="avatar-picker" role="dialog" aria-modal="true" aria-label="选择默认头像">
+        <button class="avatar-picker__close" type="button" aria-label="关闭" @click="avatarPickerOpen = false">×</button>
+        <span class="avatar-picker__kicker">EDITORIAL PORTRAITS / 08</span>
+        <h2>选择默认头像</h2>
+        <p>抽象人物画报系列。你也可以上传并裁切自己的照片。</p>
+        <div class="avatar-picker__grid">
+          <button
+            v-for="avatar in defaultAvatars"
+            :key="avatar.key"
+            class="avatar-option"
+            :class="{ active: authStore.user?.avatar_url === avatar.src }"
+            type="button"
+            :disabled="avatarUploading"
+            @click="chooseDefaultAvatar(avatar.key)"
+          >
+            <img :src="avatar.src" alt="画报风格默认头像" />
+          </button>
+        </div>
+        <button class="avatar-picker__upload" type="button" @click="avatarPickerOpen = false; chooseAvatar()">上传并裁切自己的照片</button>
+      </section>
+    </div>
   </AppLayout>
 </template>
 
@@ -305,6 +360,7 @@ onMounted(loadRequests)
   align-items: flex-start;
   gap: 8px;
 }
+.avatar-actions { width: 72px; display: grid; gap: 5px; }
 .avatar-edit {
   width: 72px;
   padding: 5px 0;
@@ -316,6 +372,7 @@ onMounted(loadRequests)
   font-size: 11px;
   cursor: pointer;
 }
+.avatar-edit--upload { border-color: var(--border); }
 .avatar-edit:hover:not(:disabled) {
   color: var(--accent);
   border-color: var(--accent);
@@ -326,6 +383,44 @@ onMounted(loadRequests)
 .avatar-input {
   display: none;
 }
+.avatar-picker-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(22, 22, 19, .66);
+  backdrop-filter: blur(5px);
+}
+.avatar-picker {
+  position: relative;
+  width: min(620px, 100%);
+  padding: 30px;
+  background: #f2efe7;
+  border-top: 5px solid #191917;
+  box-shadow: 14px 14px 0 rgba(202, 161, 55, .7);
+}
+.avatar-picker__close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #191917;
+  font: 400 30px/1 var(--font);
+  cursor: pointer;
+}
+.avatar-picker__kicker { color: var(--accent); font: 700 9px/1 var(--font-ui); letter-spacing: .18em; }
+.avatar-picker h2 { margin: 10px 0 6px; font: 500 34px/1 var(--font); }
+.avatar-picker p { margin: 0 0 22px; color: var(--text-secondary); font: 13px/1.6 var(--font-ui); }
+.avatar-picker__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.avatar-option { padding: 0; overflow: hidden; border: 2px solid transparent; background: #e7e0d4; aspect-ratio: 1; cursor: pointer; }
+.avatar-option:hover, .avatar-option.active { border-color: #191917; transform: translateY(-2px); }
+.avatar-option:disabled { cursor: wait; opacity: .6; }
+.avatar-option img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.avatar-picker__upload { margin-top: 20px; padding: 10px 14px; border: 1px solid #191917; background: #191917; color: #f2efe7; font: 600 12px/1 var(--font-ui); cursor: pointer; }
 .profile-name {
   font-size: 22px;
   font-weight: 700;
@@ -437,5 +532,7 @@ onMounted(loadRequests)
   .profile-actions {
     flex-direction: column;
   }
+  .avatar-picker { padding: 24px 18px; }
+  .avatar-picker__grid { grid-template-columns: repeat(2, 1fr); }
 }
 </style>

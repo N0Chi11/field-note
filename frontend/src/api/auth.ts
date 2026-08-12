@@ -58,6 +58,15 @@ export function uploadAvatar(file: File) {
   })
 }
 
+/** 选择一张系统内置画报头像 */
+export function selectDefaultAvatar(avatar_key: string) {
+  return request<User>({
+    method: 'PUT',
+    url: '/auth/avatar/default',
+    data: { avatar_key }
+  })
+}
+
 /** 修改密码 */
 export function changePassword(old_password: string, new_password: string) {
   return request<void>({

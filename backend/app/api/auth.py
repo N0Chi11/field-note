@@ -1,5 +1,6 @@
 """认证路由：登录、刷新、登出、当前用户、修改密码。"""
 from datetime import datetime, timedelta, timezone
+import hashlib
 
 import os
 
@@ -20,6 +21,7 @@ from app.database import get_db
 from app.models.refresh_token import RefreshToken
 from app.models.user import User
 from app.schemas.auth import (
+    DefaultAvatarRequest,
     LoginRequest,
     PasswordChangeRequest,
     RefreshRequest,
@@ -30,6 +32,14 @@ from app.schemas.common import ApiResponse
 from app.services.upload_service import delete_managed_upload, save_image_upload
 
 settings = get_settings()
+
+DEFAULT_AVATAR_KEYS = frozenset(f"editorial-{index}" for index in range(1, 9))
+
+
+def _default_avatar_url(student_id: str) -> str:
+    """用学号稳定且均匀地分配一个内置头像。"""
+    avatar_index = int(hashlib.sha256(student_id.encode("utf-8")).hexdigest(), 16) % 8 + 1
+    return f"/assets/default-avatars/editorial-{avatar_index}.png"
 
 router = APIRouter(prefix="/auth", tags=["认证"])
 
@@ -94,6 +104,7 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
                     password_hash="",  # 普通用户无密码
                     role="user",
                     is_active=True,
+                    avatar_url=_default_avatar_url(req.student_id.strip()),
                 )
                 db.add(user)
                 db.commit()
@@ -245,8 +256,19 @@ def logout(
 
 
 @router.get("/me", response_model=ApiResponse[UserResponse])
-def get_me(current_user: User = Depends(get_current_user)):
+def get_me(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     """获取当前登录用户信息。"""
+    if not current_user.avatar_url:
+        try:
+            current_user.avatar_url = _default_avatar_url(current_user.student_id)
+            db.commit()
+            db.refresh(current_user)
+        except Exception:
+            db.rollback()
+            raise HTTPException(status_code=500, detail="头像初始化失败")
     user_resp = UserResponse.model_validate(current_user)
     return ApiResponse[UserResponse](data=user_resp, message="ok")
 
@@ -280,6 +302,32 @@ def upload_avatar(
     return ApiResponse[UserResponse](
         data=UserResponse.model_validate(current_user),
         message="头像更新成功",
+    )
+
+
+@router.put("/avatar/default", response_model=ApiResponse[UserResponse])
+def select_default_avatar(
+    req: DefaultAvatarRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """切换为一张系统内置画报头像。"""
+    if req.avatar_key not in DEFAULT_AVATAR_KEYS:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="无效的默认头像")
+
+    previous_avatar = current_user.avatar_url
+    try:
+        current_user.avatar_url = f"/assets/default-avatars/{req.avatar_key}.png"
+        db.commit()
+        db.refresh(current_user)
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="头像更新失败")
+
+    delete_managed_upload(previous_avatar, os.path.join(settings.UPLOAD_DIR, "avatars"))
+    return ApiResponse[UserResponse](
+        data=UserResponse.model_validate(current_user),
+        message="已更换默认头像",
     )
 
 
