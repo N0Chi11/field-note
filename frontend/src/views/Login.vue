@@ -151,7 +151,7 @@ async function handleAdminLogin() {
   pointer-events: none;
 }
 .login-page::after {
-  content: 'NEW MEDIA CENTER  ·  ISSUE 02 / 2026';
+  content: 'NEW MEDIA CENTER  ·  ISSUE 107 / 2026';
   position: absolute;
   left: 5.5vw;
   top: 9vh;

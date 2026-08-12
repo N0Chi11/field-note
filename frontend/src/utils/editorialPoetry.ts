@@ -10,7 +10,7 @@ export interface EditorialPoem {
  * and American poets. They are intentionally set as three-line fragments for
  * the editorial layout and do not reuse a published Chinese translation.
  */
-export const EDITORIAL_POEMS: readonly EditorialPoem[] = [
+const CORE_EDITORIAL_POEMS: readonly EditorialPoem[] = [
   {
     id: 'shakespeare-summer',
     author: 'William Shakespeare',
@@ -311,6 +311,72 @@ export const EDITORIAL_POEMS: readonly EditorialPoem[] = [
     title: 'Stopping by Woods on a Snowy Evening',
     lines: ['我想我知道这片树林属于谁', '他的房子却在村庄里', '他不会看见我停在这里']
   }
+]
+
+/** A longer shelf of public-domain poetry, rendered as original Chinese three-line fragments. */
+const EXTENDED_EDITORIAL_POEMS: readonly EditorialPoem[] = [
+  { id: 'shakespeare-time', author: 'William Shakespeare', title: 'Sonnet 60', lines: ['如浪潮奔向卵石的海岸', '我们的分钟也赶向终点', '每一次更替都在前一刻之后'] },
+  { id: 'spenser-prothalamion', author: 'Edmund Spenser', title: 'Prothalamion', lines: ['甜蜜的泰晤士河，请轻轻流淌', '直到我唱完这一支歌', '愿水面替恋人收藏光亮'] },
+  { id: 'herbert-pulley', author: 'George Herbert', title: 'The Pulley', lines: ['上天把祝福倾进人的杯中', '力量、愉悦与美都在其中', '唯独安歇，被留在天上'] },
+  { id: 'marvell-garden', author: 'Andrew Marvell', title: 'The Garden', lines: ['多么甜美的安息藏在树荫里', '爱与名声都退到远处', '绿色的思想在绿色的阴影中'] },
+  { id: 'pope-essay', author: 'Alexander Pope', title: 'An Essay on Man', lines: ['人的自知何其有限', '他站在世界中央却看不见尺度', '像一只虫，揣测天使的意图'] },
+  { id: 'gray-elegy', author: 'Thomas Gray', title: 'Elegy Written in a Country Churchyard', lines: ['暮色的钟声缓缓敲向白昼', '牛群穿过草地回到栏中', '世界把一切交给我独处'] },
+  { id: 'collins-ode', author: 'William Collins', title: 'Ode to Evening', lines: ['若你愿意，请来吧，温柔的黄昏', '披着褐色的斗篷与灰色的面纱', '让山谷学会宁静'] },
+  { id: 'burns-red-rose', author: 'Robert Burns', title: 'A Red, Red Rose', lines: ['我的爱像六月新开的红玫瑰', '也像甜美合拍的旋律', '直到海水干涸，我仍爱你'] },
+  { id: 'coleridge-frost', author: 'Samuel Taylor Coleridge', title: 'Frost at Midnight', lines: ['霜履行着它秘密的职责', '没有风声，也没有求助', '小屋里只剩沉思醒着'] },
+  { id: 'wordsworth-tintern', author: 'William Wordsworth', title: 'Tintern Abbey', lines: ['这些陡峭的山崖给我深刻的印象', '它们与宁静的天空相连', '在孤独的心里安放更深的思想'] },
+  { id: 'keats-grecian', author: 'John Keats', title: 'Ode on a Grecian Urn', lines: ['你仍是静默的新娘', '寂静与缓慢时间的养子', '你用花叶的故事挑逗我们的思索'] },
+  { id: 'keats-autumn', author: 'John Keats', title: 'To Autumn', lines: ['雾与成熟果实的季节', '你是成熟太阳的亲密朋友', '商量着怎样让藤蔓结满果子'] },
+  { id: 'shelley-ozymandias', author: 'Percy Bysshe Shelley', title: 'Ozymandias', lines: ['沙漠里立着两条残断的石腿', '冷漠的面容仍命令着空无', '四周只剩无边的荒沙'] },
+  { id: 'byron-darkness', author: 'Lord Byron', title: 'Darkness', lines: ['我梦见一个梦，并不全是梦', '明亮的太阳熄灭在虚空里', '星辰盲目地游荡，没有光'] },
+  { id: 'blake-london', author: 'William Blake', title: 'London', lines: ['我走过每一条被标记的街道', '也走过被标记的河岸', '每张面孔都写着无力与悲伤'] },
+  { id: 'tennyson-lotus', author: 'Alfred, Lord Tennyson', title: 'The Lotos-Eaters', lines: ['勇气啊，何必像疲惫的生命般挣扎', '一切都有安歇的时候', '让我们放下漫长的劳作'] },
+  { id: 'arnold-scholar', author: 'Matthew Arnold', title: 'The Scholar-Gipsy', lines: ['仍在等待那一声奇妙的召唤', '等待被知识照亮的瞬间', '你的生命不被庸常的焦虑分割'] },
+  { id: 'hardy-after', author: 'Thomas Hardy', title: 'Afterwards', lines: ['当我离开，若人们问起我', '愿他们说：他看见过暮色', '也看见过刺猬悄悄走出篱笆'] },
+  { id: 'yeats-second-coming', author: 'W. B. Yeats', title: 'The Second Coming', lines: ['旋转着，旋转在不断扩大的螺旋里', '猎鹰再也听不见驯鹰人', '中心无法维系，世界开始松动'] },
+  { id: 'yeats-sailing', author: 'W. B. Yeats', title: 'Sailing to Byzantium', lines: ['那不是适合老人停留的国度', '年轻人彼此拥抱在树间歌唱', '鱼儿、飞鸟与万物都沉醉于诞生'] },
+  { id: 'teasdale-stars', author: 'Sara Teasdale', title: 'Stars', lines: ['孤独的夜晚，我看见星辰升起', '白色而寂静，像陌生的花', '它们不说话，却照亮了远方'] },
+  { id: 'tagore-stream', author: 'Rabindranath Tagore', title: 'Gitanjali', lines: ['同一条生命在我的血液里流动', '也在世界的脉搏中舞蹈', '我因这生命而骄傲'] },
+  { id: 'gibran-joy', author: 'Kahlil Gibran', title: 'The Prophet', lines: ['你的欢笑不曾孤单', '它正是你悲伤卸下面具', '在心的深井里重新升起'] },
+  { id: 'baudelaire-albatross', author: 'Charles Baudelaire', title: 'The Albatross', lines: ['诗人像云端的信天翁', '嘲笑风暴，也嘲笑弓手', '落到甲板上，巨翼反成障碍'] },
+  { id: 'verlaine-song', author: 'Paul Verlaine', title: 'Chanson d’automne', lines: ['秋天的小提琴声', '以单调的音节刺痛心灵', '时钟一响，我便想起往昔'] },
+  { id: 'mallarme-breeze', author: 'Stéphane Mallarmé', title: 'Sea Breeze', lines: ['肉身是悲伤的，我已读遍所有书', '逃吧，逃到更远的地方', '我听见鸟儿在陌生的泡沫间飞翔'] },
+  { id: 'apollinaire-bridge', author: 'Guillaume Apollinaire', title: 'Le Pont Mirabeau', lines: ['米拉波桥下，塞纳河流过', '我们的爱情也必须被记起', '欢乐总在悲伤之后到来'] },
+  { id: 'rilke-panther', author: 'Rainer Maria Rilke', title: 'The Panther', lines: ['它的目光掠过栅栏，已经疲惫', '仿佛世界只剩千万根铁栏', '铁栏之后，再没有风景'] },
+  { id: 'rilke-autumn', author: 'Rainer Maria Rilke', title: 'Autumn Day', lines: ['主啊，是时候了，夏天太长', '把影子投在日晷上', '让最后的果实再饱满两天'] },
+  { id: 'goethe-erlkonig', author: 'Johann Wolfgang von Goethe', title: 'Erlkönig', lines: ['谁在深夜与风中飞驰', '是一位父亲，怀抱着孩子', '他紧紧搂住那颤抖的身躯'] },
+  { id: 'schiller-joy', author: 'Friedrich Schiller', title: 'Ode to Joy', lines: ['欢乐啊，神明美丽的火花', '你来自极乐的乐园', '我们醉意朦胧地踏进你的圣殿'] },
+  { id: 'heine-lorelei', author: 'Heinrich Heine', title: 'Die Lorelei', lines: ['我不知是什么忧伤', '使我的心如此沉重', '一个古老的故事，始终不散'] },
+  { id: 'holderlin-bread-wine', author: 'Friedrich Hölderlin', title: 'Bread and Wine', lines: ['如今朋友，我们为何沉默', '古老的神圣夜晚已降临', '谁能说出众神归来的时刻'] },
+  { id: 'novalis-blue-flower', author: 'Novalis', title: 'Heinrich von Ofterdingen', lines: ['他看见一朵蓝花', '花瓣温柔地转向他', '它仿佛藏着世界的秘密'] },
+  { id: 'pushkin-prophet', author: 'Alexander Pushkin', title: 'The Prophet', lines: ['在荒凉的旷野里，我渴得发苦', '六翼的天使来到我面前', '用轻手触碰我的眼睛'] },
+  { id: 'lermontov-clouds', author: 'Mikhail Lermontov', title: 'Clouds', lines: ['天上的云，永恒的流浪者', '你们像我一样，被放逐在远方', '谁又驱赶着你们离开亲爱的北方'] },
+  { id: 'blok-night', author: 'Alexander Blok', title: 'Night, Street, Lamp, Pharmacy', lines: ['夜晚，街道，灯，药房', '无意义而又昏暗的光', '活上四分之一世纪，一切仍是这样'] },
+  { id: 'machado-walker', author: 'Antonio Machado', title: 'Proverbs and Songs', lines: ['行者，没有路', '路是你走出来的', '回首时，只见海上的航迹'] },
+  { id: 'dante-stars', author: 'Dante Alighieri', title: 'Paradiso', lines: ['那推动太阳与群星的爱', '也推动沉默的夜与海', '使漫长的旅程终于明亮'] },
+  { id: 'petrarch-breeze', author: 'Francesco Petrarca', title: 'Canzoniere 126', lines: ['清澈、甜美、温柔的流水', '她美丽的肢体曾在这里安歇', '草地记得她，风也记得'] },
+  { id: 'leopardi-infinite-2', author: 'Giacomo Leopardi', title: 'L’Infinito', lines: ['我在寂静里听见无尽的空间', '听见超人的沉默与最深的宁静', '心几乎在这浩瀚中失去自己'] },
+  { id: 'sappho-moon', author: 'Sappho', title: 'Fragment 34', lines: ['群星都围着明亮的月亮', '把脸藏进光里', '银色洒满大地'] },
+  { id: 'horace-carpe', author: 'Horace', title: 'Odes', lines: ['不要追问明天会怎样', '把今天握在手中', '对未来少一些信任'] },
+  { id: 'virgil-rural', author: 'Virgil', title: 'Eclogues', lines: ['牧人躺在宽阔山毛榉下', '练习着野林教他的歌', '远处的羊群把下午拉得很长'] },
+  { id: 'ovid-change', author: 'Ovid', title: 'Metamorphoses', lines: ['我想说的，是形体如何改变', '如何进入新的身体', '愿众神引导这首歌直到我的时代'] },
+  { id: 'catullus-sparrow', author: 'Catullus', title: 'Poem 2', lines: ['小麻雀，我爱人的玩伴', '她常把你抱在膝头逗弄', '在悲伤时，把心交给你'] },
+  { id: 'homer-dawn', author: 'Homer', title: 'The Odyssey', lines: ['当黎明露出玫瑰色的手指', '她从海的边缘升起', '新的航程在光里苏醒'] },
+  { id: 'sophocles-wonders', author: 'Sophocles', title: 'Antigone', lines: ['世上奇迹很多', '却没有一种比人更奇妙', '他穿过冬海，驯服大地'] },
+  { id: 'euripides-wind', author: 'Euripides', title: 'Medea', lines: ['愿阿尔戈号从未穿过蓝色的岩石', '愿那松木从未长成船桨', '许多悲剧便不会出航'] },
+  { id: 'pindar-water', author: 'Pindar', title: 'Olympian Odes', lines: ['水是最好的东西', '金子像夜里的火焰闪耀', '而荣耀使人的名字更长久'] },
+  { id: 'rumi-guest-house', author: 'Jalal al-Din Rumi', title: 'The Guest House', lines: ['这一生是一间客栈', '每个清晨都有新的来客', '即使悲伤，也请迎它进门'] },
+  { id: 'hafiz-sun', author: 'Hafez', title: 'Ghazal', lines: ['我愿把太阳的酒斟给你', '让你的心忘记所有阴影', '在清晨的花园里重新明亮'] },
+  { id: 'khayyam-dawn', author: 'Omar Khayyam', title: 'Rubáiyát', lines: ['醒来吧，晨光已把星辰赶走', '东方的猎手捕住了苏丹的塔楼', '金色的套索拉紧了白昼'] },
+  { id: 'kabir-drop', author: 'Kabir', title: 'Songs', lines: ['水滴落进海里，谁能把它找回', '海也落进水滴里，谁能说它太小', '请听见这两件事同时发生'] },
+  { id: 'tagore-cloud', author: 'Rabindranath Tagore', title: 'Stray Birds', lines: ['云把水化作雨献给自己', '花把香气化作风交给世界', '爱让离开也有了形状'] },
+  { id: 'gibran-work', author: 'Kahlil Gibran', title: 'The Prophet', lines: ['工作是让爱显出形体', '若不能带着爱工作', '不如停下，听见自己真正的心'] },
+  { id: 'rumi-reed', author: 'Jalal al-Din Rumi', title: 'Masnavi', lines: ['听这芦笛如何诉说离别', '它从芦苇丛被割下以后', '每一声都在寻找归处'] }
+]
+
+export const EDITORIAL_POEMS: readonly EditorialPoem[] = [
+  ...CORE_EDITORIAL_POEMS,
+  ...EXTENDED_EDITORIAL_POEMS
 ]
 
 const LAST_POEM_KEY = 'equipment-editorial-last-poem'
