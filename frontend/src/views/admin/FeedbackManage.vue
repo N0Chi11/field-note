@@ -71,7 +71,7 @@ onMounted(load)
         </article>
       </div>
       <EmptyState v-else icon="clipboard" text="这里还没有用户反馈" />
-      <div v-if="editing" class="mask" @click.self="editing = null"><section class="dialog"><button class="close" type="button" @click="editing = null">×</button><span>FEEDBACK #{{ editing.id }}</span><h2>处理这条反馈</h2><p>{{ editing.content }}</p><textarea v-model="note" maxlength="1000" placeholder="写下内部备注或处理说明（用户暂时不可见）"></textarea><div class="dialog-actions"><button type="button" :disabled="saving" @click="save('reviewed')">标为已阅读</button><button type="button" class="resolve" :disabled="saving" @click="save('resolved')">标为已处理</button></div></section></div>
+      <div v-if="editing" class="mask" @click.self="editing = null"><section class="dialog"><button class="close" type="button" @click="editing = null">×</button><span>FEEDBACK #{{ editing.id }}</span><h2>处理这条反馈</h2><p>{{ editing.content }}</p><textarea v-model="note" maxlength="1000" placeholder="写下将向用户公开的处理说明"></textarea><div class="dialog-actions"><button type="button" :disabled="saving" @click="save('reviewed')">标为已阅读</button><button type="button" class="resolve" :disabled="saving" @click="save('resolved')">标为已处理</button></div></section></div>
     </main>
   </AppLayout>
 </template>
