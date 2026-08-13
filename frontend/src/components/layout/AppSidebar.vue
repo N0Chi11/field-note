@@ -43,6 +43,7 @@ type SidebarIcon =
   | 'approval'
   | 'return'
   | 'logs'
+  | 'feedback'
   | 'profile'
 
 /** 设备管理组 */
@@ -59,14 +60,16 @@ const adminNav: NavItem[] = [
   { path: '/admin/equipment', icon: 'maintenance', label: '设备维护' },
   { path: '/admin/approval', icon: 'approval', label: '借用审批', badge: 'pending' },
   { path: '/admin/return', icon: 'return', label: '归还确认', badge: 'return_pending' },
-  { path: '/admin/logs', icon: 'logs', label: '操作日志' }
+  { path: '/admin/logs', icon: 'logs', label: '操作日志' },
+  { path: '/admin/feedback', icon: 'feedback', label: '用户反馈' }
 ]
 
 /** 账户组 */
 const accountNav: NavItem[] = [
   { path: '/profile', icon: 'profile', label: '个人中心' },
   { path: '/yearbook', icon: 'profile', label: '借用年鉴' },
-  { path: '/passport', icon: 'logs', label: '创作护照' }
+  { path: '/passport', icon: 'logs', label: '创作护照' },
+  { path: '/feedback', icon: 'feedback', label: '意见反馈' }
 ]
 
 /* ---------------- 待处理数量 badge ---------------- */
@@ -415,6 +418,7 @@ watch(() => route.path, () => loadStats())
 .nav-item__icon--return { background-position: 0 100%; }
 .nav-item__icon--logs { background-position: 50% 100%; }
 .nav-item__icon--profile { background-position: 100% 100%; }
+.nav-item__icon--feedback { background-position: 50% 100%; filter: saturate(1.1) hue-rotate(308deg) contrast(1.06); }
 
 .nav-item.active .nav-item__icon {
   filter: grayscale(1) brightness(0.38) sepia(0.25) contrast(1.25);

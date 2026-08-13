@@ -16,7 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api import admin, auth, borrow, card, equipment, experience, logs
+from app.api import admin, auth, borrow, card, equipment, experience, feedback, logs
 from app.config import get_settings
 from app.database import Base, SessionLocal, engine
 from app.services.resource_state_service import reconcile_resource_states
@@ -81,6 +81,7 @@ app.include_router(borrow.router, prefix=api_prefix)
 app.include_router(admin.router, prefix=api_prefix)
 app.include_router(logs.router, prefix=api_prefix)
 app.include_router(experience.router, prefix=api_prefix)
+app.include_router(feedback.router, prefix=api_prefix)
 
 
 # ===== 根路径 & 健康检查 =====

@@ -4,6 +4,8 @@ import type {
   CalendarEntry,
   EquipmentFavorite,
   CreativePassport,
+  FeedbackItem,
+  FeedbackType,
   YearbookData
 } from '@/types/models'
 
@@ -53,4 +55,8 @@ export function getCreativePassport() {
     method: 'GET',
     url: '/passport'
   })
+}
+
+export function submitFeedback(payload: { feedback_type: FeedbackType; content: string; contact?: string }) {
+  return request<FeedbackItem>({ method: 'POST', url: '/feedback', data: payload })
 }

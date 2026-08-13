@@ -178,6 +178,23 @@ export interface CheckConflictPayload {
   exclude_request_id?: number
 }
 
+export type FeedbackType = 'bug' | 'suggestion' | 'other'
+export type FeedbackStatus = 'open' | 'reviewed' | 'resolved'
+
+export interface FeedbackItem {
+  id: number
+  feedback_type: FeedbackType
+  content: string
+  contact?: string
+  status: FeedbackStatus
+  admin_note?: string
+  user_name: string
+  user_student_id: string
+  handler_name?: string
+  handled_at?: string
+  created_at: string
+}
+
 /** 收藏设备 */
 export interface EquipmentFavorite {
   id: number

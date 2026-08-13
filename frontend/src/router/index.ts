@@ -76,6 +76,12 @@ const routes: RouteRecordRaw[] = [
     meta: { auth: true, title: '创作护照' }
   },
   {
+    path: '/feedback',
+    name: 'Feedback',
+    component: () => import('@/views/Feedback.vue'),
+    meta: { auth: true, title: '意见反馈' }
+  },
+  {
     path: '/admin/equipment',
     name: 'AdminEquipment',
     component: () => import('@/views/admin/EquipmentManage.vue'),
@@ -98,6 +104,12 @@ const routes: RouteRecordRaw[] = [
     name: 'AdminLogs',
     component: () => import('@/views/admin/Logs.vue'),
     meta: { auth: true, admin: true, title: '操作日志' }
+  },
+  {
+    path: '/admin/feedback',
+    name: 'AdminFeedback',
+    component: () => import('@/views/admin/FeedbackManage.vue'),
+    meta: { auth: true, admin: true, title: '用户反馈' }
   },
   {
     path: '/:pathMatch(.*)*',

@@ -27,6 +27,7 @@ export type EditorialIconName =
   | 'add'
   | 'edit'
   | 'maintenance'
+  | 'feedback'
 </script>
 
 <script setup lang="ts">
@@ -79,7 +80,8 @@ const positions: Record<EditorialIconName, IconPosition> = {
   delete: { sheet: 'action', column: 0, row: 3, grid: 4 },
   add: { sheet: 'action', column: 1, row: 3, grid: 4 },
   edit: { sheet: 'action', column: 2, row: 3, grid: 4 },
-  maintenance: { sheet: 'action', column: 3, row: 3, grid: 4 }
+  maintenance: { sheet: 'action', column: 3, row: 3, grid: 4 },
+  feedback: { sheet: 'action', column: 2, row: 3, grid: 4 }
 }
 
 const iconStyle = computed(() => {

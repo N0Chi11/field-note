@@ -1,6 +1,9 @@
 import { request } from './request'
 import type {
   BorrowDetail,
+  FeedbackItem,
+  FeedbackStatus,
+  FeedbackType,
   OperationLog,
   AdminStats,
   PaginatedResponse,
@@ -65,4 +68,16 @@ export function getLogs(params?: LogQuery) {
     url: '/admin/logs/',
     params
   })
+}
+
+export function getFeedback(params?: { status?: FeedbackStatus; feedback_type?: FeedbackType }) {
+  return request<PaginatedResponse<FeedbackItem>>({
+    method: 'GET',
+    url: '/admin/feedback',
+    params
+  })
+}
+
+export function updateFeedback(id: number, data: { status: FeedbackStatus; admin_note?: string }) {
+  return request<FeedbackItem>({ method: 'PUT', url: `/admin/feedback/${id}`, data })
 }
