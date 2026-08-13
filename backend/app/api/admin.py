@@ -23,6 +23,7 @@ from app.database import get_db
 from app.models.borrow_request import BorrowRequest, BorrowStatus
 from app.models.card import Card, CardStatus
 from app.models.equipment import Equipment, EquipmentStatus
+from app.models.feedback import Feedback, FeedbackStatus
 from app.models.user import User
 from app.schemas.borrow import ApproveRequest, BorrowDetail, PickupRequest, RejectRequest
 from app.schemas.common import ApiResponse
@@ -87,6 +88,9 @@ def get_stats(
         return_pending = db.query(BorrowRequest).filter(
             BorrowRequest.status == BorrowStatus.return_pending
         ).count()
+        feedback_open = db.query(Feedback).filter(
+            Feedback.status == FeedbackStatus.open
+        ).count()
     except Exception:
         raise HTTPException(status_code=500, detail="服务器内部错误")
 
@@ -95,6 +99,7 @@ def get_stats(
         "pending": pending,
         "borrowing": borrowing,
         "return_pending": return_pending,
+        "feedback_open": feedback_open,
     }
     return ApiResponse(data=data, message="ok")
 

@@ -31,7 +31,7 @@ interface NavItem {
   icon: SidebarIcon
   label: string
   /** 待办 badge 类型，对应 AdminStats 字段 */
-  badge?: 'pending' | 'return_pending'
+  badge?: 'pending' | 'return_pending' | 'feedback_open'
 }
 
 type SidebarIcon =
@@ -61,7 +61,7 @@ const adminNav: NavItem[] = [
   { path: '/admin/approval', icon: 'approval', label: '借用审批', badge: 'pending' },
   { path: '/admin/return', icon: 'return', label: '归还确认', badge: 'return_pending' },
   { path: '/admin/logs', icon: 'logs', label: '操作日志' },
-  { path: '/admin/feedback', icon: 'feedback', label: '用户反馈' }
+  { path: '/admin/feedback', icon: 'feedback', label: '用户反馈', badge: 'feedback_open' }
 ]
 
 /** 账户组 */
@@ -71,6 +71,9 @@ const accountNav: NavItem[] = [
   { path: '/passport', icon: 'logs', label: '创作护照' },
   { path: '/feedback', icon: 'feedback', label: '意见反馈' }
 ]
+const visibleAccountNav = computed(() =>
+  accountNav.filter(item => item.path !== '/feedback' || !authStore.isAdmin)
+)
 
 /* ---------------- 待处理数量 badge ---------------- */
 const stats = ref<AdminStats | null>(null)
@@ -101,7 +104,9 @@ async function loadAvailabilityNotifications() {
 /** 计算某导航项的待办数量 */
 function badgeCount(item: NavItem): number {
   if (!stats.value || !item.badge) return 0
-  return item.badge === 'pending' ? stats.value.pending : stats.value.return_pending
+  if (item.badge === 'pending') return stats.value.pending
+  if (item.badge === 'return_pending') return stats.value.return_pending
+  return stats.value.feedback_open
 }
 
 /** 当前路由是否激活 */
@@ -216,7 +221,7 @@ watch(() => route.path, () => loadStats())
       <div class="sidebar__group">
         <p class="sidebar__group-label">账户</p>
         <router-link
-          v-for="item in accountNav"
+          v-for="item in visibleAccountNav"
           :key="item.path"
           :to="item.path"
           class="nav-item"
@@ -237,7 +242,7 @@ watch(() => route.path, () => loadStats())
 
     <!-- 底部用户信息 -->
     <div class="sidebar__footer">
-      <div class="sidebar__user">
+      <router-link to="/profile" class="sidebar__user" @click="handleNavClick">
         <div class="sidebar__user-avatar">
           <img
             v-if="user?.avatar_url"
@@ -258,7 +263,7 @@ watch(() => route.path, () => loadStats())
           </div>
           <span class="sidebar__user-id">{{ user?.student_id }}</span>
         </div>
-      </div>
+      </router-link>
       <button class="sidebar__logout" @click="handleLogout(); handleNavClick()">
         <span class="sidebar__logout-icon" aria-hidden="true"></span>
         退出登录
@@ -459,6 +464,14 @@ watch(() => route.path, () => loadStats())
   align-items: center;
   gap: 12px;
   margin-bottom: 12px;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity var(--transition), transform var(--transition);
+}
+.sidebar__user:hover {
+  opacity: .82;
+  transform: translateX(1px);
 }
 
 .sidebar__user-avatar {

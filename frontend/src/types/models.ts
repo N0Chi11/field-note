@@ -127,6 +127,7 @@ export interface AdminStats {
   pending: number
   borrowing: number
   return_pending: number
+  feedback_open: number
 }
 
 /** Token 数据 */

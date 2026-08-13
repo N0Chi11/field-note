@@ -87,7 +87,8 @@ const stats = ref<AdminStats>({
   total: 0,
   pending: 0,
   borrowing: 0,
-  return_pending: 0
+  return_pending: 0,
+  feedback_open: 0
 })
 const records = ref<BorrowDetail[]>([])
 const cards = ref<Card[]>([])
