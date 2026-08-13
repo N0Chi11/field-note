@@ -60,3 +60,7 @@ export function getCreativePassport() {
 export function submitFeedback(payload: { feedback_type: FeedbackType; content: string; contact?: string }) {
   return request<FeedbackItem>({ method: 'POST', url: '/feedback', data: payload })
 }
+
+export function getMyFeedback() {
+  return request<FeedbackItem[]>({ method: 'GET', url: '/feedback/mine' })
+}

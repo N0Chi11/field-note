@@ -110,7 +110,7 @@
                 <span class="label">归还时间</span>
                 <span class="value">{{ fmt(r.return_time) }}</span>
               </div>
-              <div v-if="r.approver_name">
+              <div v-if="isAdmin && r.approver_name && ['approved', 'borrowing', 'return_pending', 'returned'].includes(r.status)">
                 <span class="label">审批人</span>
                 <span class="value">{{ r.approver_name }}</span>
               </div>

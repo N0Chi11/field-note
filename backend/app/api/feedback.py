@@ -61,6 +61,22 @@ def create_feedback(
     return ApiResponse(data=_payload(item), message="感谢反馈，我们会认真查看")
 
 
+@router.get("/feedback/mine", response_model=ApiResponse[list[FeedbackResponse]])
+def list_my_feedback(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """用户查看自己的反馈及管理员公开的处理说明。"""
+    rows = (
+        db.query(Feedback)
+        .options(joinedload(Feedback.user), joinedload(Feedback.handled_by))
+        .filter(Feedback.user_id == current_user.id)
+        .order_by(Feedback.created_at.desc())
+        .all()
+    )
+    return ApiResponse(data=[_payload(item) for item in rows], message="ok")
+
+
 @router.get("/admin/feedback", response_model=ApiResponse[PaginatedResponse[FeedbackResponse]])
 def list_feedback(
     status: str | None = Query(None, pattern="^(open|reviewed|resolved)$"),

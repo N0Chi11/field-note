@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import AppLayout from '@/components/AppLayout.vue'
 import EditorialIcon from '@/components/common/EditorialIcon.vue'
-import { submitFeedback } from '@/api/experience'
+import { getMyFeedback, submitFeedback } from '@/api/experience'
 import { useToastStore } from '@/stores/toast'
-import type { FeedbackType } from '@/types/models'
+import { formatSystemDateTime } from '@/utils/dateTime'
+import type { FeedbackItem, FeedbackType } from '@/types/models'
 
 const toast = useToastStore()
 const submitting = ref(false)
 const feedbackType = ref<FeedbackType>('suggestion')
 const content = ref('')
 const contact = ref('')
+const feedbackHistory = ref<FeedbackItem[]>([])
+const historyLoading = ref(false)
 
 const typeOptions: Array<{ value: FeedbackType; label: string; desc: string }> = [
   { value: 'suggestion', label: '功能建议', desc: '想让系统变得更好用的新想法' },
@@ -37,6 +40,7 @@ async function submit() {
     content.value = ''
     contact.value = ''
     feedbackType.value = 'suggestion'
+    await loadHistory()
     toast.success('反馈已寄出，感谢你的认真表达')
   } catch (e: any) {
     toast.error(errMsg(e))
@@ -44,6 +48,22 @@ async function submit() {
     submitting.value = false
   }
 }
+
+const typeLabel = { bug: '遇到问题', suggestion: '功能建议', other: '其他想说' }
+const statusLabel = { open: '待查看', reviewed: '已阅读', resolved: '已处理' }
+
+async function loadHistory() {
+  historyLoading.value = true
+  try {
+    feedbackHistory.value = await getMyFeedback()
+  } catch (e: any) {
+    toast.error(errMsg(e, '反馈记录加载失败'))
+  } finally {
+    historyLoading.value = false
+  }
+}
+
+onMounted(loadHistory)
 </script>
 
 <template>
@@ -92,6 +112,34 @@ async function submit() {
           </div>
         </div>
       </section>
+
+      <section class="history">
+        <div class="history-head">
+          <div>
+            <span class="section-label">YOUR LETTERS / FOLLOW-UP</span>
+            <h2>我的反馈进度</h2>
+          </div>
+          <button type="button" @click="loadHistory">刷新</button>
+        </div>
+        <p v-if="historyLoading" class="history-empty">正在整理你的留言…</p>
+        <p v-else-if="!feedbackHistory.length" class="history-empty">还没有寄出的反馈；你的第一条建议会从这里开始。</p>
+        <div v-else class="history-list">
+          <article v-for="item in feedbackHistory" :key="item.id" class="history-item">
+            <div class="history-meta">
+              <span>{{ typeLabel[item.feedback_type] }}</span>
+              <b :class="item.status">{{ statusLabel[item.status] }}</b>
+              <time>{{ formatSystemDateTime(item.created_at) }}</time>
+            </div>
+            <p>{{ item.content }}</p>
+            <div v-if="item.admin_note" class="reply">
+              <span>管理员处理说明</span>
+              <strong v-if="item.handler_name">{{ item.handler_name }}</strong>
+              <p>{{ item.admin_note }}</p>
+            </div>
+            <div v-else-if="item.status !== 'open'" class="reply reply--plain">管理员已阅读，正在跟进中。</div>
+          </article>
+        </div>
+      </section>
     </main>
   </AppLayout>
 </template>
@@ -122,5 +170,18 @@ textarea:focus, input:focus { border-color: var(--accent); box-shadow: 3px 3px 0
 .submit { padding: 12px 18px; border: 1px solid var(--text); background: var(--text); color: var(--bg-card); font: 600 13px/1 var(--font-ui); cursor: pointer; white-space: nowrap; }
 .submit:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); }
 .submit:disabled { opacity: .55; cursor: wait; }
+.history { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--text); }
+.history-head { display:flex; align-items:end; justify-content:space-between; gap:18px; }
+.history-head h2 { margin:9px 0 0; font:500 32px/1 var(--font); }
+.history-head button { padding:7px 10px; border:1px solid var(--border); background:transparent; color:var(--text-secondary); font:600 11px/1 var(--font-ui); cursor:pointer; }
+.history-empty { padding:26px 0; color:var(--text-tertiary); font:13px/1.6 var(--font-ui); }
+.history-list { margin-top:18px; border-top:1px solid var(--border); }
+.history-item { padding:18px 0; border-bottom:1px solid var(--border); }
+.history-meta { display:flex; flex-wrap:wrap; align-items:center; gap:8px; color:var(--text-tertiary); font:11px/1 var(--font-ui); }
+.history-meta span,.history-meta b { padding:4px 7px; border:1px solid var(--border); font-weight:600; }
+.history-meta b.open { color:#a65d35; }.history-meta b.reviewed { color:#5f6e9d; }.history-meta b.resolved { color:#3f7c59; }
+.history-meta time { margin-left:auto; }.history-item > p { margin:12px 0 0; color:var(--text); white-space:pre-wrap; font:14px/1.7 var(--font-ui); }
+.reply { margin-top:13px; padding:12px 14px; border-left:3px solid var(--accent); background:var(--bg-input); color:var(--text-secondary); font:12px/1.65 var(--font-ui); }
+.reply span { color:var(--accent); font-weight:700; font-size:10px; letter-spacing:.1em; }.reply strong { margin-left:7px; color:var(--text); font-weight:600; }.reply p { margin:7px 0 0; white-space:pre-wrap; }.reply--plain { border-left-color:var(--border); }
 @media (max-width: 640px) { .feedback-sheet { grid-template-columns: 1fr; } .sheet-mark { display: none; } .form-body { padding: 22px 18px; } .type-grid { grid-template-columns: 1fr; } .type-card { min-height: 66px; } .form-foot { align-items: stretch; flex-direction: column; } .submit { width: 100%; } }
 </style>
