@@ -1,9 +1,12 @@
 
 
 ```markdown
-# 设备借用管理系统 (Equipment Borrowing System)
+# FIELD NOTE
 
-本项目是一套基于 Web 的设备借用与管理系统，旨在简化实验室或办公环境中设备的借用、归还、审批及追踪流程。系统采用现代化的前后端分离架构，支持容器化部署，确保高性能与高可用性。
+> **SUFE 校学联新媒体器材档案**  
+> **SUFE Student Union Media Equipment Archive**
+
+面向上海财经大学校学联新媒体中心的器材借用与创作档案平台。系统管理相机、灯光、收音等设备的借用、审批、归还、维护与反馈，让每一次校园创作都有迹可循。
 
 ## ✨ 功能特性
 
@@ -75,8 +78,8 @@ equipment-system/
 
 1. **克隆项目**
    ```bash
-   git clone https://gitee.com/fanyuxinnn107/equipment-system.git
-   cd equipment-system
+   git clone https://github.com/N0Chi11/field-note.git
+   cd field-note
    ```
 
 2. **启动服务**

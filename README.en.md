@@ -1,6 +1,9 @@
-# Equipment Borrowing System
+# FIELD NOTE
 
-This project is a web-based equipment borrowing and management system designed to simplify the processes of borrowing, returning, approving, and tracking equipment in laboratory or office environments. The system adopts a modern frontend-backend separated architecture, supports containerized deployment, and ensures high performance and availability.
+> **SUFE Student Union Media Equipment Archive**  
+> **SUFE 校学联新媒体器材档案**
+
+An editorial-style equipment lending and creative archive platform for the Shanghai University of Finance and Economics Student Union Media Center. It manages cameras, lighting, audio gear, approvals, returns, maintenance, and feedback—giving every campus production a traceable record.
 
 ## ✨ Features
 
@@ -72,8 +75,8 @@ Ensure [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docke
 
 1. **Clone the Project**
    ```bash
-   git clone https://gitee.com/fanyuxinnn107/equipment-system.git
-   cd equipment-system
+   git clone https://github.com/N0Chi11/field-note.git
+   cd field-note
    ```
 
 2. **Start Services**
