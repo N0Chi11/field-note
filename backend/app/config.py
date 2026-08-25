@@ -39,6 +39,10 @@ class Settings(BaseSettings):
     WECOM_MENTIONED_MOBILES: str = ""
     SYSTEM_PUBLIC_URL: str = ""
 
+    # ===== ServerChan (WeChat service-account notifications) =====
+    # One SendKey per recipient, separated by commas. Keep this only in .env.
+    SERVERCHAN_SENDKEYS: str = ""
+
     # ===== Timezone =====
     TZ: str = "Asia/Shanghai"
 
@@ -70,6 +74,19 @@ class Settings(BaseSettings):
             for mobile in self.WECOM_MENTIONED_MOBILES.split(",")
             if mobile.strip()
         ]
+
+    @property
+    def serverchan_sendkeys_list(self) -> List[str]:
+        """Return unique ServerChan SendKeys without ever exposing them in logs."""
+        if not self.SERVERCHAN_SENDKEYS:
+            return []
+        return list(
+            dict.fromkeys(
+                sendkey.strip()
+                for sendkey in self.SERVERCHAN_SENDKEYS.split(",")
+                if sendkey.strip()
+            )
+        )
 
 
 @lru_cache

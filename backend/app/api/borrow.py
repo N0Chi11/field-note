@@ -32,7 +32,7 @@ from app.schemas.common import ApiResponse
 from app.services.conflict_service import check_conflict, generate_work_order_no
 from app.services.log_service import add_log
 from app.services.upload_service import save_image_upload
-from app.services.wecom_notification_service import notify_new_borrow_request
+from app.services.notification_service import notify_new_borrow_request
 
 settings = get_settings()
 
