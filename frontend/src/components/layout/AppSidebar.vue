@@ -7,6 +7,7 @@ import { getAvailabilityNotifications } from '@/api/experience'
 import { useToastStore } from '@/stores/toast'
 import type { AdminStats } from '@/types/models'
 import EditorialPoem from '@/components/EditorialPoem.vue'
+import { APP_VERSION } from '@/utils/appInfo'
 
 defineProps<{
   mobileOpen?: boolean
@@ -20,9 +21,11 @@ const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const toast = useToastStore()
+const viewportQuery = window.matchMedia('(max-width: 900px)')
+const isMobile = ref(viewportQuery.matches)
+function updateViewport(event: MediaQueryListEvent) { isMobile.value = event.matches }
 
 /** 应用版本号（每次发版更新此处即可） */
-const APP_VERSION = 'v2.3.2'
 
 const user = computed(() => authStore.user)
 
@@ -79,6 +82,8 @@ const visibleAccountNav = computed(() =>
 const stats = ref<AdminStats | null>(null)
 let timer: number | undefined
 let availabilityTimer: number | undefined
+let statsDelay: number | undefined
+let availabilityDelay: number | undefined
 
 /** 拉取管理员统计（待审批 / 待归还确认数量） */
 async function loadStats() {
@@ -139,15 +144,18 @@ const initials = computed(() => {
 const roleLabel = computed(() => (authStore.isAdmin ? '管理员' : '学生'))
 
 onMounted(() => {
+  viewportQuery.addEventListener('change', updateViewport)
   // 延迟 3 秒加载待办统计，避免登录时并发过多请求
-  setTimeout(() => loadStats(), 3000)
-  setTimeout(() => loadAvailabilityNotifications(), 4000)
+  availabilityDelay = window.setTimeout(loadAvailabilityNotifications, 4000)
   // 每 120s 刷新一次待办数量（降低频率）
   timer = window.setInterval(loadStats, 120000)
   availabilityTimer = window.setInterval(loadAvailabilityNotifications, 120000)
 })
 
 onUnmounted(() => {
+  viewportQuery.removeEventListener('change', updateViewport)
+  if (statsDelay) window.clearTimeout(statsDelay)
+  if (availabilityDelay) window.clearTimeout(availabilityDelay)
   if (timer) window.clearInterval(timer)
   if (availabilityTimer) window.clearInterval(availabilityTimer)
 })
@@ -158,17 +166,20 @@ watch(() => authStore.isAdmin, (isAdmin) => {
 }, { immediate: true })
 
 // 路由切换时刷新待办数量（保持 badge 实时）
-watch(() => route.path, () => loadStats())
+watch(() => route.path, () => {
+  if (statsDelay) window.clearTimeout(statsDelay)
+  statsDelay = window.setTimeout(loadStats, 250)
+})
 </script>
 
 <template>
-  <aside class="sidebar" :class="{ 'is-open': mobileOpen }">
+  <aside id="app-sidebar" class="sidebar" :class="{ 'is-open': mobileOpen }" :inert="isMobile && !mobileOpen">
     <!-- 头部 -->
     <div class="sidebar__header">
       <img src="/logo.png" alt="logo" class="sidebar__header-logo" />
       <div class="sidebar__header-text">
-        <h1 class="sidebar__header-title">新媒体中心</h1>
-        <p class="sidebar__header-subtitle">器材设备借用系统</p>
+        <h1 class="sidebar__header-title">FIELD NOTE<span>.</span></h1>
+        <p class="sidebar__header-subtitle">SUFE 校学联新媒体中心</p>
       </div>
     </div>
 
@@ -279,7 +290,8 @@ watch(() => route.path, () => loadStats())
   top: 0;
   left: 0;
   width: 252px;
-  height: 100vh;
+    height: 100vh;
+    height: 100dvh;
   background: #191917;
   border-right: 1px solid rgba(255, 255, 255, 0.14);
   display: flex;
@@ -324,6 +336,7 @@ watch(() => route.path, () => loadStats())
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.sidebar__header-title span { color: #8EA3F2; }
 
 .sidebar__header-subtitle {
   font-family: var(--font-ui);

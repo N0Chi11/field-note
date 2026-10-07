@@ -86,11 +86,13 @@
               :autosize="{ minRows: 3, maxRows: 6 }"
               maxlength="200"
               show-count
-              @update:value="onFieldChange"
+              @update:value="saveDraft"
             />
           </n-form-item>
 
           <!-- 冲突检测结果 -->
+          <p v-if="checkingConflict" class="check-status" role="status">正在核对所选时段…</p>
+          <p v-else-if="conflictCheckFailed" class="check-status" role="status">暂时无法预检时段，提交时系统会再次校验。</p>
           <n-alert
             v-if="conflict && conflict.has_conflict"
             :type="conflict.conflict_type === 'hard' ? 'error' : 'warning'"
@@ -129,11 +131,11 @@
 
           <!-- 操作按钮 -->
           <div class="form-actions">
-            <n-button @click="resetDraft">清空草稿</n-button>
+            <n-button :disabled="submitting" @click="resetDraft">清空草稿</n-button>
             <n-button
               type="primary"
               :loading="submitting"
-              :disabled="conflict?.conflict_type === 'hard'"
+              :disabled="checkingConflict || conflict?.conflict_type === 'hard'"
               @click="handleSubmit"
             >
               提交申请
@@ -146,7 +148,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   NForm,
@@ -175,7 +177,7 @@ const toast = useToastStore()
 const authStore = useAuthStore()
 
 // 草稿持久化 key（与原 HTML 版一致）
-const DRAFT_KEY = 'eb_borrow_draft'
+const DRAFT_KEY = `eb_borrow_draft_${authStore.user?.id ?? 'guest'}`
 
 const formRef = ref<FormInst | null>(null)
 const submitting = ref(false)
@@ -189,7 +191,10 @@ const form = reactive({
 })
 
 const conflict = ref<ConflictResult | null>(null)
+const checkingConflict = ref(false)
+const conflictCheckFailed = ref(false)
 let conflictTimer: ReturnType<typeof setTimeout> | null = null
+let conflictSequence = 0
 
 /** 工单号预览：提交后由后端生成，此处仅展示占位 */
 const workOrderPreview = computed(() => '')
@@ -240,6 +245,7 @@ const rules: FormRules = {
   ],
   reason: {
     required: true,
+    validator: () => form.reason.trim().length > 0 || new Error('请填写借用理由'),
     message: '请填写借用理由',
     trigger: ['input', 'blur']
   }
@@ -247,7 +253,9 @@ const rules: FormRules = {
 
 // 禁用过去日期（与原 HTML 的 min=nowLocalISO 一致）
 function isDateDisabled(ts: number): boolean {
-  return ts < Date.now() - 86400000 // 允许选择今天（减去一天的毫秒数）
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return ts < today.getTime()
 }
 
 // 加载设备列表，按类别分组构造下拉选项（维修中设备禁用）
@@ -293,12 +301,17 @@ function onFieldChange() {
 }
 
 function scheduleConflictCheck() {
+  conflictSequence += 1
+  conflict.value = null
+  conflictCheckFailed.value = false
   if (conflictTimer) clearTimeout(conflictTimer)
+  checkingConflict.value = !!(form.equipmentId && form.borrowTime && form.returnTime && form.returnTime > form.borrowTime)
   conflictTimer = setTimeout(runConflictCheck, 400)
 }
 
 // 冲突检测：设备 + 两个时间齐全且合法时调用
 async function runConflictCheck() {
+  const sequence = conflictSequence
   if (
     !form.equipmentId ||
     !form.borrowTime ||
@@ -306,6 +319,7 @@ async function runConflictCheck() {
     (form.returnTime as number) <= (form.borrowTime as number)
   ) {
     conflict.value = null
+    checkingConflict.value = false
     return
   }
   try {
@@ -314,10 +328,15 @@ async function runConflictCheck() {
       borrow_time: new Date(form.borrowTime).toISOString(),
       return_time: new Date(form.returnTime).toISOString()
     })
-    conflict.value = data
+    if (sequence === conflictSequence) conflict.value = data
   } catch {
     // 冲突检测失败不阻塞填写
-    conflict.value = null
+    if (sequence === conflictSequence) {
+      conflict.value = null
+      conflictCheckFailed.value = true
+    }
+  } finally {
+    if (sequence === conflictSequence) checkingConflict.value = false
   }
 }
 
@@ -356,6 +375,10 @@ function loadDraft() {
 }
 
 function resetDraft() {
+  conflictSequence += 1
+  if (conflictTimer) clearTimeout(conflictTimer)
+  checkingConflict.value = false
+  conflictCheckFailed.value = false
   form.equipmentId = null
   form.borrowTime = null
   form.returnTime = null
@@ -373,6 +396,8 @@ function applyRoutePreset() {
   const equipmentId = Number(route.query.equipment_id)
   if (Number.isInteger(equipmentId) && equipmentId > 0) {
     form.equipmentId = equipmentId
+    saveDraft()
+    scheduleConflictCheck()
   }
 
   const dateValue = typeof route.query.date === 'string' ? route.query.date : ''
@@ -394,23 +419,31 @@ function applyRoutePreset() {
 
 // 提交申请
 async function handleSubmit() {
+  if (submitting.value || checkingConflict.value) return
+  submitting.value = true
   try {
     await formRef.value?.validate()
   } catch {
+    submitting.value = false
     toast.warning('请完整填写表单')
     return
   }
   if (conflict.value?.conflict_type === 'hard') {
+    submitting.value = false
     toast.error('存在强冲突，无法提交')
     return
   }
-  submitting.value = true
+  if ((form.borrowTime as number) <= Date.now()) {
+    submitting.value = false
+    toast.warning('借用时间已经过去，请选择未来的时间')
+    return
+  }
   try {
     await createRequest({
       equipment_id: form.equipmentId as number,
       borrow_time: new Date(form.borrowTime as number).toISOString(),
       return_time: new Date(form.returnTime as number).toISOString(),
-      reason: form.reason
+      reason: form.reason.trim()
     })
     try {
       sessionStorage.removeItem(DRAFT_KEY)
@@ -438,6 +471,11 @@ onMounted(() => {
   loadEquipment()
   loadDraft()
   applyRoutePreset()
+})
+
+onUnmounted(() => {
+  conflictSequence += 1
+  if (conflictTimer) clearTimeout(conflictTimer)
 })
 </script>
 
@@ -503,6 +541,7 @@ onMounted(() => {
 .conflict-alert {
   margin-bottom: 16px;
 }
+.check-status { margin-bottom: 16px; color: var(--text-secondary); font: 12px/1.7 var(--font-ui); }
 .form-actions {
   display: flex;
   justify-content: flex-end;

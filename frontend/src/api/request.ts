@@ -37,7 +37,9 @@ function flushPendingQueue(token: string) {
 
 /** 清空挂起队列并拒绝 */
 function clearPendingQueue() {
-  pendingQueue = []
+  // Settle every queued promise before redirecting; dropping callbacks leaves
+  // pending page requests stuck forever when refreshing the session fails.
+  flushPendingQueue('')
 }
 
 /** 读取 token */
@@ -148,7 +150,7 @@ service.interceptors.response.use(
         return new Promise((resolve, reject) => {
           pendingQueue.push((token: string) => {
             if (!token) {
-              reject(new Error('refresh failed'))
+              reject(new Error('REDIRECT_TO_LOGIN'))
               return
             }
             if (originalConfig.headers) {
@@ -179,11 +181,12 @@ service.interceptors.response.use(
 
     // 其它错误（包括登录失败的 401）
     const respData = error.response?.data
-    const message =
-      respData?.detail ||
-      respData?.message ||
-      error.message ||
-      '网络异常，请稍后再试'
+    const detail = respData?.detail
+    const message = typeof detail === 'string'
+      ? detail
+      : Array.isArray(detail)
+        ? detail.map(item => item.msg || '字段格式不正确').join('；')
+        : detail?.message || respData?.message || error.message || '网络异常，请稍后再试'
     const wrapped = new Error(message)
     ;(wrapped as any).status = error.response?.status
     ;(wrapped as any).data = respData

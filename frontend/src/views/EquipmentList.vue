@@ -22,8 +22,14 @@ const timelineEquipmentId = ref<number | null>(null)
 const loading = ref(false)
 const equipmentList = ref<Equipment[]>([])
 const favoriteIds = ref<Set<number>>(new Set())
-const favoriteLoadingId = ref<number | null>(null)
+const favoriteLoadingIds = ref<Set<number>>(new Set())
 const activeCategory = ref('all')
+const keyword = ref('')
+const activeStatus = ref('all')
+const loadError = ref(false)
+const imageFailures = ref<Set<number>>(new Set())
+const availableCount = computed(() => equipmentList.value.filter(e => e.status === 'available').length)
+const visibleCount = computed(() => visibleGroups.value.reduce((total, group) => total + group.items.length, 0))
 
 /** 类别图标映射（与原 HTML 设计一致） */
 const CATEGORY_ICONS: Record<string, EditorialIconName> = {
@@ -95,20 +101,33 @@ const categoryTabs = computed(() => [
 
 /** 当前可见的分组 */
 const visibleGroups = computed(() => {
-  if (activeCategory.value === 'all') return groupedByCategory.value
-  if (activeCategory.value === 'favorites') {
-    const items = equipmentList.value.filter((e) => favoriteIds.value.has(e.id))
-    return items.length
-      ? [{ category: '我的收藏', icon: 'favorite' as const, items, count: items.length }]
-      : []
-  }
-  return groupedByCategory.value.filter(
-    (g) => g.category === activeCategory.value
-  )
+  const query = keyword.value.trim().toLocaleLowerCase()
+  return groupedByCategory.value
+    .filter(group => ['all', 'favorites'].includes(activeCategory.value) || group.category === activeCategory.value)
+    .map(group => {
+      const items = group.items.filter(e =>
+        (activeCategory.value !== 'favorites' || favoriteIds.value.has(e.id)) &&
+        (activeStatus.value === 'all' || e.status === activeStatus.value) &&
+        (!query || [e.name, e.code, e.category, e.notes || ''].some(value => value.toLocaleLowerCase().includes(query)))
+      )
+      return { ...group, items, count: items.length }
+    })
+    .filter(group => group.count > 0)
 })
+
+function resetFilters() {
+  keyword.value = ''
+  activeCategory.value = 'all'
+  activeStatus.value = 'all'
+}
+
+function markImageFailed(id: number) {
+  imageFailures.value = new Set([...imageFailures.value, id])
+}
 
 function loadEquipment() {
   loading.value = true
+  loadError.value = false
   Promise.allSettled([getEquipment(), getFavorites()])
     .then(([equipmentResult, favoriteResult]) => {
       if (equipmentResult.status === 'rejected') throw equipmentResult.reason
@@ -121,6 +140,7 @@ function loadEquipment() {
       }
     })
     .catch((e: any) => {
+      loadError.value = true
       toast.error(errMsg(e, '加载设备列表失败'))
       equipmentList.value = []
     })
@@ -134,28 +154,33 @@ function isFavorite(equipmentId: number): boolean {
 }
 
 async function toggleFavorite(e: Equipment) {
-  if (favoriteLoadingId.value === e.id) return
-  favoriteLoadingId.value = e.id
+  if (favoriteLoadingIds.value.has(e.id)) return
+  favoriteLoadingIds.value = new Set([...favoriteLoadingIds.value, e.id])
   try {
-    const next = new Set(favoriteIds.value)
-    if (next.has(e.id)) {
+    const wasFavorite = favoriteIds.value.has(e.id)
+    if (wasFavorite) {
       await removeFavorite(e.id)
-      next.delete(e.id)
       toast.success(`已取消收藏 ${e.name}`)
     } else {
       await addFavorite(e.id)
-      next.add(e.id)
       toast.success(
         e.status === 'available'
           ? `已收藏 ${e.name}`
           : `已收藏，${e.name} 恢复可借时会提醒你`
       )
     }
+    // Merge into the latest state, so concurrent requests for different items
+    // never overwrite another successful favorite operation.
+    const next = new Set(favoriteIds.value)
+    if (wasFavorite) next.delete(e.id)
+    else next.add(e.id)
     favoriteIds.value = next
   } catch (error: any) {
     toast.error(errMsg(error, '收藏操作失败'))
   } finally {
-    favoriteLoadingId.value = null
+    const next = new Set(favoriteLoadingIds.value)
+    next.delete(e.id)
+    favoriteLoadingIds.value = next
   }
 }
 
@@ -181,10 +206,34 @@ onMounted(loadEquipment)
     <div class="page">
       <!-- 页面标题 -->
       <div class="page-header">
-        <h1 class="page-title">器材设备清单</h1>
-        <p class="page-desc">
-          所有可借用设备均已编号并附有照片，未在清单中的物品不可借用
-        </p>
+        <div class="catalog-heading">
+          <span class="catalog-kicker">FIELD NOTE / 器材档案</span>
+          <h1 class="page-title">为下一次<br />创作，选好器材。</h1>
+          <p class="page-desc">SUFE 校学联新媒体中心 · 从一支镜头，到一束光。</p>
+        </div>
+        <div class="catalog-index">
+          <span class="catalog-index__label">馆藏状态 / LIVE INVENTORY</span>
+          <div class="catalog-index__row"><span>器材总数</span><strong>{{ loading ? '—' : equipmentList.length }}</strong></div>
+          <div class="catalog-index__row"><span>当前可借</span><strong class="available-number">{{ loading ? '—' : availableCount }}</strong></div>
+          <router-link to="/calendar" class="catalog-calendar">查看预约日历 <span aria-hidden="true">↗</span></router-link>
+          <p>可借状态表示器材已在库，预约时段请以时间轴为准。</p>
+        </div>
+      </div>
+
+      <div class="catalog-tools">
+        <label class="catalog-search">
+          <EditorialIcon name="catalog" :size="24" />
+          <input v-model="keyword" type="search" aria-label="搜索器材" placeholder="按名称、编号或类别查找器材" />
+        </label>
+        <label class="catalog-status">状态
+          <select v-model="activeStatus" aria-label="筛选器材状态">
+            <option value="all">全部状态</option>
+            <option value="available">可借用</option>
+            <option value="borrowed">借用中</option>
+            <option value="repair">维修中</option>
+          </select>
+        </label>
+        <span class="catalog-results" role="status" aria-live="polite">{{ visibleCount }} 件匹配</span>
       </div>
 
       <!-- 类别筛选 -->
@@ -201,6 +250,10 @@ onMounted(loadEquipment)
       </div>
 
       <!-- 空状态 -->
+      <div v-else-if="loadError" class="catalog-empty">
+        <EmptyState icon="warning" text="器材清单加载失败" sub-text="检查网络连接后重新加载" />
+        <button type="button" class="reset-btn" @click="loadEquipment">重新加载</button>
+      </div>
       <EmptyState
         v-else-if="!equipmentList.length"
         icon="equipment"
@@ -210,12 +263,14 @@ onMounted(loadEquipment)
 
       <!-- 分组设备列表 -->
       <div v-else class="categories">
-        <EmptyState
-          v-if="activeCategory === 'favorites' && !visibleGroups.length"
-          icon="favorite"
-          text="还没有收藏设备"
-          sub-text="点击设备图片左上角的「收藏」，设备恢复可借时会通知你"
-        />
+        <div v-if="!visibleGroups.length" class="catalog-empty">
+          <EmptyState
+            :icon="activeCategory === 'favorites' ? 'favorite' : 'equipment'"
+            :text="activeCategory === 'favorites' && !favoriteIds.size ? '还没有收藏设备' : '没有找到匹配的器材'"
+            sub-text="试试其他关键词或筛选条件；点击器材上的「收藏」可加入收藏清单"
+          />
+          <button type="button" class="reset-btn" @click="resetFilters">查看全部器材</button>
+        </div>
         <section
           v-for="group in visibleGroups"
           :key="group.category"
@@ -238,7 +293,7 @@ onMounted(loadEquipment)
             >
               <!-- 图片区域 -->
               <div class="card-image">
-                <img v-if="e.image_url" :src="e.image_url" :alt="e.name" />
+                <img v-if="e.image_url && !imageFailures.has(e.id)" :src="e.image_url" :alt="e.name" loading="lazy" decoding="async" @error="markImageFailed(e.id)" />
                 <div v-else class="image-placeholder">
                   <EditorialIcon class="placeholder-icon" :name="categoryIcon(e.category)" :size="82" />
                 </div>
@@ -250,7 +305,8 @@ onMounted(loadEquipment)
                   type="button"
                   class="favorite-btn"
                   :class="{ active: isFavorite(e.id) }"
-                  :disabled="favoriteLoadingId === e.id"
+                  :disabled="favoriteLoadingIds.has(e.id)"
+                  :aria-pressed="isFavorite(e.id)"
                   :aria-label="isFavorite(e.id) ? `取消收藏${e.name}` : `收藏${e.name}`"
                   @click.stop="toggleFavorite(e)"
                 >
@@ -272,8 +328,10 @@ onMounted(loadEquipment)
               <!-- 操作区 -->
               <div class="card-footer">
                 <button class="timeline-btn" @click="viewTimeline(e)">
-                  查看时间轴
+                  查看占用时间
                 </button>
+                <router-link v-if="e.status !== 'repair'" :to="{ path: '/borrow', query: { equipment_id: e.id } }" class="borrow-link" :aria-label="`预约借用${e.name}`">预约借用 <span aria-hidden="true">↗</span></router-link>
+                <span v-else class="borrow-unavailable">维修中，暂不可预约</span>
               </div>
             </article>
           </div>
@@ -298,17 +356,17 @@ onMounted(loadEquipment)
 /* ---------- 页面标题 ---------- */
 .page-header {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.6fr);
+  grid-template-columns: minmax(0, 1fr) 260px;
   align-items: end;
   gap: 32px;
   margin-bottom: 26px;
-  padding: 22px 0 34px;
+  padding: 28px 0 36px;
   border-top: 1px solid var(--text);
   border-bottom: 1px solid var(--text);
 }
-.page-header::before {
-  content: 'NEW MEDIA CENTER / EQUIPMENT CATALOGUE';
-  grid-column: 1 / -1;
+.catalog-kicker {
+  display: block;
+  margin-bottom: 26px;
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
@@ -316,21 +374,20 @@ onMounted(loadEquipment)
   color: var(--accent);
 }
 .page-title {
-  font-size: clamp(48px, 6vw, 82px);
+  font-size: clamp(40px, 4.3vw, 64px);
   font-weight: 500;
-  line-height: 0.92;
+  line-height: 1.18;
   margin: 0;
   color: var(--text);
   font-family: var(--font);
-  letter-spacing: -0.055em;
+  letter-spacing: -0.045em;
 }
 .page-desc {
   font-size: 13px;
   color: var(--text-secondary);
-  margin: 0;
+  margin: 22px 0 0;
   line-height: 1.8;
-  max-width: 390px;
-  justify-self: end;
+  max-width: 520px;
 }
 
 /* ---------- 类别筛选 ---------- */
@@ -396,8 +453,8 @@ onMounted(loadEquipment)
   animation: cardFadeIn 0.5s ease both;
 }
 .equipment-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 6px 7px 0 #1A1A18;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(26,26,24,.07);
   border-color: var(--text);
 }
 
@@ -412,12 +469,13 @@ onMounted(loadEquipment)
 .card-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  filter: saturate(0.72) contrast(1.04);
+  object-fit: contain;
+  padding: 16px;
+  filter: saturate(0.9);
   transition: transform 0.5s ease, filter 0.5s ease;
 }
 .equipment-card:hover .card-image img {
-  transform: scale(1.05);
+  transform: scale(1.035);
   filter: saturate(1) contrast(1.02);
 }
 .image-placeholder {
@@ -426,10 +484,18 @@ onMounted(loadEquipment)
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at 35% 30%, rgba(36, 63, 160, 0.2), transparent 34%), linear-gradient(145deg, #D8D4C8, #F4F1E9);
+  position: relative;
+  background: #E8E4DA;
+}
+.image-placeholder::after {
+  content: '';
+  position: absolute;
+  inset: 22px;
+  border: 1px solid rgba(26, 26, 24, .12);
+  pointer-events: none;
 }
 .placeholder-icon {
-  opacity: 0.5;
+  opacity: 0.78;
   filter: saturate(.72) contrast(1.05);
 }
 
@@ -537,16 +603,20 @@ onMounted(loadEquipment)
 
 /* ---------- 卡片操作区 ---------- */
 .card-footer {
-  padding: 10px 18px 18px;
+  padding: 12px 18px 18px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid var(--border-light);
 }
 .timeline-btn {
   width: 100%;
   height: 38px;
   border: 1px solid var(--border);
   border-radius: 1px;
-  background: var(--text);
-  color: var(--bg-card);
-  color: var(--text-secondary);
+  background: transparent;
+  color: var(--text);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -581,18 +651,51 @@ onMounted(loadEquipment)
     justify-self: start;
   }
   .equipment-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: 1fr;
     gap: 12px;
   }
   .page-title {
-    font-size: 46px;
+    font-size: 38px;
   }
   .category-name {
-    font-size: 15px;
+    font-size: 23px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .favorite-btn.active { animation: none; }
+}
+
+.catalog-index { border-left: 1px solid var(--border); padding-left: 26px; font-family: var(--font-ui); }
+.catalog-index__label { color: var(--accent); font-size: 9px; letter-spacing: .12em; }
+.catalog-index__row { display: flex; align-items: baseline; justify-content: space-between; padding-top: 12px; }
+.catalog-index__row span { color: var(--text-secondary); font-size: 12px; }
+.catalog-index__row strong { font: 400 42px/1.1 var(--font); font-variant-numeric: tabular-nums; }
+.available-number { color: var(--success); }
+.catalog-calendar { display: flex; justify-content: space-between; border-top: 1px solid var(--border); margin-top: 14px; padding-top: 12px; font-size: 12px; }
+.catalog-index p { font-size: 11px; color: var(--text-secondary); margin-top: 12px; line-height: 1.7; }
+.catalog-tools { display: flex; gap: 16px; align-items: center; margin-bottom: 18px; font-family: var(--font-ui); }
+.catalog-search { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; border-bottom: 1px solid var(--text); padding: 10px 0; }
+.catalog-search input { min-width: 0; width: 100%; background: transparent; border: none; padding: 4px; color: var(--text); }
+.catalog-search input:focus-visible { outline-offset: 3px; }
+.catalog-status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+.catalog-status select { padding: 10px 24px 10px 12px; background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
+.catalog-results { font: 11px var(--font-data); color: var(--text-secondary); white-space: nowrap; }
+.catalog-empty { text-align: center; padding: 30px 0; }
+.reset-btn { padding: 10px 18px; border: 1px solid var(--text); color: var(--text); background: transparent; }
+.borrow-link { color: var(--accent); font: 600 12px var(--font-ui); white-space: nowrap; }
+.borrow-link span { margin-left: 4px; }
+.borrow-unavailable { font: 11px var(--font-ui); color: var(--text-secondary); }
+@media (max-width: 1100px) { .page-header { grid-template-columns: minmax(0, 1fr) 210px; gap: 24px; } }
+@media (max-width: 640px) {
+  .page-header { grid-template-columns: 1fr; gap: 26px; padding-top: 20px; }
+  .catalog-index { border-left: none; border-top: 1px solid var(--border); padding: 16px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
+  .catalog-index__label, .catalog-calendar, .catalog-index p { grid-column: 1 / -1; }
+  .catalog-index__row { padding-top: 0; }
+  .catalog-index__row strong { font-size: 32px; }
+  .catalog-calendar, .catalog-index p { margin-top: 0; }
+  .catalog-tools { flex-wrap: wrap; gap: 12px; }
+  .catalog-search { flex-basis: 100%; }
+  .catalog-results { margin-left: auto; }
 }
 </style>

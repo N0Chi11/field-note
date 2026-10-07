@@ -23,12 +23,14 @@ function selectTab(key: string) {
 </script>
 
 <template>
-  <div class="filter-tabs">
+  <div class="filter-tabs" role="group" aria-label="筛选分类">
     <button
       v-for="tab in tabs"
       :key="tab.key"
+      type="button"
       class="filter-tabs__item"
       :class="{ active: modelValue === tab.key }"
+      :aria-pressed="modelValue === tab.key"
       @click="selectTab(tab.key)"
     >
       <EditorialIcon v-if="tab.icon" class="filter-tabs__icon" :name="tab.icon" :size="24" />

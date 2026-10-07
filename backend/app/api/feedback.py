@@ -113,7 +113,7 @@ def update_feedback(
         item.status = FeedbackStatus(req.status)
         item.admin_note = req.admin_note.strip() if req.admin_note else None
         item.handled_by_id = current_user.id
-        item.handled_at = datetime.now()
+        item.handled_at = datetime.utcnow()
         add_log(db, current_user.id, "处理反馈", f"处理反馈 #{feedback_id}", "feedback", feedback_id)
         db.commit()
         item = db.query(Feedback).options(joinedload(Feedback.user), joinedload(Feedback.handled_by)).filter(Feedback.id == feedback_id).one()

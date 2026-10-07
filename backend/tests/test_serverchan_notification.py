@@ -1,10 +1,14 @@
 from datetime import datetime
 from unittest import TestCase
-from urllib.parse import parse_qs
+from types import SimpleNamespace
+from unittest.mock import patch
+from urllib.error import HTTPError
 
 from app.services.serverchan_notification_service import (
     build_borrow_notification_message,
     serverchan_endpoint,
+    send_test_notification,
+    _send,
 )
 
 
@@ -19,6 +23,26 @@ class ServerChanNotificationTests(TestCase):
             "https://12345.push.ft07.com/send/sctp12345tabcdefgh.send",
         )
         self.assertIsNone(serverchan_endpoint("not a valid key"))
+        self.assertIsNone(serverchan_endpoint("sctpbrokenkey"))
+        self.assertIsNone(serverchan_endpoint("unexpectedkey"))
+
+    def test_test_notification_attempts_all_recipients_even_after_success(self):
+        keys = ["SCTrecipient1", "SCTrecipient2", "SCTrecipient3", "SCTrecipient4"]
+        settings = SimpleNamespace(serverchan_sendkeys_list=keys)
+        with patch("app.config.get_settings", return_value=settings), patch(
+            "app.services.serverchan_notification_service._send",
+            side_effect=[True, False, True, True],
+        ) as send:
+            self.assertFalse(send_test_notification())
+            self.assertEqual([call.args[0] for call in send.call_args_list], keys)
+
+    def test_error_logs_do_not_expose_sendkey(self):
+        key = "SCTsecretMustNotAppear"
+        error = HTTPError(serverchan_endpoint(key), 503, "unavailable", {}, None)
+        with patch("app.services.serverchan_notification_service.urlopen", side_effect=error):
+            with self.assertLogs("app.services.serverchan_notification_service", level="WARNING") as logs:
+                self.assertFalse(_send(key, {"title": "Test", "desp": "Test"}))
+        self.assertNotIn(key, "\n".join(logs.output))
 
     def test_message_is_markdown_and_omits_student_id(self):
         message = build_borrow_notification_message(

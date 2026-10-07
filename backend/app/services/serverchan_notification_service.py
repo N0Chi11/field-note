@@ -32,7 +32,9 @@ def serverchan_endpoint(sendkey: str) -> Optional[str]:
     serverchan3 = _SERVERCHAN3_PATTERN.fullmatch(key)
     if serverchan3:
         return f"https://{serverchan3.group(1)}.push.ft07.com/send/{key}.send"
-    return f"https://sctapi.ftqq.com/{key}.send"
+    if key.startswith("SCT"):
+        return f"https://sctapi.ftqq.com/{key}.send"
+    return None
 
 
 def build_borrow_notification_message(
@@ -85,12 +87,13 @@ def _send(sendkey: str, message: Dict[str, str]) -> bool:
     try:
         with urlopen(request, timeout=5) as response:
             result: Dict[str, Any] = json.loads(response.read().decode("utf-8"))
-        if result.get("code") != 0:
-            logger.warning("ServerChan notification rejected: code=%s", result.get("code"))
+        if not isinstance(result, dict) or result.get("code") != 0:
+            logger.warning("ServerChan notification rejected or returned an invalid response")
             return False
         return True
     except (HTTPError, URLError, TimeoutError, json.JSONDecodeError, OSError) as exc:
-        logger.warning("ServerChan notification failed: %s", exc)
+        # HTTPError embeds the request URL, which contains the secret SendKey.
+        logger.warning("ServerChan notification failed: %s", type(exc).__name__)
         return False
 
 
@@ -130,12 +133,12 @@ def notify_new_borrow_request(
     )
     success_count = sum(_send(sendkey, message) for sendkey in sendkeys)
     logger.info(
-        "ServerChan notification complete for work order %s: %s/%s delivered",
+        "ServerChan notification complete for work order %s: %s/%s accepted",
         work_order_no,
         success_count,
         len(settings.serverchan_sendkeys_list),
     )
-    return success_count > 0
+    return success_count == len(settings.serverchan_sendkeys_list)
 
 
 def send_test_notification() -> bool:
@@ -150,4 +153,7 @@ def send_test_notification() -> bool:
         "title": "FIELD NOTE｜微信通知测试",
         "desp": "如果你看到这条消息，FIELD NOTE 的微信审批提醒已经连通。",
     }
-    return any(_send(sendkey, message) for sendkey in sendkeys)
+    # Do not use any(generator): it stops after the first successful recipient.
+    results = [_send(sendkey, message) for sendkey in sendkeys]
+    logger.info("ServerChan test complete: %s/%s accepted", sum(results), len(results))
+    return all(results)

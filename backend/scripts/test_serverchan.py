@@ -5,6 +5,7 @@ from app.services.serverchan_notification_service import send_test_notification
 
 if __name__ == "__main__":
     if send_test_notification():
-        print("ServerChan test message sent; please check WeChat service notifications.")
+        print("所有接收人的测试请求已被 Server酱接受，请逐一检查微信实际收信情况。")
     else:
-        print("ServerChan test was not delivered; check SERVERCHAN_SENDKEYS and backend logs.")
+        print("至少一位接收人的测试未成功，请检查 SERVERCHAN_SENDKEYS 和后端日志。")
+        raise SystemExit(1)

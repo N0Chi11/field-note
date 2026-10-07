@@ -5,10 +5,10 @@
       <div class="login-logo">
         <img src="/logo.png" alt="logo" class="login-logo-img" />
         <div class="login-logo-text">
-          <span class="login-logo-line1">新媒体中心</span>
-          <span class="login-logo-line2">器材设备借用系统</span>
+          <span class="login-logo-line1">FIELD NOTE<span class="brand-dot">.</span></span>
+          <span class="login-logo-line2">SUFE 校学联新媒体中心</span>
         </div>
-        <div class="login-logo-sub">Equipment Borrow System</div>
+        <div class="login-logo-sub">器材档案 · 创作现场</div>
       </div>
 
       <EditorialPoem variant="login" />
@@ -22,12 +22,12 @@
       <!-- 用户登录表单 -->
       <form v-if="loginTab === 'user'" @submit.prevent="handleUserLogin">
         <div class="form-group">
-          <label>姓名</label>
-          <input v-model="userForm.name" type="text" placeholder="请输入真实姓名" required autocomplete="off" />
+          <label for="user-name">姓名</label>
+          <input id="user-name" v-model="userForm.name" type="text" placeholder="请输入真实姓名" required autocomplete="name" />
         </div>
         <div class="form-group">
-          <label>学号（账号）</label>
-          <input v-model="userForm.studentId" type="text" placeholder="请输入您的学号" required autocomplete="off" pattern="202[0-9]{7}" maxlength="10" />
+          <label for="student-id">学号（账号）</label>
+          <input id="student-id" v-model="userForm.studentId" type="text" inputmode="numeric" placeholder="请输入您的学号" required autocomplete="username" pattern="202[0-9]{7}" maxlength="10" />
         </div>
         <button type="submit" class="btn btn-primary btn-block" :disabled="loading">
           {{ loading ? '登录中...' : '登录' }}
@@ -37,12 +37,12 @@
       <!-- 管理员登录表单 -->
       <form v-else @submit.prevent="handleAdminLogin">
         <div class="form-group">
-          <label>管理员姓名</label>
-          <input v-model="adminForm.name" type="text" placeholder="请输入管理员姓名" required autocomplete="off" />
+          <label for="admin-name">管理员姓名</label>
+          <input id="admin-name" v-model="adminForm.name" type="text" placeholder="请输入管理员姓名" required autocomplete="username" />
         </div>
         <div class="form-group">
-          <label>密码</label>
-          <input v-model="adminForm.password" type="password" placeholder="请输入管理员密码" required autocomplete="off" />
+          <label for="admin-password">密码</label>
+          <input id="admin-password" v-model="adminForm.password" type="password" placeholder="请输入管理员密码" required autocomplete="current-password" />
         </div>
         <button type="submit" class="btn btn-primary btn-block" :disabled="loading">
           {{ loading ? '登录中...' : '管理员登录' }}
@@ -60,12 +60,13 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 import EditorialPoem from '@/components/EditorialPoem.vue'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const toast = useToastStore()
 
@@ -74,6 +75,12 @@ const loading = ref(false)
 
 const userForm = reactive({ name: '', studentId: '' })
 const adminForm = reactive({ name: '', password: '' })
+
+function destination(fallback: string) {
+  const redirect = route.query.redirect
+  return typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//') && !redirect.startsWith('/login')
+    ? redirect : fallback
+}
 
 function errMsg(e: any): string {
   // 过滤掉内部跳转标记
@@ -87,6 +94,7 @@ function errMsg(e: any): string {
 }
 
 async function handleUserLogin() {
+  if (loading.value) return
   if (!userForm.name.trim() || !userForm.studentId.trim()) {
     toast.warning('请填写姓名和学号')
     return
@@ -95,7 +103,7 @@ async function handleUserLogin() {
   try {
     await authStore.loginUser(userForm.name.trim(), userForm.studentId.trim())
     toast.success('登录成功')
-    await router.push('/equipment')
+    await router.push(destination('/equipment'))
   } catch (e) {
     toast.error(errMsg(e))
   } finally {
@@ -104,6 +112,7 @@ async function handleUserLogin() {
 }
 
 async function handleAdminLogin() {
+  if (loading.value) return
   if (!adminForm.name.trim() || !adminForm.password) {
     toast.warning('请填写管理员姓名和密码')
     return
@@ -112,7 +121,7 @@ async function handleAdminLogin() {
   try {
     await authStore.loginAdmin(adminForm.name.trim(), adminForm.password)
     toast.success('管理员登录成功')
-    await router.push('/admin/approval')
+    await router.push(destination('/admin/approval'))
   } catch (e) {
     toast.error(errMsg(e))
   } finally {
@@ -136,7 +145,7 @@ async function handleAdminLogin() {
 }
 
 .login-page::before {
-  content: 'EQUIPMENT\A ARCHIVE';
+  content: 'FIELD\A NOTE.';
   white-space: pre;
   position: absolute;
   left: 5vw;
@@ -146,12 +155,12 @@ async function handleAdminLogin() {
   font-size: clamp(72px, 10vw, 156px);
   font-weight: 500;
   letter-spacing: -0.075em;
-  line-height: 0.72;
+  line-height: 0.86;
   color: #F2EFE7;
   pointer-events: none;
 }
 .login-page::after {
-  content: 'NEW MEDIA CENTER  ·  ISSUE 107 / 2026';
+  content: 'SUFE STUDENT UNION MEDIA CENTER  ·  ISSUE 107';
   position: absolute;
   left: 5.5vw;
   top: 9vh;
@@ -199,7 +208,7 @@ async function handleAdminLogin() {
 
 .login-logo-line1 {
   font-family: var(--font);
-  font-size: 34px;
+  font-size: 38px;
   font-weight: 500;
   color: var(--text);
   letter-spacing: -0.3px;
@@ -218,6 +227,7 @@ async function handleAdminLogin() {
   color: var(--text-secondary);
   margin-top: 4px;
 }
+.brand-dot { color: var(--accent); }
 
 .login-tabs {
   display: flex;
@@ -331,7 +341,7 @@ async function handleAdminLogin() {
 }
 
 .login-footer {
-  position: fixed;
+  position: absolute;
   bottom: 12px;
   left: 0;
   right: 0;
@@ -368,11 +378,15 @@ async function handleAdminLogin() {
     transform: translateX(-50%);
     top: 28px;
     white-space: nowrap;
+    font-size: 9px;
+    letter-spacing: .12em;
   }
   .login-card {
     width: 100%;
     max-width: 480px;
+    padding: 28px 24px;
   }
+  .login-logo-line1 { font-size: clamp(28px, 8vw, 38px); }
   .login-footer {
     justify-content: center;
     padding-left: 0;

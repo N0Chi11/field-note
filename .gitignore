@@ -13,6 +13,7 @@ venv/
 
 # Build output
 frontend/dist/
+frontend/.ui-artifacts/
 *.egg-info/
 
 # Stale TypeScript compiler output inside frontend source directories

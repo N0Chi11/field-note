@@ -132,17 +132,9 @@ router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore()
   // 设置标题
   if (to.meta.title) {
-    document.title = `${to.meta.title} - 器材设备管理系统`
+    document.title = `${to.meta.title} · FIELD NOTE`
   } else {
-    document.title = '器材设备管理系统'
-  }
-
-  // 登录页：清除旧的无效 token，避免残留
-  if (to.meta.guest) {
-    clearTokens()
-    authStore.user = null
-    next()
-    return
+    document.title = 'FIELD NOTE · SUFE 校学联新媒体器材档案'
   }
 
   const isLoggedIn = authStore.isLoggedIn
@@ -155,6 +147,8 @@ router.beforeEach(async (to, _from, next) => {
       // 拉取失败：清除 token，跳登录页
       clearTokens()
       authStore.user = null
+      authStore.token = ''
+      authStore.refreshToken = ''
       if (to.meta.auth) {
         next({ name: 'Login', query: { redirect: to.fullPath } })
         return

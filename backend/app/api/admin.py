@@ -167,6 +167,9 @@ def approve_request(
     if not validate_transition(current_st, "approved"):
         raise HTTPException(status_code=400, detail="当前状态不允许此操作")
 
+    if r.return_time <= datetime.utcnow():
+        raise HTTPException(status_code=400, detail="借用时段已结束，请拒绝该申请并让用户重新提交")
+
     # 设备维修状态检查
     if r.equipment and _status_value(r.equipment.status) == "repair":
         raise HTTPException(status_code=400, detail="该设备正在维修中，无法通过审批")
@@ -289,6 +292,13 @@ def confirm_pickup(
     current_st = _status_value(r.status)
     if not validate_transition(current_st, "borrowing"):
         raise HTTPException(status_code=400, detail="当前状态不允许此操作")
+
+    if r.equipment is None:
+        raise HTTPException(status_code=404, detail="设备不存在")
+    if _status_value(r.equipment.status) == "repair":
+        raise HTTPException(status_code=400, detail="该设备正在维修中，无法领取")
+    if r.return_time <= datetime.utcnow():
+        raise HTTPException(status_code=400, detail="借用时段已结束，请重新提交申请")
 
     # 检查设备是否已被借用（有 borrowing 状态的记录）
     active_borrow = db.query(BorrowRequest).filter(

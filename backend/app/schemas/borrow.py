@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 def _strip_tz(dt: datetime) -> datetime:
@@ -19,10 +19,15 @@ def _strip_tz(dt: datetime) -> datetime:
 class BorrowCreate(BaseModel):
     """创建借用申请请求。"""
 
-    equipment_id: int
+    equipment_id: int = Field(gt=0)
     borrow_time: datetime
     return_time: datetime
-    reason: str
+    reason: str = Field(min_length=1, max_length=200)
+
+    @field_validator("reason", mode="before")
+    @classmethod
+    def clean_reason(cls, value):
+        return value.strip() if isinstance(value, str) else value
 
     @field_validator("borrow_time", "return_time")
     @classmethod
@@ -98,7 +103,12 @@ class ApproveRequest(BaseModel):
 class RejectRequest(BaseModel):
     """驳回请求。"""
 
-    comment: str
+    comment: str = Field(min_length=1, max_length=1000)
+
+    @field_validator("comment", mode="before")
+    @classmethod
+    def clean_comment(cls, value):
+        return value.strip() if isinstance(value, str) else value
 
 
 class PickupRequest(BaseModel):
