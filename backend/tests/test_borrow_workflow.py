@@ -13,7 +13,30 @@ from sqlalchemy.orm import Session
 from app.database import Base
 from app.models import BorrowRequest, BorrowStatus, Equipment, EquipmentStatus, User, UserRole
 from app.api.admin import approve_request, confirm_pickup, confirm_return
-from app.schemas.borrow import ApproveRequest, BorrowCreate, PickupRequest, RejectRequest
+from app.schemas.borrow import ApproveRequest, BorrowCreate, ConflictCheckRequest, PickupRequest, RejectRequest
+
+
+class BorrowTimePolicyTests(TestCase):
+    def test_same_shanghai_day_is_accepted_even_across_utc_dates(self):
+        record = BorrowCreate(equipment_id=1, borrow_time="2026-10-07T17:00:00Z", return_time="2026-10-08T10:00:00Z", reason="拍摄")
+        self.assertEqual(record.borrow_time, datetime(2026, 10, 7, 17))
+        self.assertEqual(record.return_time, datetime(2026, 10, 8, 10))
+
+    def test_crossing_shanghai_midnight_is_rejected_even_under_24_hours(self):
+        for schema in (BorrowCreate, ConflictCheckRequest):
+            with self.subTest(schema=schema.__name__), self.assertRaises(ValidationError) as context:
+                schema(equipment_id=1, borrow_time="2026-10-08T15:30:00Z", return_time="2026-10-08T16:00:00Z", reason="拍摄")
+            self.assertIn("设备不可过夜", str(context.exception))
+
+    def test_offset_aware_same_day_times_are_stored_in_utc(self):
+        record = BorrowCreate(equipment_id=1, borrow_time="2026-10-08T09:00:00+08:00", return_time="2026-10-08T18:00:00+08:00", reason="拍摄")
+        self.assertEqual(record.borrow_time, datetime(2026, 10, 8, 1))
+        self.assertEqual(record.return_time, datetime(2026, 10, 8, 10))
+
+    def test_equal_or_reversed_times_are_rejected(self):
+        for end in ("2026-10-08T09:00:00+08:00", "2026-10-08T08:00:00+08:00"):
+            with self.subTest(end=end), self.assertRaises(ValidationError):
+                BorrowCreate(equipment_id=1, borrow_time="2026-10-08T09:00:00+08:00", return_time=end, reason="拍摄")
 
 
 class BorrowWorkflowTests(TestCase):

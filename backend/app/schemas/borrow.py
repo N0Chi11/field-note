@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 def _strip_tz(dt: datetime) -> datetime:
@@ -16,23 +16,39 @@ def _strip_tz(dt: datetime) -> datetime:
     return dt
 
 
-class BorrowCreate(BaseModel):
+class BorrowTimeRange(BaseModel):
+    """UTC storage; same-day equipment use is checked in Shanghai time."""
+
+    borrow_time: datetime
+    return_time: datetime
+
+    @field_validator("borrow_time", "return_time")
+    @classmethod
+    def naive_datetime(cls, value: datetime) -> datetime:
+        return _strip_tz(value)
+
+    @model_validator(mode="after")
+    def validate_period(self):
+        if self.return_time <= self.borrow_time:
+            raise ValueError("归还时间必须晚于借用时间")
+        school_timezone = timezone(timedelta(hours=8))
+        start = self.borrow_time.replace(tzinfo=timezone.utc).astimezone(school_timezone)
+        end = self.return_time.replace(tzinfo=timezone.utc).astimezone(school_timezone)
+        if start.date() != end.date():
+            raise ValueError("设备不可过夜，借用和归还必须在同一天（北京时间）")
+        return self
+
+
+class BorrowCreate(BorrowTimeRange):
     """创建借用申请请求。"""
 
     equipment_id: int = Field(gt=0)
-    borrow_time: datetime
-    return_time: datetime
     reason: str = Field(min_length=1, max_length=200)
 
     @field_validator("reason", mode="before")
     @classmethod
     def clean_reason(cls, value):
         return value.strip() if isinstance(value, str) else value
-
-    @field_validator("borrow_time", "return_time")
-    @classmethod
-    def naive_datetime(cls, v: datetime) -> datetime:
-        return _strip_tz(v)
 
 
 class BorrowResponse(BaseModel):
@@ -67,18 +83,11 @@ class BorrowDetail(BorrowResponse):
     approver_name: Optional[str] = None
 
 
-class ConflictCheckRequest(BaseModel):
+class ConflictCheckRequest(BorrowTimeRange):
     """冲突检测请求。"""
 
     equipment_id: int
-    borrow_time: datetime
-    return_time: datetime
     exclude_request_id: Optional[int] = None
-
-    @field_validator("borrow_time", "return_time")
-    @classmethod
-    def naive_datetime(cls, v: datetime) -> datetime:
-        return _strip_tz(v)
 
 
 class ConflictCheckResponse(BaseModel):

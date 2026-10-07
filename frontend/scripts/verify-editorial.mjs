@@ -66,14 +66,31 @@ try {
   await page.locator('.borrow-link').first().click()
   await expect(page).toHaveURL(/equipment_id=1/)
   await expect(page.locator('.n-base-selection-label')).toContainText('索尼 A6400')
+  const tomorrow = await page.evaluate(async () => {
+    const { defaultBorrowTimes } = await import('/src/utils/borrowTimePolicy.ts')
+    return defaultBorrowTimes()
+  })
+  const displayTime = value => new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+  }).format(value)
+  await expect(page.getByPlaceholder('选择借用时间')).toHaveValue(displayTime(tomorrow.borrowTime))
+  await expect(page.getByPlaceholder('选择归还时间')).toHaveValue(displayTime(tomorrow.returnTime))
+  await page.getByPlaceholder('选择归还时间').fill(displayTime(tomorrow.returnTime + 86400000))
+  await page.getByPlaceholder('选择归还时间').press('Enter')
+  await expect(page.getByText('设备不可过夜', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: '提交申请', exact: true })).toBeDisabled()
+  await page.getByPlaceholder('选择归还时间').fill(displayTime(tomorrow.returnTime))
+  await page.getByPlaceholder('选择归还时间').press('Enter')
+  await expect(page.getByText('设备不可过夜', { exact: true })).toHaveCount(0)
   await page.getByPlaceholder('请简要说明借用理由（如：毕业设计视频拍摄）').fill('校园活动拍摄')
   expect(await page.evaluate(() => JSON.parse(sessionStorage.getItem('eb_borrow_draft_1')).reason)).toBe('校园活动拍摄')
   await page.screenshot({ path: '.ui-artifacts/borrow-desktop.png', fullPage: true })
 
   // A delayed result for an old device must not replace the latest result.
-  await page.evaluate(() => {
-    const borrowTime = Date.now() + 86400000
-    sessionStorage.setItem('eb_borrow_draft_1', JSON.stringify({ equipmentId: 1, borrowTime, returnTime: borrowTime + 86400000, reason: 'Test' }))
+  await page.evaluate(async () => {
+    const { defaultBorrowTimes } = await import('/src/utils/borrowTimePolicy.ts')
+    sessionStorage.setItem('eb_borrow_draft_1', JSON.stringify({ equipmentId: 1, ...defaultBorrowTimes(), reason: 'Test' }))
   })
   let oldConflictStarted
   const oldStarted = new Promise(resolve => { oldConflictStarted = resolve })
@@ -94,6 +111,22 @@ try {
   await expect(page.getByText('所选时段无时间冲突，可以提交申请。')).toBeVisible()
   await page.getByRole('button', { name: '清空草稿' }).click()
   expect(await page.evaluate(() => sessionStorage.getItem('eb_borrow_draft_1'))).toBeNull()
+  await expect(page.getByPlaceholder('选择借用时间')).toHaveValue(displayTime(tomorrow.borrowTime))
+  await expect(page.getByPlaceholder('选择归还时间')).toHaveValue(displayTime(tomorrow.returnTime))
+
+  // Calendar presets also use a same-day return, including at month/year boundaries.
+  await page.goto(`${baseURL}/borrow?equipment_id=1&date=2028-12-31`)
+  await expect(page.getByPlaceholder('选择借用时间')).toHaveValue('2028-12-31 09:00:00')
+  await expect(page.getByPlaceholder('选择归还时间')).toHaveValue('2028-12-31 18:00:00')
+  const policy = await page.evaluate(async () => {
+    const { defaultBorrowTimes, isOvernightBorrow } = await import('/src/utils/borrowTimePolicy.ts')
+    const start = Date.parse('2026-12-31T23:59:00+08:00')
+    const times = defaultBorrowTimes(start)
+    return { ...times, overnight: isOvernightBorrow(times.borrowTime, times.returnTime) }
+  })
+  expect(displayTime(policy.borrowTime)).toBe('2027-01-01 09:00:00')
+  expect(displayTime(policy.returnTime)).toBe('2027-01-01 18:00:00')
+  expect(policy.overnight).toBe(false)
 
   // Failed refresh must reject all queued requests, rather than hang forever.
   await page.unroute('**/api/v1/**')

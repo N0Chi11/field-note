@@ -77,6 +77,10 @@
             </n-form-item>
           </div>
 
+          <n-alert v-if="overnightBorrow" type="warning" title="设备不可过夜" class="conflict-alert" role="alert">
+            借用和归还必须在同一天（北京时间），请将归还时间改为借用当天。
+          </n-alert>
+
           <!-- 借用理由 -->
           <n-form-item label="借用理由" path="reason">
             <n-input
@@ -135,7 +139,7 @@
             <n-button
               type="primary"
               :loading="submitting"
-              :disabled="checkingConflict || conflict?.conflict_type === 'hard'"
+              :disabled="overnightBorrow || checkingConflict || conflict?.conflict_type === 'hard'"
               @click="handleSubmit"
             >
               提交申请
@@ -148,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   NForm,
@@ -170,6 +174,7 @@ import { createRequest, checkConflict } from '@/api/borrow'
 import { useToastStore } from '@/stores/toast'
 import { useAuthStore } from '@/stores/auth'
 import type { Equipment, ConflictResult } from '@/types/models'
+import { defaultBorrowTimes, borrowTimesForDate, isOvernightBorrow } from '@/utils/borrowTimePolicy'
 
 const router = useRouter()
 const route = useRoute()
@@ -183,11 +188,21 @@ const formRef = ref<FormInst | null>(null)
 const submitting = ref(false)
 const equipmentLoading = ref(false)
 
+const initialTimes = defaultBorrowTimes()
 const form = reactive({
   equipmentId: null as number | null,
-  borrowTime: null as number | null,
-  returnTime: null as number | null,
+  borrowTime: initialTimes.borrowTime as number | null,
+  returnTime: initialTimes.returnTime as number | null,
   reason: ''
+})
+
+const overnightBorrow = computed(() =>
+  form.borrowTime !== null && form.returnTime !== null &&
+  isOvernightBorrow(form.borrowTime, form.returnTime)
+)
+
+watch(overnightBorrow, (overnight) => {
+  if (overnight) toast.warning('设备不可过夜，请选择借用当天的归还时间')
 })
 
 const conflict = ref<ConflictResult | null>(null)
@@ -238,6 +253,7 @@ const rules: FormRules = {
         ) {
           return new Error('归还时间必须晚于借用时间')
         }
+        if (overnightBorrow.value) return new Error('设备不可过夜，请选择借用当天的归还时间')
         return true
       },
       trigger: ['change', 'blur']
@@ -305,7 +321,7 @@ function scheduleConflictCheck() {
   conflict.value = null
   conflictCheckFailed.value = false
   if (conflictTimer) clearTimeout(conflictTimer)
-  checkingConflict.value = !!(form.equipmentId && form.borrowTime && form.returnTime && form.returnTime > form.borrowTime)
+  checkingConflict.value = !!(form.equipmentId && form.borrowTime && form.returnTime && form.returnTime > form.borrowTime && !overnightBorrow.value)
   conflictTimer = setTimeout(runConflictCheck, 400)
 }
 
@@ -316,6 +332,7 @@ async function runConflictCheck() {
     !form.equipmentId ||
     !form.borrowTime ||
     !form.returnTime ||
+    overnightBorrow.value ||
     (form.returnTime as number) <= (form.borrowTime as number)
   ) {
     conflict.value = null
@@ -363,9 +380,13 @@ function loadDraft() {
     if (!saved) return
     const d = JSON.parse(saved)
     form.equipmentId = d.equipmentId ?? null
-    form.borrowTime = d.borrowTime ?? null
-    form.returnTime = d.returnTime ?? null
     form.reason = d.reason ?? ''
+    if (Number.isFinite(d.borrowTime) && d.borrowTime > Date.now() && Number.isFinite(d.returnTime) && d.returnTime > d.borrowTime) {
+      form.borrowTime = d.borrowTime
+      form.returnTime = d.returnTime
+    } else {
+      Object.assign(form, defaultBorrowTimes())
+    }
     if (form.equipmentId && form.borrowTime && form.returnTime) {
       scheduleConflictCheck()
     }
@@ -380,8 +401,7 @@ function resetDraft() {
   checkingConflict.value = false
   conflictCheckFailed.value = false
   form.equipmentId = null
-  form.borrowTime = null
-  form.returnTime = null
+  Object.assign(form, defaultBorrowTimes())
   form.reason = ''
   conflict.value = null
   try {
@@ -401,18 +421,9 @@ function applyRoutePreset() {
   }
 
   const dateValue = typeof route.query.date === 'string' ? route.query.date : ''
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) return
-  const [year, month, day] = dateValue.split('-').map(Number)
-  let borrow = new Date(year, month - 1, day, 9, 0, 0, 0)
-  if (borrow.getTime() <= Date.now()) {
-    const nextHour = new Date(Date.now() + 3600000)
-    nextHour.setMinutes(0, 0, 0)
-    borrow = nextHour
-  }
-  const returnDate = new Date(borrow)
-  returnDate.setDate(returnDate.getDate() + 1)
-  form.borrowTime = borrow.getTime()
-  form.returnTime = returnDate.getTime()
+  const times = borrowTimesForDate(dateValue)
+  if (!times) return
+  Object.assign(form, times)
   saveDraft()
   scheduleConflictCheck()
 }
@@ -420,6 +431,10 @@ function applyRoutePreset() {
 // 提交申请
 async function handleSubmit() {
   if (submitting.value || checkingConflict.value) return
+  if (overnightBorrow.value) {
+    toast.warning('设备不可过夜，请选择借用当天的归还时间')
+    return
+  }
   submitting.value = true
   try {
     await formRef.value?.validate()
