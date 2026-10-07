@@ -179,7 +179,7 @@ watch(() => route.path, () => {
       <img src="/logo.png" alt="logo" class="sidebar__header-logo" />
       <div class="sidebar__header-text">
         <h1 class="sidebar__header-title">FIELD NOTE<span>.</span></h1>
-        <p class="sidebar__header-subtitle">SUFE 校学联新媒体中心</p>
+        <p class="sidebar__header-subtitle">器材设备借用系统</p>
       </div>
     </div>
 

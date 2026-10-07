@@ -6,9 +6,7 @@
         <img src="/logo.png" alt="logo" class="login-logo-img" />
         <div class="login-logo-text">
           <span class="login-logo-line1">FIELD NOTE<span class="brand-dot">.</span></span>
-          <span class="login-logo-line2">SUFE 校学联新媒体中心</span>
         </div>
-        <div class="login-logo-sub">器材档案 · 创作现场</div>
       </div>
 
       <EditorialPoem variant="login" />
@@ -160,7 +158,7 @@ async function handleAdminLogin() {
   pointer-events: none;
 }
 .login-page::after {
-  content: 'SUFE STUDENT UNION MEDIA CENTER  ·  ISSUE 107';
+  content: 'ISSUE 107';
   position: absolute;
   left: 5.5vw;
   top: 9vh;

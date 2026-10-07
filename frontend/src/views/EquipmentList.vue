@@ -207,12 +207,10 @@ onMounted(loadEquipment)
       <!-- 页面标题 -->
       <div class="page-header">
         <div class="catalog-heading">
-          <span class="catalog-kicker">FIELD NOTE / 器材档案</span>
-          <h1 class="page-title">为下一次<br />创作，选好器材。</h1>
-          <p class="page-desc">SUFE 校学联新媒体中心 · 从一支镜头，到一束光。</p>
+          <h1 class="page-title">器材设备清单</h1>
+          <p class="page-desc">所有可借用设备均已编号并附有照片，未在清单中的物品不可借用</p>
         </div>
         <div class="catalog-index">
-          <span class="catalog-index__label">馆藏状态 / LIVE INVENTORY</span>
           <div class="catalog-index__row"><span>器材总数</span><strong>{{ loading ? '—' : equipmentList.length }}</strong></div>
           <div class="catalog-index__row"><span>当前可借</span><strong class="available-number">{{ loading ? '—' : availableCount }}</strong></div>
           <router-link to="/calendar" class="catalog-calendar">查看预约日历 <span aria-hidden="true">↗</span></router-link>
@@ -363,15 +361,6 @@ onMounted(loadEquipment)
   padding: 28px 0 36px;
   border-top: 1px solid var(--text);
   border-bottom: 1px solid var(--text);
-}
-.catalog-kicker {
-  display: block;
-  margin-bottom: 26px;
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  color: var(--accent);
 }
 .page-title {
   font-size: clamp(40px, 4.3vw, 64px);
@@ -667,7 +656,6 @@ onMounted(loadEquipment)
 }
 
 .catalog-index { border-left: 1px solid var(--border); padding-left: 26px; font-family: var(--font-ui); }
-.catalog-index__label { color: var(--accent); font-size: 9px; letter-spacing: .12em; }
 .catalog-index__row { display: flex; align-items: baseline; justify-content: space-between; padding-top: 12px; }
 .catalog-index__row span { color: var(--text-secondary); font-size: 12px; }
 .catalog-index__row strong { font: 400 42px/1.1 var(--font); font-variant-numeric: tabular-nums; }
@@ -690,7 +678,7 @@ onMounted(loadEquipment)
 @media (max-width: 640px) {
   .page-header { grid-template-columns: 1fr; gap: 26px; padding-top: 20px; }
   .catalog-index { border-left: none; border-top: 1px solid var(--border); padding: 16px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
-  .catalog-index__label, .catalog-calendar, .catalog-index p { grid-column: 1 / -1; }
+  .catalog-calendar, .catalog-index p { grid-column: 1 / -1; }
   .catalog-index__row { padding-top: 0; }
   .catalog-index__row strong { font-size: 32px; }
   .catalog-calendar, .catalog-index p { margin-top: 0; }

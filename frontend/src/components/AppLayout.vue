@@ -76,7 +76,6 @@ function closeSidebar() {
     <main class="app-main">
       <div class="edition-masthead" aria-label="FIELD NOTE 刊头">
         <router-link to="/equipment" class="edition-name">FIELD NOTE<span class="edition-dot">.</span></router-link>
-        <span class="edition-center">SUFE 校学联新媒体中心<br /><span>器材档案 · 创作现场</span></span>
         <span class="edition-issue">ISSUE 107<br /><span>{{ APP_VERSION }}</span></span>
       </div>
       <div class="editorial-page"><slot /></div>
@@ -106,8 +105,6 @@ function closeSidebar() {
 .edition-masthead { display: flex; justify-content: space-between; align-items: center; gap: 20px; max-width: 1260px; margin: 0 auto 30px; padding-bottom: 20px; border-bottom: 3px solid var(--text); }
 .edition-name { color: var(--text); font: 500 clamp(26px, 2.6vw, 38px)/1 var(--font); letter-spacing: -.035em; }
 .edition-dot { color: var(--accent); }
-.edition-center { text-align: center; color: var(--text); font: 11px/1.8 var(--font-ui); }
-.edition-center span { color: var(--text-secondary); }
 .edition-issue { text-align: right; font: 10px/1.8 var(--font-data); letter-spacing: .08em; color: var(--accent); }
 .edition-issue span { color: var(--text-secondary); }
 
@@ -172,8 +169,7 @@ function closeSidebar() {
     z-index: 200;
   }
   .edition-masthead { gap: 10px; margin-bottom: 24px; padding-bottom: 16px; }
-  .edition-center { text-align: left; font-size: 10px; }
-  .edition-name { display: none; }
+  .edition-name { font-size: 24px; }
 
   .mobile-title {
     font-family: var(--font-ui);
