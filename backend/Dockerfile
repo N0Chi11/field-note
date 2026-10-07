@@ -30,6 +30,10 @@ RUN pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/ \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Lightweight image-processing dependencies for the isolated photo-review service.
+COPY photo_review/requirements-cloud.txt ./photo-review-requirements.txt
+RUN pip install --no-cache-dir -r photo-review-requirements.txt
+
 # 复制项目代码
 COPY . .
 

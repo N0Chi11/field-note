@@ -63,6 +63,7 @@ const adminNav: NavItem[] = [
   { path: '/admin/equipment', icon: 'maintenance', label: '设备维护' },
   { path: '/admin/approval', icon: 'approval', label: '借用审批', badge: 'pending' },
   { path: '/admin/return', icon: 'return', label: '归还确认', badge: 'return_pending' },
+  { path: '/admin/photo-review', icon: 'overview', label: '照片审核' },
   { path: '/admin/logs', icon: 'logs', label: '操作日志' },
   { path: '/admin/feedback', icon: 'feedback', label: '用户反馈', badge: 'feedback_open' }
 ]

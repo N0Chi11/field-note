@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
+    # Separate signer for short-lived photo-review iframe sessions.
+    PHOTO_REVIEW_SESSION_SECRET: str = ""
+
     # ===== CORS =====
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost"
 

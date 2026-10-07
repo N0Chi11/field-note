@@ -112,6 +112,12 @@ const routes: RouteRecordRaw[] = [
     meta: { auth: true, admin: true, title: '用户反馈' }
   },
   {
+    path: '/admin/photo-review',
+    name: 'AdminPhotoReview',
+    component: () => import('@/views/admin/PhotoReview.vue'),
+    meta: { auth: true, admin: true, title: '照片审核' }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/views/NotFound.vue'),

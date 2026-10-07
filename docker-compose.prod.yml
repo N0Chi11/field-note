@@ -50,6 +50,7 @@ services:
   # ===== FastAPI 后端 =====
   backend:
     build: ./backend
+    image: equipment-system-backend:latest
     container_name: equip-backend
     restart: unless-stopped
     env_file: .env
@@ -75,6 +76,28 @@ services:
     networks:
       - equip-net
 
+  # ===== 管理员专用照片审核服务（仅通过 Nginx 内网转发） =====
+  photo-review:
+    image: equipment-system-backend:latest
+    container_name: equip-photo-review
+    restart: unless-stopped
+    working_dir: /app/photo_review
+    command: ["python", "/app/photo_review/app.py"]
+    environment:
+      PHOTO_REVIEW_HOST: 0.0.0.0
+      PHOTO_REVIEW_PORT: 8765
+      PHOTO_REVIEW_NO_BROWSER: "1"
+      PHOTO_REVIEW_REQUIRE_ADMIN_SESSION: "1"
+      PHOTO_REVIEW_BASE_PATH: /photo-review
+      LIUGUANG_DATA_DIR: /var/lib/field-note-photo-review
+      PHOTO_REVIEW_SESSION_SECRET: ${PHOTO_REVIEW_SESSION_SECRET}
+    volumes:
+      - photo_review_data:/var/lib/field-note-photo-review
+    depends_on:
+      - backend
+    networks:
+      - equip-net
+
   # ===== Nginx 前端 + 反向代理 =====
   nginx:
     image: nginx:alpine
@@ -90,6 +113,7 @@ services:
       - uploads_data:/usr/share/nginx/uploads:ro
     depends_on:
       - backend
+      - photo-review
     networks:
       - equip-net
 
@@ -97,6 +121,7 @@ volumes:
   mysql_data:
   redis_data:
   uploads_data:
+  photo_review_data:
 
 networks:
   equip-net:

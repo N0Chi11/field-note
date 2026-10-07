@@ -86,9 +86,11 @@ cp deploy/.env.prod .env
 MYSQL_ROOT_PASSWORD=$(openssl rand -hex 24)
 MYSQL_APP_PASSWORD=$(openssl rand -hex 24)
 JWT_SECRET=$(openssl rand -hex 32)
+PHOTO_REVIEW_SESSION_SECRET=$(openssl rand -hex 32)
 sed -i "s|REPLACE_WITH_A_STRONG_ROOT_PASSWORD|$MYSQL_ROOT_PASSWORD|g" .env
 sed -i "s|REPLACE_WITH_A_STRONG_APP_PASSWORD|$MYSQL_APP_PASSWORD|g" .env
 sed -i "s|REPLACE_WITH_A_RANDOM_JWT_SECRET|$JWT_SECRET|g" .env
+sed -i "s|REPLACE_WITH_A_DIFFERENT_RANDOM_SECRET|$PHOTO_REVIEW_SESSION_SECRET|g" .env
 echo "  配置完成"
 
 # ===== 5. 生成 SSL 证书 =====

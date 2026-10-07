@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { loginUser as loginUserApi, loginAdmin as loginAdminApi, getMe, logout as logoutApi } from '@/api/auth'
 import { setTokens, clearTokens, ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/api/request'
+import { clearPhotoReviewSession } from '@/api/photoReview'
 import type { User } from '@/types/models'
 
 /**
@@ -69,6 +70,9 @@ export const useAuthStore = defineStore('auth', () => {
   async function logout() {
     try {
       if (token.value) {
+        if (user.value?.role === 'admin') {
+          try { await clearPhotoReviewSession() } catch { /* the short-lived cookie expires on its own */ }
+        }
         await logoutApi()
       }
     } catch {
