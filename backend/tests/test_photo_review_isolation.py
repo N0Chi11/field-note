@@ -2,6 +2,8 @@ import importlib.util
 import os
 import sys
 import tempfile
+import threading
+import time
 import types
 import unittest
 from email.message import Message
@@ -11,7 +13,7 @@ from unittest.mock import patch
 
 PHOTO_REVIEW_DIR = Path(__file__).resolve().parents[1] / 'photo_review'
 if str(PHOTO_REVIEW_DIR) not in sys.path:
-    sys.path.insert(0, str(PHOTO_REVIEW_DIR))
+    sys.path.append(str(PHOTO_REVIEW_DIR))
 
 # python-jose is part of the deployed backend requirements. The workspace
 # isolation tests do not exercise JWT decoding, so permit a minimal local stub
@@ -22,7 +24,14 @@ if importlib.util.find_spec('jose') is None:
     jose.jwt = types.SimpleNamespace()
     sys.modules['jose'] = jose
 
-from app import Handler, PhotoReviewServer
+APP_SPEC = importlib.util.spec_from_file_location('field_note_photo_review_app', PHOTO_REVIEW_DIR / 'app.py')
+photo_review_app = importlib.util.module_from_spec(APP_SPEC)
+sys.modules[APP_SPEC.name] = photo_review_app
+APP_SPEC.loader.exec_module(photo_review_app)
+CLOUD_REVIEW_SLOTS = photo_review_app.CLOUD_REVIEW_SLOTS
+Handler = photo_review_app.Handler
+PhotoReviewServer = photo_review_app.PhotoReviewServer
+Workspace = photo_review_app.Workspace
 
 
 class PhotoReviewIsolationTests(unittest.TestCase):
@@ -70,11 +79,11 @@ class PhotoReviewIsolationTests(unittest.TestCase):
             }
             try:
                 with patch.dict(os.environ, env):
-                    with patch('app.jwt.decode', create=True, return_value={
+                    with patch.object(photo_review_app.jwt, 'decode', create=True, return_value={
                         'sub': '101', 'role': 'admin', 'type': 'photo_review_session'
                     }):
                         alice = handler.workspace()
-                    with patch('app.jwt.decode', create=True, return_value={
+                    with patch.object(photo_review_app.jwt, 'decode', create=True, return_value={
                         'sub': '202', 'role': 'admin', 'type': 'photo_review_session'
                     }):
                         bob = handler.workspace()
@@ -85,6 +94,57 @@ class PhotoReviewIsolationTests(unittest.TestCase):
                 server.stop_workspaces()
                 server.server_close()
                 server._workspaces.clear()
+
+    def test_cloud_review_uses_four_workers_and_persists_groups_once(self):
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Workspace(data_root=directory)
+            workspace.preparer = object()
+            workspace.job.update(state='running',submitted=0,reused=0,prompt_tokens=0,completion_tokens=0)
+            ids = [f'photo-{index}' for index in range(8)]
+            workspace.photos = {
+                pid: {'id': pid, 'name': pid, 'path': pid, 'cache_key': pid,
+                      'metrics': None, 'status': 'pending', 'manual': None}
+                for pid in ids
+            }
+            active = 0
+            max_active = 0
+            active_lock = threading.Lock()
+
+            def fake_review(pid, reviewer, mode):
+                nonlocal active, max_active
+                with active_lock:
+                    active += 1
+                    max_active = max(max_active, active)
+                time.sleep(.05)
+                with active_lock:
+                    active -= 1
+                return {'pid': pid, 'metrics': {}, 'reused': False}
+
+            class FakeReviewer:
+                def __init__(self, config, api_key):
+                    self.signature = 'test-signature'
+                    self.device_name = 'test'
+
+            with patch.dict(os.environ, {'PHOTO_REVIEW_CONCURRENCY': '4'}):
+                with patch.object(photo_review_app, 'KimiReviewer', FakeReviewer), \
+                     patch.object(workspace, '_review_cloud_photo', side_effect=fake_review), \
+                     patch.object(workspace, 'update_cloud_groups', wraps=workspace.update_cloud_groups) as regroup, \
+                     patch.object(workspace, 'persist_all', wraps=workspace.persist_all) as persist:
+                    workspace.work_cloud(ids, {'model': 'kimi-k2.6'}, 'test-key', 'event')
+
+            self.assertEqual(max_active, 4)
+            self.assertEqual(regroup.call_count, 1)
+            self.assertEqual(persist.call_count, 1)
+            self.assertEqual(workspace.job['done'], len(ids))
+
+    def test_server_wide_review_limit_is_four(self):
+        acquired = [CLOUD_REVIEW_SLOTS.acquire(blocking=False) for _ in range(5)]
+        try:
+            self.assertEqual(sum(acquired), 4)
+        finally:
+            for did_acquire in acquired:
+                if did_acquire:
+                    CLOUD_REVIEW_SLOTS.release()
 
 
 if __name__ == '__main__':

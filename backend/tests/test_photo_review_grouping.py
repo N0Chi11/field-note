@@ -4,7 +4,7 @@ from pathlib import Path
 
 PHOTO_REVIEW_DIR = Path(__file__).resolve().parents[1] / 'photo_review'
 if str(PHOTO_REVIEW_DIR) not in sys.path:
-    sys.path.insert(0, str(PHOTO_REVIEW_DIR))
+    sys.path.append(str(PHOTO_REVIEW_DIR))
 
 from selection import group_candidates
 

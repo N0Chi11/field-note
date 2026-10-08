@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parent
 FORMATS = {'.jpg','.jpeg','.png','.webp','.heic','.heif','.tif','.tiff'}
 # Per-user pools are isolated, but the service-wide provider concurrency stays
 # bounded so several administrators cannot overwhelm the ECS or API quota.
-CLOUD_REVIEW_SLOTS = threading.BoundedSemaphore(2)
+CLOUD_REVIEW_SLOTS = threading.BoundedSemaphore(4)
 
 
 def get_data_root():
@@ -251,14 +251,19 @@ class Workspace:
                 assign_group(group,number,self.options['mode'])
             else:
                 for p in reviewed:
-                    rejection=automatic_rejection(p['metrics'])
-                    p.update(score=rank_score(p['metrics'],self.options['mode']),auto_status='reject' if rejection else 'pending',
-                             status=p.get('manual') or ('reject' if rejection else 'pending'))
-                    p['rank']=None
-                    p['reasons']=([rejection] if rejection else
-                                  [f"Kimi 已审核；本组还有 {len(group)-len(reviewed)} 张尚未联网审核，暂未确定首选"])+describe(p['metrics'])
-                    if p.get('manual'):
-                        p['reasons'].insert(0,'已采用你的手动选择，覆盖自动结果')
+                    self.mark_cloud_review_pending(p,len(group)-len(reviewed))
+
+    def mark_cloud_review_pending(self, photo, pending_count=None):
+        metrics=photo['metrics']
+        rejection=automatic_rejection(metrics)
+        photo.update(score=rank_score(metrics,self.options['mode']),
+                     auto_status='reject' if rejection else 'pending',
+                     status=photo.get('manual') or ('reject' if rejection else 'pending'),rank=None)
+        pending_note=(f"本组还有 {pending_count} 张尚未联网审核，暂未确定首选" if pending_count else
+                      '整批审核尚未完成，暂未确定同组首选')
+        photo['reasons']=([rejection] if rejection else ['Kimi 已审核；'+pending_note])+describe(metrics)
+        if photo.get('manual'):
+            photo['reasons'].insert(0,'已采用你的手动选择，覆盖自动结果')
 
     def _review_cloud_photo(self, pid, reviewer, mode):
         with self.lock:
@@ -325,10 +330,10 @@ class Workspace:
                     if self.preparer is None:
                         self.preparer=PhotoPreparer(self.data/'models',self.message)
             try:
-                configured=int(os.environ.get('PHOTO_REVIEW_CONCURRENCY','2'))
+                configured=int(os.environ.get('PHOTO_REVIEW_CONCURRENCY','4'))
             except ValueError:
-                configured=2
-            concurrency=max(1,min(2,configured))
+                configured=4
+            concurrency=max(1,min(4,configured))
             next_index=0
             futures={}
             with ThreadPoolExecutor(max_workers=concurrency,thread_name_prefix='photo-review') as pool:
@@ -361,6 +366,7 @@ class Workspace:
                                 photo.update(metrics=result['metrics'],cloud_status='done')
                                 photo.pop('previous_metrics',None)
                                 photo.pop('cloud_error',None)
+                                self.mark_cloud_review_pending(photo)
                             elif result.get('error'):
                                 photo.update(cloud_status='error',cloud_error=result['error'])
                             if result.get('reused'):
@@ -368,8 +374,6 @@ class Workspace:
                             self.save(photo)
                             completed+=1
                             self.job['done']=completed
-                            self.update_cloud_groups()
-                            self.persist_all()
                     fill_queue()
             with self.lock:
                 self.update_cloud_groups()
@@ -718,6 +722,12 @@ class Handler(BaseHTTPRequestHandler):
             elif url.path in {'/app.js','/style.css','/editorial.css'}:
                 kind='text/javascript; charset=utf-8' if url.path.endswith('.js') else 'text/css; charset=utf-8'
                 self.send_bytes((ROOT/'web'/url.path[1:]).read_bytes(),kind)
+            elif url.path=='/api/progress':
+                self.authorize()
+                ws=self.workspace()
+                with ws.lock:
+                    progress={'job':dict(ws.job)}
+                self.reply(progress)
             elif url.path=='/api/state':
                 self.authorize(); self.reply(self.workspace().snapshot())
             elif url.path.startswith('/preview/'):

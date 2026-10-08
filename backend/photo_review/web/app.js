@@ -90,6 +90,9 @@ async function refresh(){const data=await(await request('/api/state')).json();st
   for(const id of selected)if(!data.photos.some(p=>p.id===id))selected.delete(id);
   const next=JSON.stringify([data.photos,data.cloud.signature,data.options.mode]);if(next!==fingerprint){fingerprint=next;render();}else controls();
 }
+async function refreshProgress(){const data=await(await request('/api/progress')).json();state.job=data.job;
+  $('message').textContent=data.job.message;$('progress-count').textContent=data.job.done+' / '+data.job.total;$('progress').max=Math.max(1,data.job.total);$('progress').value=data.job.done;$('device').textContent=data.job.device;controls();
+}
 $('files').onclick=()=>$('file-input').click();
 $('file-input').onchange=async event=>{if(busy)return;busy=true;controls();notice('');const errors=[];const files=Array.from(event.target.files);try{for(let i=0;i<files.length;i++){$('message').textContent='正在导入 '+(i+1)+' / '+files.length;try{const r=await request('/api/upload?name='+encodeURIComponent(files[i].name),files[i],true);errors.push(...(await r.json()).errors);}catch(e){errors.push(files[i].name+'：'+e.message);}}await refresh();if(errors.length)notice(errors.join('\n'));}finally{busy=false;event.target.value='';controls();}};
 $('threshold').oninput=()=>$('threshold-value').textContent=Number($('threshold').value).toFixed(2);
@@ -103,4 +106,4 @@ $('merge').onclick=()=>action('/api/merge',{ids:[...selected]});$('split').oncli
 $('close-detail').onclick=()=>$('detail').close();$('detail').addEventListener('close',()=>{detailId=null;faceFingerprint='';if($('face-detail').open)$('face-detail').close();});$('close-face').onclick=()=>$('face-detail').close();
 document.querySelectorAll('[data-mark]').forEach(button=>button.onclick=()=>action('/api/mark',{id:detailId,status:button.dataset.mark==='auto'?null:button.dataset.mark}));
 $('export').onclick=async()=>{if(busy)return;busy=true;controls();notice('');try{const blob=await(await request('/api/export',{})).blob();const url=URL.createObjectURL(blob);const link=el('a');link.href=url;link.download='你拍的照片怎么样-首选原图.zip';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}catch(e){notice(e.message);}finally{busy=false;controls();}};
-async function poll(){try{if(!busy)await refresh();}catch(e){notice('无法连接本地程序：'+e.message+'。请确认启动窗口仍然打开。');}finally{setTimeout(poll,state.job.state==='running'?1200:2500);}}poll();
+async function poll(){try{if(!busy){if(state.job.state==='running'){await refreshProgress();if(state.job.state!=='running')await refresh();}else await refresh();}}catch(e){notice('无法连接审核服务：'+e.message+'。请稍后重试。');}finally{setTimeout(poll,state.job.state==='running'?1200:4000);}}poll();

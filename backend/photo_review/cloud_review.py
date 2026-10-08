@@ -6,10 +6,12 @@ import io
 import json
 import math
 import os
+import random
 import socket
 import time
 import urllib.error
 import urllib.request
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 import numpy as np
@@ -54,30 +56,59 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         raise CloudReviewError('Kimi 接口发生跳转，请检查所选平台')
 
 
+RETRYABLE_HTTP_CODES = {429,500,502,503,504}
+MAX_API_RETRIES = 3
+
+
+def _retry_delay(headers, attempt):
+    value=headers.get('Retry-After') if headers else None
+    if value:
+        try:
+            delay=float(value)
+        except (TypeError,ValueError):
+            try:
+                delay=max(0,parsedate_to_datetime(value).timestamp()-time.time())
+            except (TypeError,ValueError,OverflowError):
+                delay=None
+        if delay is not None:
+            return min(30,max(0,delay)+random.uniform(0,.5))
+    return min(30,2**attempt+random.uniform(0,.5))
+
+
 def api_request(config, api_key, path, payload=None, timeout=180):
     url = ENDPOINTS[config['region']]+'/'+path
     data = None if payload is None else json.dumps(payload,ensure_ascii=False).encode('utf-8')
-    request = urllib.request.Request(url,data=data,headers={
-        'Authorization':'Bearer '+api_key, 'Content-Type':'application/json',
-        'User-Agent':'PhotoReview/0.2'},method='GET' if payload is None else 'POST')
-    try:
-        with urllib.request.build_opener(NoRedirect()).open(request,timeout=timeout) as response:
-            raw = response.read(4*1024*1024+1)
-            if len(raw) > 4*1024*1024:
-                raise CloudReviewError('Kimi 返回内容过大，本张未保存审核结果')
-        return json.loads(raw.decode('utf-8'))
-    except urllib.error.HTTPError as exc:
-        messages = {401:'密钥无效或与所选平台不匹配，请检查后重新保存',
-                    403:'本次 Kimi 请求被拒绝，请在开放平台检查所选模型权限、账户余额和密钥限制',
-                    402:'Kimi 账号余额不足，请在开放平台处理后重试',
-                    429:'Kimi 调用额度或速率已达上限；已完成结果保留，稍后继续',
-                    400:'Kimi 拒绝了本次请求，可能是模型或请求参数不兼容；本张未采用，已完成结果保留',
-                    404:'所选 Kimi 平台未提供该模型或接口'}
-        raise CloudReviewError(messages.get(exc.code,f'Kimi 服务暂时不可用（{exc.code}），请稍后继续')) from None
-    except (urllib.error.URLError, TimeoutError, socket.timeout):
-        raise CloudReviewError('无法连接 Kimi 或请求超时；本次不自动重复收费请求，请稍后继续') from None
-    except (json.JSONDecodeError, UnicodeError):
-        raise CloudReviewError('Kimi 返回了无法读取的内容，本张未保存审核结果') from None
+    for attempt in range(MAX_API_RETRIES+1):
+        request = urllib.request.Request(url,data=data,headers={
+            'Authorization':'Bearer '+api_key, 'Content-Type':'application/json',
+            'User-Agent':'PhotoReview/0.2'},method='GET' if payload is None else 'POST')
+        try:
+            with urllib.request.build_opener(NoRedirect()).open(request,timeout=timeout) as response:
+                raw = response.read(4*1024*1024+1)
+                if len(raw) > 4*1024*1024:
+                    raise CloudReviewError('Kimi 返回内容过大，本张未保存审核结果')
+            return json.loads(raw.decode('utf-8'))
+        except urllib.error.HTTPError as exc:
+            if exc.code in RETRYABLE_HTTP_CODES and attempt<MAX_API_RETRIES:
+                delay=_retry_delay(exc.headers,attempt)
+                exc.close()
+                time.sleep(delay)
+                continue
+            messages = {401:'密钥无效或与所选平台不匹配，请检查后重新保存',
+                        403:'本次 Kimi 请求被拒绝，请在开放平台检查所选模型权限、账户余额和密钥限制',
+                        402:'Kimi 账号余额不足，请在开放平台处理后重试',
+                        429:'Kimi 调用额度或速率已达上限；系统自动重试后仍未成功，已完成结果保留，稍后可继续',
+                        400:'Kimi 拒绝了本次请求，可能是模型或请求参数不兼容；本张未采用，已完成结果保留',
+                        404:'所选 Kimi 平台未提供该模型或接口'}
+            if exc.code in RETRYABLE_HTTP_CODES:
+                message=f'Kimi 服务暂时不可用（{exc.code}）；系统自动重试后仍未成功，已完成结果保留，稍后可继续'
+            else:
+                message=messages.get(exc.code,f'Kimi 服务暂时不可用（{exc.code}），请稍后继续')
+            raise CloudReviewError(message) from None
+        except (urllib.error.URLError, TimeoutError, socket.timeout):
+            raise CloudReviewError('无法连接 Kimi 或请求超时；本次不自动重复请求，以免重复计费，请稍后继续') from None
+        except (json.JSONDecodeError, UnicodeError):
+            raise CloudReviewError('Kimi 返回了无法读取的内容，本张未保存审核结果') from None
 
 
 def check_key(config, api_key):
