@@ -91,6 +91,9 @@ services:
       PHOTO_REVIEW_BASE_PATH: /photo-review
       LIUGUANG_DATA_DIR: /var/lib/field-note-photo-review
       PHOTO_REVIEW_SESSION_SECRET: ${PHOTO_REVIEW_SESSION_SECRET}
+      # Server-side only. Never expose this value to the browser or frontend build.
+      MOONSHOT_API_KEY: ${MOONSHOT_API_KEY:-}
+      PHOTO_REVIEW_CONCURRENCY: ${PHOTO_REVIEW_CONCURRENCY:-2}
     volumes:
       - photo_review_data:/var/lib/field-note-photo-review
     depends_on:

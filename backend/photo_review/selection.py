@@ -11,22 +11,52 @@ def visual_similarity(a, b):
 
 def compatible(a, b, threshold):
     ta, tb = a.get('taken_at'), b.get('taken_at')
-    if ta and tb and abs(float(ta) - float(tb)) > 300:
+    delta = abs(float(ta) - float(tb)) if ta is not None and tb is not None else None
+    if delta is not None and delta > 300:
         return False
     if len(a['embedding'])!=len(b['embedding']) or a.get('visual_model')!=b.get('visual_model'):
         return False
-    return visual_similarity(a, b) >= threshold
+    similarity = visual_similarity(a, b)
+    if (delta is not None and delta <= 12 and a.get('visual_model') == 'scene-layout-v2'):
+        # A burst can vary noticeably frame-to-frame (small reframing, people
+        # moving, flash/exposure changes). Time proximity plus either scene
+        # similarity or a perceptual-hash match is a stronger signal than the
+        # old strict .92 RGB-layout cutoff.
+        burst_threshold = max(.72, threshold - .18)
+        if similarity >= burst_threshold:
+            return True
+        try:
+            left = int(a.get('perceptual_hash', ''), 16)
+            right = int(b.get('perceptual_hash', ''), 16)
+            if (a.get('perceptual_hash') is not None and b.get('perceptual_hash') is not None
+                    and (left ^ right).bit_count() <= 18):
+                return True
+        except (TypeError, ValueError):
+            pass
+    return similarity >= threshold
+
+
+def _features(photo):
+    grouping = photo.get('grouping') or {}
+    metrics = photo.get('metrics') or {}
+    return grouping if grouping.get('embedding') else metrics
 
 
 def group_candidates(photos, threshold=.92):
-    """Complete-link groups prevent a chain of weak matches collapsing an event."""
+    """Group by scene; use timestamp-aware matching for short camera bursts."""
     groups = []
-    for p in photos:
-        if not p.get('metrics') or not p['metrics'].get('embedding'):
+    indexed = list(enumerate(photos))
+    indexed.sort(key=lambda pair: (
+        pair[1].get('taken_at') is None,
+        float(pair[1]['taken_at']) if pair[1].get('taken_at') is not None else pair[0],
+        pair[0]))
+    for _, p in indexed:
+        features = _features(p)
+        if not features.get('embedding'):
             continue
-        matching = [g for g in groups if all(compatible(p['metrics'], q['metrics'], threshold) for q in g)]
+        matching = [g for g in groups if all(compatible(features, _features(q), threshold) for q in g)]
         if matching:
-            best = max(matching, key=lambda g: min(visual_similarity(p['metrics'], q['metrics']) for q in g))
+            best = max(matching, key=lambda g: min(visual_similarity(features, _features(q)) for q in g))
             best.append(p)
         else:
             groups.append([p])

@@ -44,7 +44,9 @@ function updateFaces(photo){
 function controls(){const running=state.job.state==='running';for(const id of ['files','reset','start','mode','threshold','merge','split','export'])$(id).disabled=busy||running;
   $('start').disabled=busy||running||!state.photos.length;$('stop').hidden=!running;$('stop').disabled=busy;
   $('start-selected').disabled=busy||running||!selected.size;
-  for(const id of ['cloud-save','cloud-forget','cloud-region','cloud-model','cloud-key','cloud-effort','cloud-instructions'])$(id).disabled=busy||running;
+  for(const id of ['cloud-save','cloud-region','cloud-model','cloud-key','cloud-effort','cloud-instructions'])$(id).disabled=busy||running;
+  const serverKey=state.cloud?.key_source==='server';$('cloud-forget').disabled=busy||running||serverKey;$('cloud-forget').textContent=serverKey?'由服务器安全配置':'清除本次密钥';
+  $('cloud-key').placeholder=serverKey?'留空使用服务器密钥；也可临时输入新密钥':'可由服务器配置，或仅在本次运行中临时输入';
   const alwaysDetailed=$('cloud-model').value.startsWith('kimi-k2.7');
   $('cloud-effort').disabled=busy||running||alwaysDetailed;
   $('cloud-effort-note').textContent=alwaysDetailed?'此模型始终进行详细审阅。':'详细审阅通常会增加等待时间和用量。';
@@ -53,7 +55,7 @@ function controls(){const running=state.job.state==='running';for(const id of ['
   document.querySelectorAll('[data-mark]').forEach(b=>b.disabled=busy||running);
   $('start').textContent=(state.job.state==='error'||state.job.state==='stopped'?'继续联网审核全部':'联网审核全部')+'（'+state.photos.length+' 张）';
   $('start-selected').textContent='联网审核勾选照片（'+selected.size+' 张）';
-  $('cloud-key-status').textContent=state.cloud?.configured?'密钥已配置，仅在本次启动内存中保存。':'尚未配置。密钥仅在本次启动内存中保存。';
+  $('cloud-key-status').textContent=serverKey?'已从服务器环境变量安全读取；密钥不会发送到浏览器或代码仓库。':state.cloud?.configured?'已配置临时密钥，仅在服务端内存中使用。':'尚未配置；可由服务器管理员写入 .env。';
   const available=state.cloud?.available_models||[];
   const supported=available.filter(name=>modelLabels[name]);
   $('cloud-model-list').textContent=!state.cloud?.configured?'保存密钥后显示平台返回的模型。不会自动提交照片。':supported.length?'平台已列出：'+supported.map(name=>modelLabels[name]).join('、')+'。具体调用权限与余额以照片请求为准。':'平台返回：'+(available.slice(0,8).join('、')||'空列表')+'。没有列出上述视觉模型，仍可手动选择并审核一张确认。';

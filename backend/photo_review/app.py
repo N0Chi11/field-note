@@ -5,6 +5,7 @@ from datetime import datetime
 from http.cookies import SimpleCookie
 import copy, hashlib, io, json, logging, os, secrets, shutil, socket, sqlite3
 import subprocess, sys, tempfile, threading, time, traceback, uuid, webbrowser, zipfile
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from jose import JWTError, jwt
 from PIL import Image
 from engine import PIPELINE, LocalModels, open_photo, register_heif, reusable_visual, face_crop_bounds
@@ -75,6 +76,7 @@ class Workspace:
         self.lock = threading.RLock()
         self.import_lock = threading.Lock()
         self.face_preview_lock = threading.Lock()
+        self.preparer_lock = threading.Lock()
         self.cancel = threading.Event()
         self.models = None
         self.db_path = self.data/'liuguang.sqlite'
@@ -103,13 +105,15 @@ class Workspace:
             self.job['message'] = '还有未完成的照片，点击开始选片可继续'
         self.options = json.loads(saved_options[0]) if saved_options else dict(threshold=.92, mode='event')
         self.cloud = validate_config(json.loads(saved_cloud[0]) if saved_cloud else DEFAULT_CONFIG)
-        self.cloud_key = os.environ.get('MOONSHOT_API_KEY','').strip()
+        self.environment_cloud_key = os.environ.get('MOONSHOT_API_KEY','').strip()
+        self.cloud_key = self.environment_cloud_key
+        self.cloud_key_source = 'server' if self.environment_cloud_key else ''
         self.cloud_models = []
-        self.cloud_connection_note = ''
-        if self.cloud_key and self.cloud['model']=='auto':
+        self.cloud_connection_note = ('已从服务器环境变量加载 Kimi 密钥；点击“保存并检查连接”验证。' if self.cloud_key else '')
+        if self.cloud['model']=='auto':
             self.cloud['model']='kimi-k2.6'
         self.preparer = None
-        self.job['message'] = '填写 Kimi 密钥，选择照片开始联网审核；旧本地结果仅供参考'
+        self.job['message'] = 'Kimi 已就绪，选择照片开始联网审核；旧本地结果仅供参考' if self.cloud_key else '填写 Kimi 密钥，选择照片开始联网审核；旧本地结果仅供参考'
         self.job['device'] = 'Kimi · 等待配置密钥' if not self.cloud_key else model_label(self.cloud['model'])+' · 密钥已配置'
         if any((p.get('metrics') or {}).get('cloud_review') for p in self.photos.values()):
             self.update_cloud_groups()
@@ -134,9 +138,14 @@ class Workspace:
                 p.pop('path',None)
                 p.pop('cache_key',None)
                 p.pop('previous_metrics',None)
-                if p.get('metrics'): p['metrics'].pop('embedding',None)
+                p.pop('grouping',None)
+                p.pop('group_manual',None)
+                if p.get('metrics'):
+                    p['metrics'].pop('embedding',None)
+                    p['metrics'].pop('perceptual_hash',None)
             return dict(photos=pictures, job=dict(self.job), options=dict(self.options),
                         cloud=dict(self.cloud,configured=bool(self.cloud_key),signature=review_signature(self.cloud),
+                                   key_source=self.cloud_key_source,
                                    available_models=list(self.cloud_models),connection_note=self.cloud_connection_note))
 
     def configure_cloud(self, body):
@@ -145,6 +154,7 @@ class Workspace:
             config = validate_config(body)
             supplied = body.get('api_key')
             api_key = supplied.strip() if isinstance(supplied,str) and supplied.strip() else self.cloud_key
+            key_source = 'session' if isinstance(supplied,str) and supplied.strip() else self.cloud_key_source
         # This checks account access only. It sends no photos and creates no completion.
         models=check_key(config,api_key)
         if config['model']=='auto':
@@ -157,18 +167,21 @@ class Workspace:
             self.ensure_idle()
             with self.db() as db:
                 db.execute('INSERT OR REPLACE INTO settings VALUES (?,?)',('cloud',json.dumps(config,ensure_ascii=False)))
-            self.cloud,self.cloud_key = config,api_key
+            self.cloud,self.cloud_key,self.cloud_key_source = config,api_key,key_source
             self.cloud_models,self.cloud_connection_note=models,note
             self.job['device'] = label+' · 密钥已验证，等待照片审核'
-        return dict(ok=True,message=note+' 密钥仅在本次启动内存中保存，未写入文件。')
+        storage_note = ('密钥由服务器环境变量提供，不会发送给浏览器或写入代码仓库。' if key_source=='server'
+                        else '此密钥仅在本次服务运行期间保存在服务端内存中，不会写入文件或代码仓库。')
+        return dict(ok=True,message=note+' '+storage_note)
 
     def forget_cloud_key(self):
         with self.lock:
             self.ensure_idle()
-            self.cloud_key=''
+            self.cloud_key=self.environment_cloud_key
+            self.cloud_key_source='server' if self.environment_cloud_key else ''
             self.cloud_models=[]
             self.cloud_connection_note=''
-            self.job['device']='Kimi · 等待配置密钥'
+            self.job['device']=model_label(self.cloud['model'])+' · 服务器密钥已配置' if self.cloud_key else 'Kimi · 等待配置密钥'
 
     def start_cloud(self, ids, threshold, mode):
         if not .80<=threshold<=.99 or mode not in {'event','stage'}:
@@ -196,10 +209,21 @@ class Workspace:
             threading.Thread(target=self.work_cloud,args=(targets,config,key,mode),daemon=True).start()
 
     def update_cloud_groups(self):
-        # Existing group membership and manual choices are retained for this review.
-        ungrouped = [p for p in self.photos.values() if p.get('metrics',{} ) and p['metrics'].get('cloud_review') and not p.get('group')]
-        number = max([p.get('group') or 0 for p in self.photos.values()])+1
-        for group in group_candidates(ungrouped,self.options['threshold']):
+        # Recompute automatic groups across the entire batch. Grouping a photo
+        # only once when its review completes made earlier singleton groups
+        # invisible to later burst frames. Human-edited groups remain fixed.
+        manual_groups = {p.get('group') for p in self.photos.values()
+                         if p.get('group_manual') and p.get('group') is not None}
+        candidates = []
+        for p in self.photos.values():
+            if p.get('group_manual'):
+                continue
+            features = p.get('grouping') or p.get('metrics') or {}
+            if features.get('embedding'):
+                candidates.append(p)
+            p['group'] = None
+        number = max(manual_groups or {0}) + 1
+        for group in group_candidates(candidates,self.options['threshold']):
             for p in group:
                 p['group']=number
             number+=1
@@ -223,81 +247,132 @@ class Workspace:
                     if p.get('manual'):
                         p['reasons'].insert(0,'已采用你的手动选择，覆盖自动结果')
 
-    def work_cloud(self, targets, config, api_key, mode):
-        current_id=None
-        try:
-            reviewer = KimiReviewer(config,api_key)
-            if self.preparer is None:
-                self.preparer=PhotoPreparer(self.data/'models',self.message)
-            for done,pid in enumerate(targets,1):
-                if self.cancel.is_set():
-                    break
-                current_id=pid
-                with self.lock:
-                    photo=copy.deepcopy(self.photos[pid])
-                current=(photo.get('metrics') or {}).get('cloud_review') or {}
-                if current.get('signature')==reviewer.signature and current.get('mode')==mode:
-                    with self.lock:
-                        self.job['done']=done
-                        self.job['reused']+=1
-                    continue
-                digest=photo['cache_key'].rsplit(':',1)[-1]
-                cache_key=f'{CLOUD_PIPELINE}:{CLOUD_PROMPT_VERSION}:{reviewer.signature}:{mode}:{digest}'
-                with self.db() as db:
-                    cached=db.execute('SELECT payload FROM cache WHERE key=?',(cache_key,)).fetchone()
-                self.message(f"Kimi 审核 {done}/{len(targets)} · {photo['name']}；发送整图与原图人脸细节")
-                with self.lock:
-                    self.photos[pid]['cloud_status']='running'
-                    self.photos[pid].pop('cloud_error',None)
-                try:
+    def _review_cloud_photo(self, pid, reviewer, mode):
+        with self.lock:
+            photo=copy.deepcopy(self.photos[pid])
+        current=(photo.get('metrics') or {}).get('cloud_review') or {}
+        if current.get('signature')==reviewer.signature and current.get('mode')==mode:
+            grouping=photo.get('grouping') or {}
+            if grouping.get('visual_model')!='scene-layout-v2':
+                metrics=photo.get('metrics') or {}
+                if metrics.get('visual_model')=='scene-layout-v2' and metrics.get('embedding'):
+                    grouping={key:metrics[key] for key in ('embedding','visual_model','perceptual_hash','taken_at')
+                              if key in metrics}
+                else:
                     with open_photo(photo['path']) as image:
-                        metrics=self.preparer.prepare(image,photo.get('metrics'),photo.get('taken_at'))
-                        metrics['pipeline']=PIPELINE
-                        if cached:
-                            saved=json.loads(cached[0])
-                            # Cache includes the geometry used for the numbered crops.
-                            metrics,review=saved['metrics'],saved['review']
-                        else:
-                            with self.lock:
-                                self.job['submitted']+=1
-                            review=reviewer.measure(image,metrics,mode)
-                            with self.lock:
-                                self.job['prompt_tokens']+=review['usage'].get('prompt_tokens',0)
-                                self.job['completion_tokens']+=review['usage'].get('completion_tokens',0)
-                            with self.db() as db:
-                                db.execute('INSERT OR REPLACE INTO cache VALUES (?,?)',(cache_key,json.dumps(dict(metrics=metrics,review=review),ensure_ascii=False)))
-                        result=apply_review(metrics,review)
-                except CloudReviewError:
-                    raise
-                except (OSError,ValueError) as exc:
+                        grouping=PhotoPreparer.grouping_features(image,photo.get('taken_at'))
+            return dict(pid=pid,reused=True,grouping=grouping)
+        digest=photo['cache_key'].rsplit(':',1)[-1]
+        cache_key=f'{CLOUD_PIPELINE}:{CLOUD_PROMPT_VERSION}:{reviewer.signature}:{mode}:{digest}'
+        with self.db() as db:
+            cached=db.execute('SELECT payload FROM cache WHERE key=?',(cache_key,)).fetchone()
+        with self.lock:
+            self.photos[pid]['cloud_status']='running'
+            self.photos[pid].pop('cloud_error',None)
+        self.message(f"Kimi 并行审核中 · {photo['name']}")
+        try:
+            with open_photo(photo['path']) as image:
+                with self.preparer_lock:
+                    metrics=self.preparer.prepare(image,photo.get('metrics'),photo.get('taken_at'))
+                metrics['pipeline']=PIPELINE
+                if cached:
+                    saved=json.loads(cached[0])
+                    # Rebuild legacy grouping descriptors even when reusing an
+                    # old review cache, without paying for another model call.
+                    metrics=saved['metrics']
+                    if metrics.get('visual_model')!='scene-layout-v2':
+                        metrics.update(PhotoPreparer.grouping_features(image,photo.get('taken_at')))
+                    review=saved['review']
+                else:
                     with self.lock:
-                        self.photos[pid].update(cloud_status='error',cloud_error='无法读取本张原图，请检查文件是否可用')
-                        self.save(self.photos[pid])
-                        self.job['done']=done
-                    continue
-                with self.lock:
-                    self.photos[pid].update(metrics=result,cloud_status='done')
-                    self.photos[pid].pop('previous_metrics',None)
-                    self.photos[pid].pop('cloud_error',None)
-                    self.update_cloud_groups()
-                    self.persist_all()
-                    self.job['done']=done
-                    if cached:
-                        self.job['reused']+=1
+                        self.job['submitted']+=1
+                    review=reviewer.measure(image,metrics,mode)
+                    with self.lock:
+                        self.job['prompt_tokens']+=review['usage'].get('prompt_tokens',0)
+                        self.job['completion_tokens']+=review['usage'].get('completion_tokens',0)
+                    with self.db() as db:
+                        db.execute('INSERT OR REPLACE INTO cache VALUES (?,?)',
+                                   (cache_key,json.dumps(dict(metrics=metrics,review=review),ensure_ascii=False)))
+                metrics['pipeline']=PIPELINE
+                result=apply_review(metrics,review)
+                grouping=PhotoPreparer.grouping_features(image,photo.get('taken_at'))
+                return dict(pid=pid,metrics=result,grouping=grouping,reused=bool(cached))
+        except CloudReviewError:
+            raise
+        except (OSError,ValueError):
+            return dict(pid=pid,error='无法读取本张原图，请检查文件是否可用')
+
+    def work_cloud(self, targets, config, api_key, mode):
+        completed=0
+        failure=None
+        try:
+            reviewer=KimiReviewer(config,api_key)
+            if self.preparer is None:
+                with self.preparer_lock:
+                    if self.preparer is None:
+                        self.preparer=PhotoPreparer(self.data/'models',self.message)
+            try:
+                configured=int(os.environ.get('PHOTO_REVIEW_CONCURRENCY','2'))
+            except ValueError:
+                configured=2
+            concurrency=max(1,min(2,configured))
+            next_index=0
+            futures={}
+            with ThreadPoolExecutor(max_workers=concurrency,thread_name_prefix='photo-review') as pool:
+                def fill_queue():
+                    nonlocal next_index
+                    while (next_index<len(targets) and len(futures)<concurrency
+                           and not self.cancel.is_set() and failure is None):
+                        pid=targets[next_index]
+                        next_index+=1
+                        futures[pool.submit(self._review_cloud_photo,pid,reviewer,mode)]=pid
+
+                fill_queue()
+                while futures:
+                    finished,_=wait(futures,timeout=.25,return_when=FIRST_COMPLETED)
+                    for future in finished:
+                        pid=futures.pop(future)
+                        try:
+                            result=future.result()
+                        except CloudReviewError as exc:
+                            failure=str(exc)
+                            result=dict(pid=pid,error=failure)
+                        except Exception:
+                            failure='本地准备或保存审核结果失败，请稍后重试'
+                            result=dict(pid=pid,error=failure)
+                        with self.lock:
+                            photo=self.photos[pid]
+                            if result.get('grouping') is not None:
+                                photo['grouping']=result['grouping']
+                            if result.get('metrics') is not None:
+                                photo.update(metrics=result['metrics'],cloud_status='done')
+                                photo.pop('previous_metrics',None)
+                                photo.pop('cloud_error',None)
+                            elif result.get('error'):
+                                photo.update(cloud_status='error',cloud_error=result['error'])
+                            if result.get('reused'):
+                                self.job['reused']+=1
+                            self.save(photo)
+                            completed+=1
+                            self.job['done']=completed
+                            self.update_cloud_groups()
+                            self.persist_all()
+                    fill_queue()
             with self.lock:
                 self.update_cloud_groups()
                 self.persist_all()
                 failed=sum(self.photos[pid].get('cloud_status')=='error' for pid in targets)
                 stopped=self.cancel.is_set()
-                self.job.update(state='stopped' if stopped else 'done',message=(
-                    '已停止提交后续照片；已返回的 Kimi 结果保留，可继续' if stopped else
-                    f"Kimi 审核完成：{len(targets)-failed} 张完成，{failed} 张未完成；本轮新调用 {self.job['submitted']} 次，复用 {self.job['reused']} 张结果"))
+                if failure:
+                    self.job.update(state='error',message=failure+'。已完成结果保留；继续时会复用相同设置下的结果。')
+                else:
+                    self.job.update(state='stopped' if stopped else 'done',message=(
+                        '已停止提交后续照片；已返回的 Kimi 结果保留，可继续' if stopped else
+                        f"Kimi 审核完成：{len(targets)-failed} 张完成，{failed} 张未完成；本轮新调用 {self.job['submitted']} 次，复用 {self.job['reused']} 张结果"))
         except Exception as exc:
             # Do not log keys, request images, provider payloads or raw response bodies.
             message=str(exc) if isinstance(exc,CloudReviewError) else '本地准备或保存审核结果失败，请稍后重试'
             with self.lock:
-                if current_id:
-                    self.photos[current_id].update(cloud_status='error',cloud_error=message)
                 self.update_cloud_groups()
                 self.persist_all()
                 self.job.update(state='error',message=message+'。已完成结果保留；继续时会复用相同设置下的结果。')
@@ -342,14 +417,27 @@ class Workspace:
                     with Image.open(path) as original:
                         exif = original.getexif()
                         value = exif.get(36867) or exif.get(306)
+                        subsecond = exif.get(37521)
+                        try:
+                            exif_ifd = exif.get_ifd(34665)
+                            value = exif_ifd.get(36867) or value
+                            subsecond = exif_ifd.get(37521) or subsecond
+                        except (AttributeError, KeyError, TypeError):
+                            pass
                         if value:
-                            try: taken_at=datetime.strptime(str(value),'%Y:%m:%d %H:%M:%S').timestamp()
+                            try:
+                                taken_at=datetime.strptime(str(value),'%Y:%m:%d %H:%M:%S').timestamp()
+                                digits=''.join(ch for ch in str(subsecond or '') if ch.isdigit())[:6]
+                                if digits:
+                                    taken_at+=int(digits)/10**len(digits)
                             except ValueError: pass
                     picture = open_photo(path)
+                    grouping = PhotoPreparer.grouping_features(picture,taken_at)
                     pid = uuid.uuid4().hex
                     picture.thumbnail((1600,1600))
                     picture.save(self.data/'previews'/f'{pid}.jpg',quality=88)
                     p = dict(id=pid, path=str(path), name=path.name, cache_key=cache_key, taken_at=taken_at,
+                             grouping=grouping,
                              status='pending', manual=None, metrics=None, group=None, score=None,
                              reasons=['尚未审核'])
                     with self.lock:
@@ -450,11 +538,17 @@ class Workspace:
             chosen=[self.photos[pid] for pid in dict.fromkeys(ids)]
             if any(not p.get('metrics') for p in chosen): raise ValueError('请先完成照片分析')
             number=max([p.get('group') or 0 for p in self.photos.values()])+1
-            affected={p.get('group') for p in chosen}
+            affected={p.get('group') for p in chosen if p.get('group') is not None}
+            for p in self.photos.values():
+                if p.get('group') in affected:
+                    p['group_manual']=True
             if split:
                 for p in chosen:
+                    p['group_manual']=True
                     assign_group([p],number,self.options['mode']); number+=1
             else:
+                for p in chosen:
+                    p['group_manual']=True
                 assign_group(chosen,number,self.options['mode'])
             for old in affected:
                 remainder=[p for p in self.photos.values() if p.get('group')==old]

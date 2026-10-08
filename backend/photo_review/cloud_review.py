@@ -21,7 +21,7 @@ CLOUD_PROMPT_VERSION = 'strict-eye-evidence-prompt-v3'
 ENDPOINTS = {'cn':'https://api.moonshot.cn/v1', 'global':'https://api.moonshot.ai/v1'}
 MODEL_LABELS = {'kimi-k3':'Kimi K3', 'kimi-k2.6':'Kimi K2.6',
                 'kimi-k2.7-code':'Kimi K2.7 Code', 'kimi-k2.7-code-highspeed':'Kimi K2.7 Code 高速版'}
-DEFAULT_CONFIG = dict(region='cn', model='auto', instructions='', effort='low')
+DEFAULT_CONFIG = dict(region='cn', model='kimi-k2.6', instructions='', effort='low')
 
 
 def model_label(model):
@@ -154,6 +154,26 @@ class PhotoPreparer:
         self.root,self.progress = Path(root),progress
         self.detector = None
 
+    @staticmethod
+    def grouping_features(image,taken_at=None):
+        """Compact scene descriptor plus a perceptual hash for burst grouping."""
+        sample=np.asarray(image.resize((16,16)).convert('RGB'),dtype=np.float32).flatten()/255
+        vector=sample/max(float(np.linalg.norm(sample)),1e-8)
+        gray=np.asarray(image.convert('L').resize((32,32),Image.Resampling.LANCZOS),dtype=np.float32)
+        positions=np.arange(32,dtype=np.float32)+.5
+        frequencies=np.arange(8,dtype=np.float32)
+        basis=np.cos((np.pi/32)*positions[:,None]*frequencies[None,:])
+        low=basis.T @ gray @ basis
+        values=low.flatten()
+        median=float(np.median(values[1:]))
+        bits=values>median
+        bits[0]=False
+        phash=0
+        for bit in bits:
+            phash=(phash<<1)|int(bit)
+        return dict(embedding=vector.tolist(),visual_model='scene-layout-v2',
+                    perceptual_hash=f'{phash:016x}',taken_at=taken_at)
+
     def locate_faces(self,image):
         import cv2
         if self.detector is None:
@@ -182,11 +202,9 @@ class PhotoPreparer:
     def prepare(self,image,previous,taken_at):
         metrics = copy.deepcopy(previous or {})
         metrics.pop('cloud_review',None)
-        # Layout features only support rough local grouping. Kimi does the review.
-        if not metrics.get('embedding'):
-            sample = np.asarray(image.resize((16,16)).convert('RGB'),dtype=np.float32).flatten()/255
-            vector = sample/max(float(np.linalg.norm(sample)),1e-8)
-            metrics.update(embedding=vector.tolist(),visual_model='scene-layout-v1',taken_at=taken_at)
+        # Legacy local color/layout features remain only as a fallback for old data.
+        if not metrics.get('embedding') or metrics.get('visual_model')!='scene-layout-v2':
+            metrics.update(self.grouping_features(image,taken_at))
         if not metrics.get('faces'):
             try:
                 metrics['faces'] = self.locate_faces(image)

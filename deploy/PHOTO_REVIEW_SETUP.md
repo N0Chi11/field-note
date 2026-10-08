@@ -7,7 +7,9 @@
 - 浏览器选择的照片会上传到 ECS 的 `photo_review_data` Docker 数据卷，审核结果、预览和原图都在此独立保存；不会进入 Git 仓库或 Nginx 公共静态目录。
 - 点“新批次”并确认后，会删除该工具存储的照片副本、预览、导出临时文件和本批次审核缓存。管理员电脑里的原图不受影响。要重新审核同一照片，需要重新上传；Kimi 可能再次计费。
 - 选择 Kimi 密钥或检查连接不会发送照片。仅在点击联网审核后，审核所需的缩小整图和人脸裁剪才会发送到 Kimi；费用由对应 Kimi 开放平台账户承担。
-- Kimi 密钥仅存于照片服务进程内存，服务重启后需要重新填写。所有管理员共用这一个审核工作区和当前密钥，不同管理员看到同一批照片与结果。
+- 生产环境建议把 Kimi 密钥只写在 ECS 项目根目录 `.env` 的 `MOONSHOT_API_KEY` 项中。Docker 只把它传给照片审核服务端；密钥不会进入网页脚本、浏览器状态接口或 GitHub/Gitee。`.env` 已被 Git 忽略，权限应保持为 `600`。所有管理员共用此服务端密钥和审核工作区。
+- 管理员也可以在网页临时输入密钥；这种方式只在服务端内存中有效，重启后消失。若已配置服务器密钥，网页不会提供清除按钮。
+- 默认模型为 Kimi K2.6；照片审核最多并行两张以缩短整批等待时间。可通过 `.env` 中的 `PHOTO_REVIEW_CONCURRENCY` 调整，但服务端会限制在 1–2 之间。
 - 现有 Windows 本机版 `D:\Liuguang` 的照片库不会自动复制到 ECS。需要在新页面重新选择要审核的照片。
 
 ## 已有 ECS 更新步骤
@@ -20,5 +22,18 @@ bash deploy/quick-update.sh
 ```
 
 `photo-review` 与后端共用同一构建镜像，但运行在独立容器、独立数据卷中；公网只开放现有 Nginx 的 80/443。不要删除 `photo_review_data` 卷，否则会永久删除其中的照片和结果。
+
+首次配置服务器密钥时，在服务器的项目目录中执行下面几行；粘贴时输入不会显示，也不会出现在 shell 历史中：
+
+```bash
+cd /root/equipment-system
+read -rsp '粘贴刚创建的 Kimi API Key（输入不会显示）: ' MOONSHOT_API_KEY; printf '\n'
+sed -i '/^MOONSHOT_API_KEY=/d' .env
+printf 'MOONSHOT_API_KEY=%s\n' "$MOONSHOT_API_KEY" >> .env
+unset MOONSHOT_API_KEY
+chmod 600 .env
+```
+
+随后运行上面的更新脚本，让照片审核容器读取新配置。不要把真实值填入 `deploy/.env.prod` 或任何被 Git 跟踪的文件。
 
 现有系统目前使用 HTTP 时，照片传输和登录本身都没有 TLS 保护。承载真实活动照片前，建议先把系统切到有效 HTTPS，再通过 HTTPS 地址使用此入口。
