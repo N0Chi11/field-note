@@ -6,6 +6,7 @@ from http.cookies import SimpleCookie
 import copy, hashlib, io, json, logging, os, secrets, shutil, socket, sqlite3
 import subprocess, sys, tempfile, threading, time, traceback, uuid, webbrowser, zipfile
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
+from contextlib import contextmanager
 from jose import JWTError, jwt
 from PIL import Image
 from engine import PIPELINE, LocalModels, open_photo, register_heif, reusable_visual, face_crop_bounds
@@ -15,6 +16,9 @@ from cloud_review import DEFAULT_CONFIG, CLOUD_PIPELINE, CLOUD_PROMPT_VERSION, M
 
 ROOT = Path(__file__).resolve().parent
 FORMATS = {'.jpg','.jpeg','.png','.webp','.heic','.heif','.tif','.tiff'}
+# Per-user pools are isolated, but the service-wide provider concurrency stays
+# bounded so several administrators cannot overwhelm the ECS or API quota.
+CLOUD_REVIEW_SLOTS = threading.BoundedSemaphore(2)
 
 
 def get_data_root():
@@ -119,8 +123,17 @@ class Workspace:
             self.update_cloud_groups()
             self.persist_all()
 
+    @contextmanager
     def db(self):
-        return sqlite3.connect(self.db_path, timeout=30)
+        connection=sqlite3.connect(self.db_path,timeout=30)
+        try:
+            yield connection
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
+        finally:
+            connection.close()
 
     def save(self, p):
         with self.db() as db:
@@ -271,7 +284,7 @@ class Workspace:
             self.photos[pid].pop('cloud_error',None)
         self.message(f"Kimi 并行审核中 · {photo['name']}")
         try:
-            with open_photo(photo['path']) as image:
+            with CLOUD_REVIEW_SLOTS, open_photo(photo['path']) as image:
                 with self.preparer_lock:
                     metrics=self.preparer.prepare(image,photo.get('metrics'),photo.get('taken_at'))
                 metrics['pipeline']=PIPELINE
@@ -601,31 +614,72 @@ class Workspace:
         return path
 
 
+class PhotoReviewServer(ThreadingHTTPServer):
+    """Keep each authenticated administrator's review workspace separate."""
+    def __init__(self, address, handler, data_root, user_scoped):
+        super().__init__(address,handler)
+        self.data_root=Path(data_root).resolve()
+        self.user_scoped=bool(user_scoped)
+        self._workspaces={}
+        self._workspaces_lock=threading.RLock()
+        if not self.user_scoped:
+            self._workspaces['local']=Workspace(data_root=self.data_root)
+
+    def workspace_for(self, user_id):
+        key=str(user_id)
+        if not self.user_scoped:
+            key='local'
+        elif not key.isdigit():
+            raise PermissionError('管理员身份无效，请重新登录')
+        else:
+            key=str(int(key))
+        with self._workspaces_lock:
+            if key not in self._workspaces:
+                self._workspaces[key]=Workspace(data_root=self.data_root/'users'/key)
+            return self._workspaces[key]
+
+    def stop_workspaces(self):
+        with self._workspaces_lock:
+            for workspace in self._workspaces.values():
+                workspace.cancel.set()
+
+
 class Handler(BaseHTTPRequestHandler):
     def log_message(self,*args): pass
     def valid_host(self):
         return self.headers.get('Host') in {f'127.0.0.1:{self.server.server_port}',f'localhost:{self.server.server_port}'}
     def requires_admin_session(self):
         return os.environ.get('PHOTO_REVIEW_REQUIRE_ADMIN_SESSION','0').lower() in {'1','true','yes'}
-    def valid_admin_session(self):
+    def authenticated_user_id(self):
         if not self.requires_admin_session():
-            return True
+            return 'local'
         secret=os.environ.get('PHOTO_REVIEW_SESSION_SECRET','').strip()
         if len(secret)<32 or secret.startswith('REPLACE_WITH_'):
-            return False
+            return None
         cookies=SimpleCookie()
         try:
             cookies.load(self.headers.get('Cookie',''))
             session=cookies.get('photo_review_session')
             if session is None:
-                return False
+                return None
             payload=jwt.decode(session.value,secret,algorithms=['HS256'],audience='field-note-photo-review')
         except (JWTError,KeyError,TypeError,ValueError):
-            return False
-        return payload.get('type')=='photo_review_session' and payload.get('role')=='admin' and str(payload.get('sub','')).isdigit()
+            return None
+        user_id=str(payload.get('sub',''))
+        if (payload.get('type')=='photo_review_session' and payload.get('role')=='admin'
+                and user_id.isdigit()):
+            return str(int(user_id))
+        return None
+    def valid_admin_session(self):
+        return self.authenticated_user_id() is not None
     def authorize_session(self):
         if not self.valid_host() or not self.valid_admin_session():
             raise PermissionError('管理员会话已过期，请刷新页面后重新进入照片审核')
+    def workspace(self):
+        user_id=self.authenticated_user_id()
+        if user_id is None:
+            raise PermissionError('管理员会话已过期，请刷新页面后重新进入照片审核')
+        return self.server.workspace_for(user_id)
     def authorize_image(self, token):
         self.authorize_session()
         if not self.requires_admin_session() and not secrets.compare_digest(token,self.server.token):
@@ -665,20 +719,21 @@ class Handler(BaseHTTPRequestHandler):
                 kind='text/javascript; charset=utf-8' if url.path.endswith('.js') else 'text/css; charset=utf-8'
                 self.send_bytes((ROOT/'web'/url.path[1:]).read_bytes(),kind)
             elif url.path=='/api/state':
-                self.authorize(); self.reply(self.server.workspace.snapshot())
+                self.authorize(); self.reply(self.workspace().snapshot())
             elif url.path.startswith('/preview/'):
                 token=parse_qs(url.query).get('token',[''])[0]
                 self.authorize_image(token)
                 pid=url.path.split('/')[-1]
-                with self.server.workspace.lock:
-                    if pid not in self.server.workspace.photos: raise KeyError('照片不存在')
-                self.send_bytes((self.server.workspace.data/'previews'/f'{pid}.jpg').read_bytes(),'image/jpeg')
+                ws=self.workspace()
+                with ws.lock:
+                    if pid not in ws.photos: raise KeyError('照片不存在')
+                self.send_bytes((ws.data/'previews'/f'{pid}.jpg').read_bytes(),'image/jpeg')
             elif url.path.startswith('/face/'):
                 token=parse_qs(url.query).get('token',[''])[0]
                 self.authorize_image(token)
                 parts=url.path.strip('/').split('/')
                 if len(parts)!=3 or not parts[2].isdigit(): raise KeyError('人脸不存在')
-                self.send_bytes(self.server.workspace.face_preview(parts[1],int(parts[2])),'image/jpeg')
+                self.send_bytes(self.workspace().face_preview(parts[1],int(parts[2])),'image/jpeg')
             else: self.reply({'error':'页面不存在'},404)
         except PermissionError as exc: self.reply({'error':str(exc)},403)
         except (KeyError,FileNotFoundError) as exc: self.reply({'error':str(exc)},404)
@@ -687,7 +742,7 @@ class Handler(BaseHTTPRequestHandler):
         try:
             self.authorize()
             url=urlparse(self.path)
-            ws=self.server.workspace
+            ws=self.workspace()
             if url.path=='/api/folder':
                 if self.requires_admin_session():
                     raise ValueError('服务器版请使用“选择照片”上传文件')
@@ -749,15 +804,15 @@ def main():
     data_root.mkdir(parents=True,exist_ok=True)
     logging.basicConfig(filename=data_root/'app.log',level=logging.INFO,encoding='utf-8')
     host=os.environ.get('PHOTO_REVIEW_HOST','127.0.0.1')
-    server=ThreadingHTTPServer((host,int(os.environ.get('PHOTO_REVIEW_PORT','0'))),Handler)
+    user_scoped=os.environ.get('PHOTO_REVIEW_REQUIRE_ADMIN_SESSION','0').lower() in {'1','true','yes'}
+    server=PhotoReviewServer((host,int(os.environ.get('PHOTO_REVIEW_PORT','0'))),Handler,data_root,user_scoped)
     server.token=secrets.token_urlsafe(32)
-    server.workspace=Workspace(data_root=data_root)
     address=f'http://127.0.0.1:{server.server_port}'
     print(f'你拍的照片怎么样已启动：{address}\n保持本窗口打开；关闭窗口即退出软件。',flush=True)
     if os.environ.get('PHOTO_REVIEW_NO_BROWSER','0').lower() not in {'1','true','yes'}:
         webbrowser.open(address)
     try: server.serve_forever()
     except KeyboardInterrupt: pass
-    finally: server.workspace.cancel.set(); server.server_close()
+    finally: server.stop_workspaces(); server.server_close()
 
 if __name__=='__main__': main()
