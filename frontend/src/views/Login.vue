@@ -1,9 +1,16 @@
 <template>
   <div class="login-page">
+    <div class="login-art" aria-hidden="true">
+      <picture>
+        <source srcset="/assets/halloween-editorial-v1.webp" type="image/webp" />
+        <img src="/assets/halloween-night.svg" alt="" />
+      </picture>
+    </div>
     <div class="login-card">
       <!-- Logo -->
       <div class="login-logo">
         <img src="/logo.png" alt="logo" class="login-logo-img" />
+        <img src="/assets/halloween-mark.svg" alt="" aria-hidden="true" class="login-stamp" />
         <div class="login-logo-text">
           <span class="login-logo-line1">FIELD NOTE<span class="brand-dot">.</span></span>
         </div>
@@ -129,13 +136,12 @@ async function handleAdminLogin() {
 </script>
 
 <style scoped>
-/* 完全复刻原 HTML 登录页样式 */
 .login-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  background: #191917;
+  background: radial-gradient(ellipse at 25% 58%, #4A3040 0, #2D202F 35%, #211B28 76%);
   padding: 48px 7vw;
   position: relative;
   overflow-x: hidden;
@@ -146,45 +152,72 @@ async function handleAdminLogin() {
   content: 'FIELD\A NOTE.';
   white-space: pre;
   position: absolute;
-  left: 5vw;
-  top: 50%;
-  transform: translateY(-54%);
+  left: 6vw;
+  top: 16%;
   font-family: var(--font);
-  font-size: clamp(72px, 10vw, 156px);
+  font-size: clamp(72px, 8.5vw, 132px);
   font-weight: 500;
   letter-spacing: -0.075em;
   line-height: 0.86;
-  color: #F2EFE7;
+  color: #F5E8D8;
+  text-shadow: 0 4px 24px rgba(25, 16, 28, .4);
   pointer-events: none;
+  z-index: 1;
 }
 .login-page::after {
   content: 'ISSUE 107';
   position: absolute;
   left: 5.5vw;
   top: 9vh;
-  color: #8EA3F2;
+  color: var(--accent-on-dark);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.24em;
+  z-index: 1;
 }
 
+.login-art {
+  position: absolute;
+  left: 5.5vw;
+  top: 32%;
+  width: min(47vw, 650px);
+  height: min(60vh, 610px);
+  overflow: hidden;
+  border: 1px solid rgba(244, 188, 136, .6);
+  border-radius: 48% 48% 2px 2px / 26% 26% 2px 2px;
+  box-shadow: 0 20px 70px rgba(12, 8, 16, .28);
+  pointer-events: none;
+}
+
+.login-art picture { display: block; width: 100%; height: 100%; }
+.login-art img { width: 100%; height: 100%; object-fit: cover; object-position: center 44%; }
+
 .login-card {
-  background: #F2EFE7;
-  border: 1px solid #F2EFE7;
-  border-top: 7px solid #243FA0;
+  background: var(--bg-card);
+  border: 1px solid #E7D4C3;
+  border-top: 6px solid #D77B46;
   border-radius: 1px;
   padding: clamp(34px, 4vw, 56px);
   width: min(44vw, 520px);
   max-width: none;
-  box-shadow: 18px 18px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 18px 18px 0 rgba(14, 10, 18, 0.24);
   animation: scaleIn 0.4s ease;
   position: relative;
   z-index: 1;
 }
 
 .login-logo {
+  position: relative;
   text-align: left;
   margin-bottom: 34px;
+}
+
+.login-stamp {
+  position: absolute;
+  top: -2px;
+  right: 0;
+  width: 76px;
+  height: 76px;
 }
 
 .login-logo-img {
@@ -311,8 +344,8 @@ async function handleAdminLogin() {
 }
 
 .btn-primary {
-  background: var(--text);
-  color: white;
+  background: var(--bg-sidebar);
+  color: var(--bg-card);
   box-shadow: none;
 }
 
@@ -364,12 +397,7 @@ async function handleAdminLogin() {
     padding: 72px 20px 44px;
   }
   .login-page::before {
-    left: 50%;
-    top: 8%;
-    transform: translateX(-50%);
-    font-size: 54px;
-    opacity: 0.12;
-    white-space: nowrap;
+    display: none;
   }
   .login-page::after {
     left: 50%;
@@ -384,6 +412,18 @@ async function handleAdminLogin() {
     max-width: 480px;
     padding: 28px 24px;
   }
+  .login-art {
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 260px;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    opacity: .62;
+    mask-image: linear-gradient(#000 5%, transparent 95%);
+  }
+  .login-stamp { width: 64px; height: 64px; }
   .login-logo-line1 { font-size: clamp(28px, 8vw, 38px); }
   .login-footer {
     justify-content: center;

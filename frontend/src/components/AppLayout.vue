@@ -76,7 +76,10 @@ function closeSidebar() {
     <main class="app-main">
       <div class="edition-masthead" aria-label="FIELD NOTE 刊头">
         <router-link to="/equipment" class="edition-name">FIELD NOTE<span class="edition-dot">.</span></router-link>
-        <span class="edition-issue">ISSUE 107<br /><span>{{ APP_VERSION }}</span></span>
+        <div class="edition-meta">
+          <img src="/assets/halloween-mark.svg" alt="" aria-hidden="true" class="edition-mark" />
+          <span class="edition-issue">ISSUE 107<br /><span>{{ APP_VERSION }}</span></span>
+        </div>
       </div>
       <div class="editorial-page"><slot /></div>
       <!-- 底部水印 -->
@@ -102,9 +105,11 @@ function closeSidebar() {
   box-sizing: border-box;
 }
 
-.edition-masthead { display: flex; justify-content: space-between; align-items: center; gap: 20px; max-width: 1260px; margin: 0 auto 30px; padding-bottom: 20px; border-bottom: 3px solid var(--text); }
+.edition-masthead { display: flex; justify-content: space-between; align-items: center; gap: 20px; max-width: 1260px; margin: 0 auto 30px; padding-bottom: 16px; border-bottom: 3px solid var(--text); }
 .edition-name { color: var(--text); font: 500 clamp(26px, 2.6vw, 38px)/1 var(--font); letter-spacing: -.035em; }
 .edition-dot { color: var(--accent); }
+.edition-meta { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.edition-mark { width: 52px; height: 52px; }
 .edition-issue { text-align: right; font: 10px/1.8 var(--font-data); letter-spacing: .08em; color: var(--accent); }
 .edition-issue span { color: var(--text-secondary); }
 
@@ -164,12 +169,15 @@ function closeSidebar() {
     height: calc(56px + env(safe-area-inset-top, 0px));
     padding: 0 16px;
     padding-top: env(safe-area-inset-top, 0px);
-    background: #191917;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    background: var(--bg-sidebar);
+    border-bottom: 1px solid rgba(241, 167, 110, 0.28);
     z-index: 200;
   }
   .edition-masthead { gap: 10px; margin-bottom: 24px; padding-bottom: 16px; }
   .edition-name { font-size: 24px; }
+  .edition-meta { gap: 7px; }
+  .edition-mark { width: 42px; height: 42px; }
+  .edition-issue { font-size: 9px; }
 
   .mobile-title {
     font-family: var(--font-ui);

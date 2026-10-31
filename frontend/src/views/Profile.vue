@@ -390,16 +390,16 @@ onMounted(loadRequests)
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(22, 22, 19, .66);
+  background: rgba(36, 28, 41, .66);
   backdrop-filter: blur(5px);
 }
 .avatar-picker {
   position: relative;
   width: min(620px, 100%);
   padding: 30px;
-  background: #f2efe7;
-  border-top: 5px solid #191917;
-  box-shadow: 14px 14px 0 rgba(202, 161, 55, .7);
+  background: var(--bg-card);
+  border-top: 5px solid var(--accent);
+  box-shadow: 14px 14px 0 rgba(168, 68, 36, .3);
 }
 .avatar-picker__close {
   position: absolute;
@@ -408,7 +408,7 @@ onMounted(loadRequests)
   padding: 0;
   border: 0;
   background: none;
-  color: #191917;
+  color: var(--text);
   font: 400 30px/1 var(--font);
   cursor: pointer;
 }
@@ -416,11 +416,11 @@ onMounted(loadRequests)
 .avatar-picker h2 { margin: 10px 0 6px; font: 500 34px/1 var(--font); }
 .avatar-picker p { margin: 0 0 22px; color: var(--text-secondary); font: 13px/1.6 var(--font-ui); }
 .avatar-picker__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.avatar-option { padding: 0; overflow: hidden; border: 2px solid transparent; background: #e7e0d4; aspect-ratio: 1; cursor: pointer; }
-.avatar-option:hover, .avatar-option.active { border-color: #191917; transform: translateY(-2px); }
+.avatar-option { padding: 0; overflow: hidden; border: 2px solid transparent; background: var(--bg-hover); aspect-ratio: 1; cursor: pointer; }
+.avatar-option:hover, .avatar-option.active { border-color: var(--accent); transform: translateY(-2px); }
 .avatar-option:disabled { cursor: wait; opacity: .6; }
 .avatar-option img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.avatar-picker__upload { margin-top: 20px; padding: 10px 14px; border: 1px solid #191917; background: #191917; color: #f2efe7; font: 600 12px/1 var(--font-ui); cursor: pointer; }
+.avatar-picker__upload { margin-top: 20px; padding: 10px 14px; border: 1px solid var(--bg-sidebar); background: var(--bg-sidebar); color: var(--bg-card); font: 600 12px/1 var(--font-ui); cursor: pointer; }
 .profile-name {
   font-size: 22px;
   font-weight: 700;

@@ -2,11 +2,11 @@ import type { BorrowDetail, YearbookData } from '@/types/models'
 import type { EditorialPoem } from '@/utils/editorialPoetry'
 import { formatApiDateTime } from '@/utils/dateTime'
 
-const PAPER = '#f2efe7'
-const INK = '#191917'
-const ACCENT = '#243fa0'
-const TERRACOTTA = '#9d604d'
-const GOLD = '#b89a63'
+const PAPER = '#fbf5eb'
+const INK = '#2d222d'
+const ACCENT = '#a84424'
+const TERRACOTTA = '#a84424'
+const GOLD = '#d77b46'
 
 const PASS_STATUS: Record<string, string> = {
   approved: 'APPROVED / 已通过',

@@ -212,7 +212,7 @@ onBeforeUnmount(releaseImageUrl)
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(20, 20, 18, 0.78);
+  background: rgba(36, 28, 41, 0.78);
   backdrop-filter: blur(6px);
 }
 .cropper-panel {
@@ -220,8 +220,8 @@ onBeforeUnmount(releaseImageUrl)
   max-height: calc(100vh - 30px);
   overflow-y: auto;
   padding: 24px;
-  background: #f2efe7;
-  border: 1px solid #191917;
+  background: var(--bg-card);
+  border: 1px solid var(--text);
   box-shadow: 12px 14px 0 rgba(0, 0, 0, 0.35);
 }
 .cropper-header {
@@ -229,10 +229,10 @@ onBeforeUnmount(releaseImageUrl)
   align-items: flex-start;
   justify-content: space-between;
   padding-bottom: 16px;
-  border-bottom: 1px solid #191917;
+  border-bottom: 1px solid var(--text);
 }
 .cropper-kicker {
-  color: #9d604d;
+  color: var(--accent);
   font: 700 10px/1 var(--font-ui);
   letter-spacing: 0.2em;
 }
@@ -243,7 +243,7 @@ onBeforeUnmount(releaseImageUrl)
 .cropper-close {
   border: 0;
   background: transparent;
-  color: #191917;
+  color: var(--text);
   font: 300 30px/1 var(--font-ui);
   cursor: pointer;
 }
@@ -256,8 +256,8 @@ onBeforeUnmount(releaseImageUrl)
   overflow: hidden;
   touch-action: none;
   cursor: grab;
-  background: #191917;
-  border: 1px solid #191917;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--text);
 }
 .cropper-stage.is-dragging { cursor: grabbing; }
 .cropper-stage img {
@@ -282,13 +282,13 @@ onBeforeUnmount(releaseImageUrl)
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 12px;
-  color: #777168;
+  color: var(--text-secondary);
   font: 12px/1 var(--font-ui);
 }
-.cropper-controls input { width: 100%; accent-color: #9d604d; }
+.cropper-controls input { width: 100%; accent-color: var(--accent); }
 .cropper-hint {
   margin: 10px 0 20px;
-  color: #777168;
+  color: var(--text-secondary);
   font: 12px/1.6 var(--font-ui);
   text-align: center;
 }
@@ -297,16 +297,16 @@ onBeforeUnmount(releaseImageUrl)
   grid-template-columns: 1fr 1.5fr;
   gap: 10px;
   padding-top: 16px;
-  border-top: 1px solid #cfc8bb;
+  border-top: 1px solid var(--border);
 }
 .cropper-button {
   min-height: 42px;
-  border: 1px solid #191917;
+  border: 1px solid var(--text);
   font: 600 13px/1 var(--font-ui);
   cursor: pointer;
 }
-.cropper-button.secondary { background: transparent; color: #191917; }
-.cropper-button.primary { background: #191917; color: #f2efe7; }
+.cropper-button.secondary { background: transparent; color: var(--text); }
+.cropper-button.primary { background: var(--bg-sidebar); color: var(--bg-card); }
 .cropper-button:disabled { opacity: .55; cursor: wait; }
 @media (max-width: 430px) {
   .cropper-panel { padding: 18px; }

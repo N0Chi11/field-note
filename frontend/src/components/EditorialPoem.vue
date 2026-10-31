@@ -80,8 +80,8 @@ const poemNumber = EDITORIAL_POEMS.findIndex(item => item.id === poem.id) + 1
   position: relative;
   margin: -4px 0 28px;
   padding: 15px 0 15px 19px;
-  border-left: 3px solid #8EA3F2;
-  color: #191917;
+  border-left: 3px solid var(--accent);
+  color: var(--text);
 }
 
 .editorial-poem--login::after {
@@ -91,14 +91,14 @@ const poemNumber = EDITORIAL_POEMS.findIndex(item => item.id === poem.id) + 1
   top: 5px;
   font-size: 72px;
   line-height: 1;
-  color: rgba(36, 63, 160, 0.08);
+  color: rgba(168, 68, 36, 0.11);
   pointer-events: none;
 }
 
 .editorial-poem--login .editorial-poem__eyebrow {
   width: min(260px, 80%);
   margin-bottom: 10px;
-  color: #243FA0;
+  color: var(--accent);
 }
 
 .editorial-poem--login .editorial-poem__lines {
@@ -111,20 +111,20 @@ const poemNumber = EDITORIAL_POEMS.findIndex(item => item.id === poem.id) + 1
 .editorial-poem--login .editorial-poem__credit {
   margin-top: 10px;
   font-size: 10px;
-  color: rgba(25, 25, 23, 0.56);
+  color: var(--text-secondary);
 }
 
 .editorial-poem--sidebar {
   margin: 20px 10px 6px;
   padding: 14px 2px 15px;
-  border-top: 1px solid rgba(142, 163, 242, 0.48);
+  border-top: 1px solid rgba(241, 167, 110, 0.48);
   border-bottom: 1px solid rgba(255, 255, 255, 0.09);
-  color: #F2EFE7;
+  color: #F3E6D5;
 }
 
 .editorial-poem--sidebar .editorial-poem__eyebrow {
   margin-bottom: 9px;
-  color: #8EA3F2;
+  color: var(--accent-on-dark);
 }
 
 .editorial-poem--sidebar .editorial-poem__lines {
@@ -137,7 +137,7 @@ const poemNumber = EDITORIAL_POEMS.findIndex(item => item.id === poem.id) + 1
 .editorial-poem--sidebar .editorial-poem__credit {
   margin-top: 9px;
   font-size: 9px;
-  color: rgba(255, 255, 255, 0.44);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 @media (max-width: 520px) {

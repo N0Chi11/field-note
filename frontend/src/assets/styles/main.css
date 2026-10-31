@@ -6,38 +6,39 @@
 /* 使用系统字体，避免 Google Fonts 被墙导致白屏 */
 :root {
   /* 背景 */
-  --bg: #F2EFE7;
-  --bg-card: #FCFBF7;
-  --bg-sidebar: #191917;
-  --bg-hover: #E8E4DA;
-  --bg-input: #F7F4EC;
-  --bg-code: #E9E5DB;
+  --bg: #EFE5D8;
+  --bg-card: #FBF5EB;
+  --bg-sidebar: #241C29;
+  --bg-hover: #E8D8CA;
+  --bg-input: #F7EFE4;
+  --bg-code: #E9D9CA;
 
   /* 文本 */
-  --text: #1A1A18;
-  --text-secondary: #605E58;
-  --text-tertiary: #767168;
+  --text: #2D222D;
+  --text-secondary: #655762;
+  --text-tertiary: #6F6168;
 
-  /* 主色（暖橙色系，与原 HTML 一致） */
-  --accent: #243FA0;
-  --accent-hover: #172B78;
-  --accent-light: #DCE2F6;
-  --accent-bg: #EAEDF8;
-  --accent-gradient: linear-gradient(135deg, #243FA0 0%, #162A73 100%);
+  /* 万圣节：旧纸、深梅紫与南瓜橙 */
+  --accent: #A84424;
+  --accent-hover: #7E2D1A;
+  --accent-light: #F3D6C2;
+  --accent-bg: #F8E7D8;
+  --accent-on-dark: #F1A76E;
+  --accent-gradient: linear-gradient(135deg, #C45B32 0%, #843620 100%);
 
   /* 语义色 */
-  --success: #277455;
-  --success-bg: #E3EFE8;
-  --warning: #A76A13;
-  --warning-bg: #F3E9D4;
-  --danger: #B9362B;
-  --danger-bg: #F3DFDB;
-  --info: #315AA6;
-  --info-bg: #DFE7F4;
+  --success: #356449;
+  --success-bg: #E0EBDF;
+  --warning: #87551D;
+  --warning-bg: #F5E5CC;
+  --danger: #A13537;
+  --danger-bg: #F4DEDA;
+  --info: #61517F;
+  --info-bg: #E8E1EE;
 
   /* 边框与圆角 */
-  --border: #D5D0C5;
-  --border-light: #E5E0D6;
+  --border: #D7C5B7;
+  --border-light: #E6D8CC;
   --radius-sm: 3px;
   --radius: 6px;
   --radius-lg: 10px;
@@ -73,7 +74,7 @@ body {
 body {
   font-family: var(--font);
   background:
-    linear-gradient(rgba(26, 26, 24, 0.018) 1px, transparent 1px),
+    linear-gradient(rgba(76, 48, 58, 0.022) 1px, transparent 1px),
     var(--bg);
   background-size: 100% 32px;
   color: var(--text);
@@ -248,7 +249,7 @@ img {
 .n-modal .n-card {
   border-radius: var(--radius) !important;
   box-shadow: var(--shadow-lg) !important;
-  border: 1px solid #CAC4B8 !important;
+  border: 1px solid var(--border) !important;
 }
 
 .n-button {
@@ -273,6 +274,6 @@ img {
 }
 
 ::selection {
-  color: #FCFBF7;
+  color: var(--bg-card);
   background: var(--accent);
 }

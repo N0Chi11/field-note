@@ -293,8 +293,8 @@ watch(() => route.path, () => {
   width: 252px;
     height: 100vh;
     height: 100dvh;
-  background: #191917;
-  border-right: 1px solid rgba(255, 255, 255, 0.14);
+  background: radial-gradient(circle at 100% 0, rgba(161, 88, 62, .2), transparent 34%), var(--bg-sidebar);
+  border-right: 1px solid rgba(241, 167, 110, 0.24);
   display: flex;
   flex-direction: column;
   z-index: 300;
@@ -337,12 +337,12 @@ watch(() => route.path, () => {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.sidebar__header-title span { color: #8EA3F2; }
+.sidebar__header-title span { color: var(--accent-on-dark); }
 
 .sidebar__header-subtitle {
   font-family: var(--font-ui);
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.48);
+  color: rgba(255, 255, 255, 0.6);
   margin: 3px 0 0 0;
   letter-spacing: 0.5px;
   white-space: nowrap;
@@ -365,7 +365,7 @@ watch(() => route.path, () => {
   font-family: var(--font-ui);
   font-size: 11px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.38);
+  color: rgba(255, 255, 255, 0.55);
   text-transform: uppercase;
   letter-spacing: 0.18em;
   padding: 0 12px;
@@ -394,8 +394,8 @@ watch(() => route.path, () => {
 }
 
 .nav-item.active {
-  background: #F2EFE7;
-  color: #191917;
+  background: #F3E6D5;
+  color: var(--bg-sidebar);
   font-weight: 600;
 }
 
@@ -408,7 +408,7 @@ watch(() => route.path, () => {
   transform: translateY(-50%);
   width: 4px;
   height: 100%;
-  background: #243FA0;
+  background: var(--accent-on-dark);
 }
 
 /* 画报风图标精灵：统一材质、尺度与对齐 */
@@ -456,8 +456,8 @@ watch(() => route.path, () => {
   height: 18px;
   padding: 0 5px;
   border-radius: 9px;
-  background: #FB7185;
-  color: #fff;
+  background: #E99A65;
+  color: #241C29;
   font-size: 11px;
   font-weight: 600;
   display: flex;
@@ -492,8 +492,8 @@ watch(() => route.path, () => {
   width: 40px;
   height: 40px;
   border-radius: 0;
-  background: #F2EFE7;
-  color: #191917;
+  background: #F3E6D5;
+  color: var(--bg-sidebar);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -545,14 +545,14 @@ watch(() => route.path, () => {
 }
 
 .sidebar__user-role.is-admin {
-  background: rgba(136, 126, 255, 0.22);
-  color: #C9C6FF;
+  background: rgba(233, 154, 101, 0.18);
+  color: #F4BF96;
 }
 
 .sidebar__user-id {
   font-family: var(--font-ui);
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.42);
+  color: rgba(255, 255, 255, 0.58);
   display: block;
   margin-top: 2px;
 }
@@ -575,9 +575,9 @@ watch(() => route.path, () => {
 }
 
 .sidebar__logout:hover {
-  border-color: rgba(251, 113, 133, 0.55);
-  color: #FDA4AF;
-  background: rgba(225, 29, 72, 0.12);
+  border-color: rgba(241, 167, 110, 0.55);
+  color: #F4BF96;
+  background: rgba(197, 105, 63, 0.13);
 }
 
 .sidebar__logout-icon {
@@ -613,7 +613,7 @@ watch(() => route.path, () => {
 .sidebar-version {
   text-align: center;
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.45);
   padding: 8px 0;
   font-weight: 500;
 }

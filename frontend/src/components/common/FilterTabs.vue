@@ -79,10 +79,10 @@ function selectTab(key: string) {
 }
 
 .filter-tabs__item.active {
-  background: var(--text);
+  background: var(--bg-sidebar);
   color: var(--bg-card);
   font-weight: 600;
-  box-shadow: none;
+  box-shadow: inset 0 -3px 0 var(--accent-on-dark);
 }
 
 .filter-tabs__icon {
