@@ -5,6 +5,7 @@
         <source srcset="/assets/halloween-editorial-v1.webp" type="image/webp" />
         <img src="/assets/halloween-night.svg" alt="" />
       </picture>
+      <span class="login-art__label">HALLOWEEN</span>
     </div>
     <div class="login-card">
       <!-- Logo -->
@@ -13,6 +14,7 @@
         <img src="/assets/halloween-mark.svg" alt="" aria-hidden="true" class="login-stamp" />
         <div class="login-logo-text">
           <span class="login-logo-line1">FIELD NOTE<span class="brand-dot">.</span></span>
+          <span class="login-season" aria-hidden="true">HALLOWEEN</span>
         </div>
       </div>
 
@@ -191,6 +193,25 @@ async function handleAdminLogin() {
 
 .login-art picture { display: block; width: 100%; height: 100%; }
 .login-art img { width: 100%; height: 100%; object-fit: cover; object-position: center 44%; }
+.login-art::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 32%;
+  background: linear-gradient(transparent, rgba(26, 18, 29, .88));
+}
+.login-art__label {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 24px;
+  z-index: 1;
+  color: #F9D2A2;
+  font: 500 clamp(24px, 3vw, 42px)/1 var(--font);
+  letter-spacing: .13em;
+  text-align: center;
+  text-shadow: 0 2px 16px #1B1420;
+}
 
 .login-card {
   background: var(--bg-card);
@@ -235,6 +256,12 @@ async function handleAdminLogin() {
   flex-direction: column;
   align-items: flex-start;
   line-height: 1.3;
+}
+.login-season {
+  margin-top: 8px;
+  color: var(--accent);
+  font: 700 10px/1 var(--font-data);
+  letter-spacing: .22em;
 }
 
 .login-logo-line1 {

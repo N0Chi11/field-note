@@ -207,6 +207,7 @@ onMounted(loadEquipment)
       <!-- 页面标题 -->
       <div class="page-header">
         <div class="catalog-heading">
+          <span class="catalog-season" aria-hidden="true">HALLOWEEN</span>
           <h1 class="page-title">器材设备清单</h1>
           <p class="page-desc">所有可借用设备均已编号并附有照片，未在清单中的物品不可借用</p>
         </div>
@@ -408,6 +409,21 @@ onMounted(loadEquipment)
   pointer-events: none;
 }
 .catalog-heading > * { position: relative; z-index: 2; }
+.catalog-heading > .catalog-season {
+  position: absolute;
+  top: 26px;
+  left: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid rgba(241, 167, 110, .65);
+  background: rgba(36, 28, 41, .72);
+  color: #F6BD8C;
+  font: 700 10px/1 var(--font-data);
+  letter-spacing: .2em;
+}
+.catalog-season::before { content: ''; width: 6px; height: 6px; background: #F1A76E; transform: rotate(45deg); }
 .catalog-heading .page-title { color: #FFF2E0; max-width: 85%; }
 .catalog-heading .page-desc { color: #F2D9C4; max-width: 70%; text-shadow: 0 1px 8px #241C29; }
 
@@ -708,11 +724,13 @@ onMounted(loadEquipment)
 .borrow-unavailable { font: 11px var(--font-ui); color: var(--text-secondary); }
 @media (max-width: 1200px) {
   .catalog-heading { min-height: 230px; padding: 28px; }
+  .catalog-heading > .catalog-season { top: 24px; left: 28px; }
 }
 @media (max-width: 1100px) { .page-header { grid-template-columns: minmax(0, 1fr) 210px; } }
 @media (max-width: 640px) {
   .page-header { grid-template-columns: 1fr; gap: 0; padding: 0; }
   .catalog-heading { min-height: 220px; padding: 24px 20px; }
+  .catalog-heading > .catalog-season { top: 20px; left: 20px; }
   .catalog-heading::after { width: 100%; background-position: center 43%; }
   .catalog-heading::before { background: linear-gradient(90deg, rgba(36, 28, 41, .98) 0%, rgba(36, 28, 41, .85) 48%, rgba(36, 28, 41, .24) 100%); }
   .catalog-heading .page-title { max-width: 100%; font-size: clamp(27px, 8.2vw, 34px); }

@@ -78,7 +78,7 @@ function closeSidebar() {
         <router-link to="/equipment" class="edition-name">FIELD NOTE<span class="edition-dot">.</span></router-link>
         <div class="edition-meta">
           <img src="/assets/halloween-mark.svg" alt="" aria-hidden="true" class="edition-mark" />
-          <span class="edition-issue">ISSUE 107<br /><span>{{ APP_VERSION }}</span></span>
+          <span class="edition-issue"><span class="edition-season" aria-hidden="true">HALLOWEEN</span><br />ISSUE 107<br /><span>{{ APP_VERSION }}</span></span>
         </div>
       </div>
       <div class="editorial-page"><slot /></div>
@@ -112,6 +112,7 @@ function closeSidebar() {
 .edition-mark { width: 52px; height: 52px; }
 .edition-issue { text-align: right; font: 10px/1.8 var(--font-data); letter-spacing: .08em; color: var(--accent); }
 .edition-issue span { color: var(--text-secondary); }
+.edition-issue .edition-season { color: var(--accent); font-weight: 700; letter-spacing: .12em; }
 
 .editorial-page {
   animation: editorial-page-enter .45s cubic-bezier(.22,.72,.3,1) both;
