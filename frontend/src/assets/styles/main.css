@@ -169,6 +169,28 @@ a:hover {
   100% { background-position: 0% 50%; }
 }
 
+/* A quiet snowfall confined to the winter artwork, never the form controls. */
+.winter-snowfall {
+  position: absolute;
+  inset: -120px 0 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 4px 4px, rgba(239, 249, 252, .75) 1px, transparent 1.7px),
+    radial-gradient(circle at 3px 3px, rgba(221, 240, 246, .55) 1.3px, transparent 2px);
+  background-size: 147px 120px, 215px 120px;
+  background-position: 0 0, 65px 53px;
+  opacity: .55;
+  animation: winter-snowfall 22s linear infinite;
+}
+
+@keyframes winter-snowfall {
+  to { transform: translateY(120px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .winter-snowfall { animation: none; }
+}
+
 /* ---------- 路由过渡动画 ---------- */
 .fade-slide-enter-active,
 .fade-slide-leave-active {

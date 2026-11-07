@@ -293,7 +293,7 @@ watch(() => route.path, () => {
   width: 252px;
     height: 100vh;
     height: 100dvh;
-  background: radial-gradient(circle at 100% 0, rgba(127, 170, 190, .2), transparent 34%), var(--bg-sidebar);
+  background: url('/assets/winter-flurries-v1.svg') center 4px / 250px auto no-repeat, radial-gradient(circle at 100% 0, rgba(127, 170, 190, .2), transparent 34%), var(--bg-sidebar);
   border-right: 1px solid rgba(183, 215, 228, 0.24);
   display: flex;
   flex-direction: column;

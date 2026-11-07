@@ -208,6 +208,9 @@ onMounted(loadEquipment)
       <div class="page-header">
         <div class="catalog-heading">
           <img class="catalog-mark" src="/assets/winter-mark.svg" alt="" aria-hidden="true" />
+          <span class="catalog-flurries" aria-hidden="true"></span>
+          <span class="winter-snowfall" aria-hidden="true"></span>
+          <img class="catalog-fir" src="/assets/winter-fir-v1.webp" alt="" aria-hidden="true" />
           <h1 class="page-title">器材设备清单</h1>
           <p class="page-desc">所有可借用设备均已编号并附有照片，未在清单中的物品不可借用</p>
         </div>
@@ -409,6 +412,7 @@ onMounted(loadEquipment)
   pointer-events: none;
 }
 .catalog-heading > * { position: relative; z-index: 2; }
+.catalog-heading > .winter-snowfall { position: absolute; z-index: 1; }
 .catalog-heading > .catalog-mark {
   position: absolute;
   top: 24px;
@@ -416,6 +420,26 @@ onMounted(loadEquipment)
   width: 48px;
   height: 48px;
   opacity: .88;
+}
+.catalog-heading > .catalog-flurries {
+  position: absolute;
+  top: 0;
+  left: 80px;
+  width: min(42%, 330px);
+  height: 100px;
+  background: url('/assets/winter-flurries-v1.svg') left top / 100% auto no-repeat;
+  opacity: .85;
+  pointer-events: none;
+}
+.catalog-heading > .catalog-fir {
+  position: absolute;
+  top: -35px;
+  right: -18px;
+  width: min(46%, 390px);
+  max-width: none;
+  opacity: .9;
+  filter: drop-shadow(0 5px 10px rgba(9, 24, 36, .22));
+  pointer-events: none;
 }
 .catalog-heading .page-title { color: #F5FAFB; max-width: 85%; }
 .catalog-heading .page-desc { color: #D6E8EC; max-width: 70%; text-shadow: 0 1px 8px #182B3D; }
@@ -515,7 +539,7 @@ onMounted(loadEquipment)
   align-items: center;
   justify-content: center;
   position: relative;
-  background: radial-gradient(circle at 50% 45%, #EFF6F7 0 27%, transparent 27%), #DCE8EC;
+  background: url('/assets/winter-flurries-v1.svg') right bottom / 160px auto no-repeat, radial-gradient(circle at 50% 45%, #EFF6F7 0 27%, transparent 27%), #DCE8EC;
 }
 .image-placeholder::after {
   content: '';
@@ -724,6 +748,8 @@ onMounted(loadEquipment)
   .page-header { grid-template-columns: 1fr; gap: 0; padding: 0; }
   .catalog-heading { min-height: 220px; padding: 24px 20px; }
   .catalog-heading > .catalog-mark { top: 16px; left: 20px; width: 40px; height: 40px; }
+  .catalog-heading > .catalog-flurries { left: 58px; width: 160px; height: 80px; }
+  .catalog-heading > .catalog-fir { top: -16px; right: -12px; width: 48%; }
   .catalog-heading::after { width: 100%; background-position: center 60%; }
   .catalog-heading::before { background: linear-gradient(90deg, rgba(24, 43, 61, .98) 0%, rgba(24, 43, 61, .86) 48%, rgba(24, 43, 61, .24) 100%); }
   .catalog-heading .page-title { max-width: 100%; font-size: clamp(27px, 8.2vw, 34px); }

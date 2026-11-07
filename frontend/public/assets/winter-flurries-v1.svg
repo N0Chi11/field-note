@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 180" fill="none">
+  <defs>
+    <g id="crystal" stroke="#9DBFCF" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M0-20V20M-17.3-10l34.6 20M-17.3 10l34.6-20" stroke-width="1.1"/>
+      <path d="m-4-15 4 4 4-4M-4 15l4-4 4 4M-15-6l5 1-1-5M15 6l-5-1 1 5M-15 6l5-1-1 5M15-6l-5 1 1-5" stroke-width=".85"/>
+      <path d="m0-5 4.3 2.5v5L0 5l-4.3-2.5v-5z" stroke-width=".8"/>
+      <circle r="1.4" fill="#9DBFCF" stroke="none"/>
+    </g>
+    <g id="star" stroke="#B9D3DE" stroke-linecap="round" stroke-width=".8">
+      <path d="M0-8V8M-8 0H8M-5.7-5.7l11.4 11.4M-5.7 5.7 5.7-5.7"/>
+    </g>
+  </defs>
+  <g opacity=".8">
+    <use href="#crystal" transform="translate(43 40) scale(.72) rotate(12)"/>
+    <use href="#crystal" transform="translate(168 112) scale(.46) rotate(-9)"/>
+    <use href="#crystal" transform="translate(311 47) scale(.9) rotate(8)"/>
+    <use href="#crystal" transform="translate(421 116) scale(.63) rotate(-12)"/>
+    <use href="#star" transform="translate(108 25) scale(.8)"/>
+    <use href="#star" transform="translate(240 77) scale(.65)"/>
+    <use href="#star" transform="translate(380 26) scale(.9)"/>
+    <use href="#star" transform="translate(359 140) scale(.55)"/>
+    <use href="#star" transform="translate(70 145) scale(.55)"/>
+    <g fill="#ABCAD7">
+      <circle cx="16" cy="105" r="1.4"/><circle cx="93" cy="93" r="1.2"/>
+      <circle cx="132" cy="153" r="1.1"/><circle cx="201" cy="25" r="1.3"/>
+      <circle cx="277" cy="138" r="1.5"/><circle cx="349" cy="96" r="1.1"/>
+      <circle cx="450" cy="45" r="1.4"/><circle cx="466" cy="153" r="1.1"/>
+    </g>
+  </g>
+</svg>

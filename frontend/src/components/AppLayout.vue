@@ -103,9 +103,10 @@ function closeSidebar() {
   max-width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
+  background: url('/assets/winter-flurries-v1.svg') right 145px / min(48vw, 580px) auto no-repeat;
 }
 
-.edition-masthead { display: flex; justify-content: space-between; align-items: center; gap: 20px; max-width: 1260px; margin: 0 auto 30px; padding-bottom: 16px; border-bottom: 3px solid var(--text); }
+.edition-masthead { display: flex; justify-content: space-between; align-items: center; gap: 20px; max-width: 1260px; margin: 0 auto 30px; padding-bottom: 16px; border-bottom: 3px solid var(--text); background: url('/assets/winter-flurries-v1.svg') right 110px center / 220px auto no-repeat; }
 .edition-name { color: var(--text); font: 500 clamp(26px, 2.6vw, 38px)/1 var(--font); letter-spacing: -.035em; }
 .edition-dot { color: var(--accent); }
 .edition-meta { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
@@ -173,7 +174,7 @@ function closeSidebar() {
     border-bottom: 1px solid rgba(183, 215, 228, 0.28);
     z-index: 200;
   }
-  .edition-masthead { gap: 10px; margin-bottom: 24px; padding-bottom: 16px; }
+  .edition-masthead { gap: 10px; margin-bottom: 24px; padding-bottom: 16px; background-position: right 75px center; background-size: 130px auto; }
   .edition-name { font-size: 24px; }
   .edition-meta { gap: 7px; }
   .edition-mark { width: 42px; height: 42px; }

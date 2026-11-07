@@ -3,6 +3,11 @@
     <div class="login-art" aria-hidden="true">
       <img src="/assets/winter-editorial-v1.webp" alt="" />
     </div>
+    <div class="login-atmosphere" aria-hidden="true">
+      <span class="login-flurries"></span>
+      <span class="winter-snowfall"></span>
+      <img class="login-fir" src="/assets/winter-fir-v1.webp" alt="" />
+    </div>
     <div class="login-card">
       <!-- Logo -->
       <div class="login-logo">
@@ -196,8 +201,31 @@ async function handleAdminLogin() {
   background: linear-gradient(transparent, rgba(18, 38, 52, .48));
 }
 
+.login-atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.login-flurries {
+  position: absolute;
+  inset: 0;
+  background: url('/assets/winter-flurries-v1.svg') 2vw 1vh / min(53vw, 720px) auto no-repeat;
+  opacity: .8;
+}
+.login-fir {
+  position: absolute;
+  width: min(41vw, 590px);
+  max-width: none;
+  top: -4vw;
+  right: 44%;
+  opacity: .92;
+  filter: drop-shadow(0 8px 14px rgba(10, 30, 45, .2));
+}
+
 .login-card {
-  background: var(--bg-card);
+  background: url('/assets/winter-flurries-v1.svg') right -45px bottom -45px / 270px auto no-repeat, var(--bg-card);
   border: 1px solid #D7E5E9;
   border-top: 6px solid #729EB3;
   border-radius: 1px;
@@ -427,6 +455,9 @@ async function handleAdminLogin() {
     mask-image: linear-gradient(#000 55%, transparent 100%);
   }
   .login-art img { object-position: center 60%; }
+  .login-atmosphere { height: 300px; }
+  .login-flurries { background-position: left top; background-size: 100% auto; opacity: .72; }
+  .login-fir { width: 62%; top: -12px; right: -20px; opacity: .9; }
   .login-stamp { width: 64px; height: 64px; }
   .login-logo-line1 { font-size: clamp(28px, 8vw, 38px); }
   .login-footer {
