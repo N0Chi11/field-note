@@ -91,7 +91,7 @@ const poemNumber = EDITORIAL_POEMS.findIndex(item => item.id === poem.id) + 1
   top: 5px;
   font-size: 72px;
   line-height: 1;
-  color: rgba(168, 68, 36, 0.11);
+  color: rgba(49, 95, 128, 0.11);
   pointer-events: none;
 }
 
@@ -117,9 +117,9 @@ const poemNumber = EDITORIAL_POEMS.findIndex(item => item.id === poem.id) + 1
 .editorial-poem--sidebar {
   margin: 20px 10px 6px;
   padding: 14px 2px 15px;
-  border-top: 1px solid rgba(241, 167, 110, 0.48);
+  border-top: 1px solid rgba(183, 215, 228, 0.48);
   border-bottom: 1px solid rgba(255, 255, 255, 0.09);
-  color: #F3E6D5;
+  color: #E2EFF2;
 }
 
 .editorial-poem--sidebar .editorial-poem__eyebrow {

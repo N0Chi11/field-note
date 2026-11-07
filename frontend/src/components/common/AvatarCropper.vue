@@ -212,7 +212,7 @@ onBeforeUnmount(releaseImageUrl)
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(36, 28, 41, 0.78);
+  background: rgba(24, 43, 61, 0.78);
   backdrop-filter: blur(6px);
 }
 .cropper-panel {

@@ -390,7 +390,7 @@ onMounted(loadRequests)
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(36, 28, 41, .66);
+  background: rgba(24, 43, 61, .66);
   backdrop-filter: blur(5px);
 }
 .avatar-picker {
@@ -399,7 +399,7 @@ onMounted(loadRequests)
   padding: 30px;
   background: var(--bg-card);
   border-top: 5px solid var(--accent);
-  box-shadow: 14px 14px 0 rgba(168, 68, 36, .3);
+  box-shadow: 14px 14px 0 rgba(49, 95, 128, .25);
 }
 .avatar-picker__close {
   position: absolute;

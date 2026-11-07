@@ -2,11 +2,11 @@ import type { BorrowDetail, YearbookData } from '@/types/models'
 import type { EditorialPoem } from '@/utils/editorialPoetry'
 import { formatApiDateTime } from '@/utils/dateTime'
 
-const PAPER = '#fbf5eb'
-const INK = '#2d222d'
-const ACCENT = '#a84424'
-const TERRACOTTA = '#a84424'
-const GOLD = '#d77b46'
+const PAPER = '#f9fbfa'
+const INK = '#192d3d'
+const ACCENT = '#315f80'
+const TERRACOTTA = '#315f80'
+const GOLD = '#729eb3'
 
 const PASS_STATUS: Record<string, string> = {
   approved: 'APPROVED / 已通过',
@@ -231,7 +231,7 @@ export function downloadBorrowPass(record: BorrowDetail) {
     ctx.fillText(value, 80, y + 38)
   })
 
-  ctx.fillStyle = '#e5dfd2'
+  ctx.fillStyle = '#dfeaf0'
   ctx.fillRect(620, 760, 380, 350)
   ctx.fillStyle = INK
   ctx.font = '700 16px Arial, sans-serif'

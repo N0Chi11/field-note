@@ -207,7 +207,7 @@ onMounted(loadEquipment)
       <!-- 页面标题 -->
       <div class="page-header">
         <div class="catalog-heading">
-          <span class="catalog-season" aria-hidden="true">HALLOWEEN</span>
+          <img class="catalog-mark" src="/assets/winter-mark.svg" alt="" aria-hidden="true" />
           <h1 class="page-title">器材设备清单</h1>
           <p class="page-desc">所有可借用设备均已编号并附有照片，未在清单中的物品不可借用</p>
         </div>
@@ -396,7 +396,7 @@ onMounted(loadEquipment)
   right: 0;
   bottom: 0;
   width: 76%;
-  background: url('/assets/halloween-editorial-v1.webp') center 43% / cover no-repeat;
+  background: url('/assets/winter-editorial-v1.webp') center 60% / cover no-repeat;
   transform: scaleX(-1);
   pointer-events: none;
 }
@@ -405,27 +405,20 @@ onMounted(loadEquipment)
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(90deg, #241C29 0%, rgba(36, 28, 41, .96) 25%, rgba(36, 28, 41, .58) 62%, rgba(36, 28, 41, .12) 100%);
+  background: linear-gradient(90deg, #182B3D 0%, rgba(24, 43, 61, .96) 25%, rgba(24, 43, 61, .64) 62%, rgba(24, 43, 61, .12) 100%);
   pointer-events: none;
 }
 .catalog-heading > * { position: relative; z-index: 2; }
-.catalog-heading > .catalog-season {
+.catalog-heading > .catalog-mark {
   position: absolute;
-  top: 26px;
+  top: 24px;
   left: 36px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
-  border: 1px solid rgba(241, 167, 110, .65);
-  background: rgba(36, 28, 41, .72);
-  color: #F6BD8C;
-  font: 700 10px/1 var(--font-data);
-  letter-spacing: .2em;
+  width: 48px;
+  height: 48px;
+  opacity: .88;
 }
-.catalog-season::before { content: ''; width: 6px; height: 6px; background: #F1A76E; transform: rotate(45deg); }
-.catalog-heading .page-title { color: #FFF2E0; max-width: 85%; }
-.catalog-heading .page-desc { color: #F2D9C4; max-width: 70%; text-shadow: 0 1px 8px #241C29; }
+.catalog-heading .page-title { color: #F5FAFB; max-width: 85%; }
+.catalog-heading .page-desc { color: #D6E8EC; max-width: 70%; text-shadow: 0 1px 8px #182B3D; }
 
 /* ---------- 类别筛选 ---------- */
 .category-tabs {
@@ -455,7 +448,7 @@ onMounted(loadEquipment)
   border-bottom: 3px solid var(--text);
 }
 .category-icon {
-  filter: saturate(.82) contrast(1.04);
+  filter: grayscale(.55) saturate(.7) hue-rotate(160deg) contrast(1.04);
 }
 .category-name {
   font-size: 22px;
@@ -491,8 +484,8 @@ onMounted(loadEquipment)
 }
 .equipment-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(61, 37, 45, .12);
-  border-color: #B79C8B;
+  box-shadow: 0 12px 28px rgba(25, 45, 61, .12);
+  border-color: #8EADB9;
 }
 
 /* ---------- 卡片图片区 ---------- */
@@ -500,7 +493,7 @@ onMounted(loadEquipment)
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  background: #E9D8C8;
+  background: #DCE8EC;
   overflow: hidden;
 }
 .card-image img {
@@ -522,18 +515,18 @@ onMounted(loadEquipment)
   align-items: center;
   justify-content: center;
   position: relative;
-  background: radial-gradient(circle at 50% 45%, #F4DDC5 0 27%, transparent 27%), #E9D8C8;
+  background: radial-gradient(circle at 50% 45%, #EFF6F7 0 27%, transparent 27%), #DCE8EC;
 }
 .image-placeholder::after {
   content: '';
   position: absolute;
   inset: 22px;
-  border: 1px solid rgba(86, 54, 54, .16);
+  border: 1px solid rgba(49, 95, 128, .16);
   pointer-events: none;
 }
 .placeholder-icon {
   opacity: 0.78;
-  filter: saturate(.72) contrast(1.05);
+  filter: grayscale(.55) saturate(.7) hue-rotate(160deg) contrast(1.05);
 }
 
 /* ---------- 状态标签 ---------- */
@@ -568,8 +561,8 @@ onMounted(loadEquipment)
   left: 10px;
   top: 10px;
   z-index: 2;
-  border: 1px solid rgba(25, 25, 23, 0.35);
-  background: rgba(251, 245, 235, 0.92);
+  border: 1px solid rgba(25, 45, 61, 0.35);
+  background: rgba(249, 251, 250, 0.92);
   color: var(--text);
   padding: 4px 9px;
   font: 600 11px/1 var(--font-ui);
@@ -579,9 +572,9 @@ onMounted(loadEquipment)
 }
 .favorite-btn:hover,
 .favorite-btn.active {
-  background: #9d604d;
-  border-color: #9d604d;
-  color: #fffaf0;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
 .favorite-btn.active {
   animation: bookmark-slip .32s cubic-bezier(.22,.75,.28,1) both;
@@ -724,15 +717,15 @@ onMounted(loadEquipment)
 .borrow-unavailable { font: 11px var(--font-ui); color: var(--text-secondary); }
 @media (max-width: 1200px) {
   .catalog-heading { min-height: 230px; padding: 28px; }
-  .catalog-heading > .catalog-season { top: 24px; left: 28px; }
+  .catalog-heading > .catalog-mark { top: 20px; left: 28px; }
 }
 @media (max-width: 1100px) { .page-header { grid-template-columns: minmax(0, 1fr) 210px; } }
 @media (max-width: 640px) {
   .page-header { grid-template-columns: 1fr; gap: 0; padding: 0; }
   .catalog-heading { min-height: 220px; padding: 24px 20px; }
-  .catalog-heading > .catalog-season { top: 20px; left: 20px; }
-  .catalog-heading::after { width: 100%; background-position: center 43%; }
-  .catalog-heading::before { background: linear-gradient(90deg, rgba(36, 28, 41, .98) 0%, rgba(36, 28, 41, .85) 48%, rgba(36, 28, 41, .24) 100%); }
+  .catalog-heading > .catalog-mark { top: 16px; left: 20px; width: 40px; height: 40px; }
+  .catalog-heading::after { width: 100%; background-position: center 60%; }
+  .catalog-heading::before { background: linear-gradient(90deg, rgba(24, 43, 61, .98) 0%, rgba(24, 43, 61, .86) 48%, rgba(24, 43, 61, .24) 100%); }
   .catalog-heading .page-title { max-width: 100%; font-size: clamp(27px, 8.2vw, 34px); }
   .catalog-heading .page-desc { max-width: 90%; margin-top: 12px; font-size: 12px; }
   .catalog-index { border-left: none; border-top: 1px solid var(--border); padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }

@@ -293,8 +293,8 @@ watch(() => route.path, () => {
   width: 252px;
     height: 100vh;
     height: 100dvh;
-  background: radial-gradient(circle at 100% 0, rgba(161, 88, 62, .2), transparent 34%), var(--bg-sidebar);
-  border-right: 1px solid rgba(241, 167, 110, 0.24);
+  background: radial-gradient(circle at 100% 0, rgba(127, 170, 190, .2), transparent 34%), var(--bg-sidebar);
+  border-right: 1px solid rgba(183, 215, 228, 0.24);
   display: flex;
   flex-direction: column;
   z-index: 300;
@@ -394,7 +394,7 @@ watch(() => route.path, () => {
 }
 
 .nav-item.active {
-  background: #F3E6D5;
+  background: #E2EFF2;
   color: var(--bg-sidebar);
   font-weight: 600;
 }
@@ -419,12 +419,12 @@ watch(() => route.path, () => {
   background-repeat: no-repeat;
   background-size: 300% 300%;
   flex-shrink: 0;
-  filter: saturate(0.82) contrast(1.04);
+  filter: grayscale(.65) saturate(.7) hue-rotate(160deg) contrast(1.04);
   transition: filter var(--transition), transform var(--transition);
 }
 
 .nav-item:hover .nav-item__icon {
-  filter: saturate(1) contrast(1.08);
+  filter: grayscale(.45) saturate(.8) hue-rotate(160deg) contrast(1.08);
   transform: translateX(1px);
 }
 
@@ -437,10 +437,10 @@ watch(() => route.path, () => {
 .nav-item__icon--return { background-position: 0 100%; }
 .nav-item__icon--logs { background-position: 50% 100%; }
 .nav-item__icon--profile { background-position: 100% 100%; }
-.nav-item__icon--feedback { background-position: 50% 100%; filter: saturate(1.1) hue-rotate(308deg) contrast(1.06); }
+.nav-item__icon--feedback { background-position: 50% 100%; }
 
 .nav-item.active .nav-item__icon {
-  filter: grayscale(1) brightness(0.38) sepia(0.25) contrast(1.25);
+  filter: grayscale(1) brightness(0.38) contrast(1.25);
 }
 
 .nav-item__text {
@@ -456,8 +456,8 @@ watch(() => route.path, () => {
   height: 18px;
   padding: 0 5px;
   border-radius: 9px;
-  background: #E99A65;
-  color: #241C29;
+  background: #B7D7E4;
+  color: #182B3D;
   font-size: 11px;
   font-weight: 600;
   display: flex;
@@ -492,7 +492,7 @@ watch(() => route.path, () => {
   width: 40px;
   height: 40px;
   border-radius: 0;
-  background: #F3E6D5;
+  background: #E2EFF2;
   color: var(--bg-sidebar);
   display: flex;
   align-items: center;
@@ -545,8 +545,8 @@ watch(() => route.path, () => {
 }
 
 .sidebar__user-role.is-admin {
-  background: rgba(233, 154, 101, 0.18);
-  color: #F4BF96;
+  background: rgba(183, 215, 228, 0.16);
+  color: #C8E3EC;
 }
 
 .sidebar__user-id {
@@ -575,9 +575,9 @@ watch(() => route.path, () => {
 }
 
 .sidebar__logout:hover {
-  border-color: rgba(241, 167, 110, 0.55);
-  color: #F4BF96;
-  background: rgba(197, 105, 63, 0.13);
+  border-color: rgba(183, 215, 228, 0.55);
+  color: #D7EAF0;
+  background: rgba(127, 170, 190, 0.13);
 }
 
 .sidebar__logout-icon {

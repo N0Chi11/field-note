@@ -6,25 +6,25 @@
 /* 使用系统字体，避免 Google Fonts 被墙导致白屏 */
 :root {
   /* 背景 */
-  --bg: #EFE5D8;
-  --bg-card: #FBF5EB;
-  --bg-sidebar: #241C29;
-  --bg-hover: #E8D8CA;
-  --bg-input: #F7EFE4;
-  --bg-code: #E9D9CA;
+  --bg: #EAF0F2;
+  --bg-card: #F9FBFA;
+  --bg-sidebar: #182B3D;
+  --bg-hover: #DBE8ED;
+  --bg-input: #F2F7F8;
+  --bg-code: #DDE8EC;
 
   /* 文本 */
-  --text: #2D222D;
-  --text-secondary: #655762;
-  --text-tertiary: #6F6168;
+  --text: #192D3D;
+  --text-secondary: #4B6270;
+  --text-tertiary: #617784;
 
-  /* 万圣节：旧纸、深梅紫与南瓜橙 */
-  --accent: #A84424;
-  --accent-hover: #7E2D1A;
-  --accent-light: #F3D6C2;
-  --accent-bg: #F8E7D8;
-  --accent-on-dark: #F1A76E;
-  --accent-gradient: linear-gradient(135deg, #C45B32 0%, #843620 100%);
+  /* 冬日：雪白纸面、深蓝夜色与冰川蓝 */
+  --accent: #315F80;
+  --accent-hover: #21445F;
+  --accent-light: #D6E8EF;
+  --accent-bg: #E6F1F4;
+  --accent-on-dark: #B7D7E4;
+  --accent-gradient: linear-gradient(135deg, #4B7F9A 0%, #284E6C 100%);
 
   /* 语义色 */
   --success: #356449;
@@ -33,12 +33,12 @@
   --warning-bg: #F5E5CC;
   --danger: #A13537;
   --danger-bg: #F4DEDA;
-  --info: #61517F;
-  --info-bg: #E8E1EE;
+  --info: #315F80;
+  --info-bg: #E1ECF1;
 
   /* 边框与圆角 */
-  --border: #D7C5B7;
-  --border-light: #E6D8CC;
+  --border: #C4D4DB;
+  --border-light: #DCE6E9;
   --radius-sm: 3px;
   --radius: 6px;
   --radius-lg: 10px;
@@ -74,7 +74,7 @@ body {
 body {
   font-family: var(--font);
   background:
-    linear-gradient(rgba(76, 48, 58, 0.022) 1px, transparent 1px),
+    linear-gradient(rgba(49, 95, 128, 0.025) 1px, transparent 1px),
     var(--bg);
   background-size: 100% 32px;
   color: var(--text);

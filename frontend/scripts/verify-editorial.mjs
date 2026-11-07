@@ -1,13 +1,17 @@
 // Run after `npm run dev -- --host 127.0.0.1 --port 5173`.
 // Browser checks use synthetic data only; no request reaches production.
 import { chromium, expect } from '@playwright/test'
-import { mkdir } from 'node:fs/promises'
+import { mkdir, readFile } from 'node:fs/promises'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 const baseURL = process.env.FIELD_NOTE_QA_URL || 'http://127.0.0.1:5173'
+const artifactDir = process.env.FIELD_NOTE_QA_OUTPUT || '.ui-artifacts'
+const photoReviewDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../backend/photo_review/web')
 const browser = await chromium.launch(process.env.FIELD_NOTE_QA_BROWSER
   ? { executablePath: process.env.FIELD_NOTE_QA_BROWSER }
   : {})
-await mkdir('.ui-artifacts', { recursive: true })
+await mkdir(artifactDir, { recursive: true })
 
 const items = [
   { id: 1, code: 'EQ001', name: '索尼 A6400', category: '相机', status: 'available', notes: '含镜头、电池与肩带' },
@@ -41,9 +45,12 @@ try {
   await page.goto(`${baseURL}/equipment`)
   await expect(page.locator('.equipment-card')).toHaveCount(5)
   await expect(page.locator('.edition-name')).toContainText('FIELD NOTE')
+  await expect(page.locator('.edition-mark')).toHaveAttribute('src', '/assets/winter-mark.svg')
+  await expect(page.locator('.catalog-mark')).toHaveAttribute('src', '/assets/winter-mark.svg')
+  await expect(page.getByText('HALLOWEEN', { exact: true })).toHaveCount(0)
   await expect(page.getByRole('heading', { name: '器材设备清单' })).toBeVisible()
   await expect(page.getByText('器材档案 · 创作现场', { exact: true })).toHaveCount(0)
-  await page.screenshot({ path: '.ui-artifacts/catalog-desktop.png', fullPage: true })
+  await page.screenshot({ path: path.join(artifactDir, 'catalog-desktop.png'), fullPage: true })
   await page.getByRole('searchbox', { name: '搜索器材' }).fill('索尼')
   await expect(page.locator('.equipment-card')).toHaveCount(1)
   await page.getByRole('searchbox', { name: '搜索器材' }).fill('')
@@ -85,7 +92,7 @@ try {
   await expect(page.getByText('设备不可过夜', { exact: true })).toHaveCount(0)
   await page.getByPlaceholder('请简要说明借用理由（如：毕业设计视频拍摄）').fill('校园活动拍摄')
   expect(await page.evaluate(() => JSON.parse(sessionStorage.getItem('eb_borrow_draft_1')).reason)).toBe('校园活动拍摄')
-  await page.screenshot({ path: '.ui-artifacts/borrow-desktop.png', fullPage: true })
+  await page.screenshot({ path: path.join(artifactDir, 'borrow-desktop.png'), fullPage: true })
 
   // A delayed result for an old device must not replace the latest result.
   await page.evaluate(async () => {
@@ -154,8 +161,9 @@ try {
     await mobile.addInitScript(() => localStorage.setItem('access_token', 'qa-token'))
     await mobile.goto(`${baseURL}/equipment`)
     await expect(mobile.locator('.equipment-card')).toHaveCount(5)
+    await expect(mobile.locator('.catalog-mark')).toBeVisible()
     expect(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-    await mobile.screenshot({ path: `.ui-artifacts/catalog-${width}.png`, fullPage: true })
+    await mobile.screenshot({ path: path.join(artifactDir, `catalog-${width}.png`), fullPage: true })
     if (width > 900) { await mobile.close(); continue }
     await mobile.getByRole('button', { name: '打开导航菜单' }).click()
     await expect(mobile.locator('.sidebar')).toHaveClass(/is-open/)
@@ -169,15 +177,51 @@ try {
   const login = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' })
   await login.goto(`${baseURL}/login`)
   await expect(login.getByLabel('学号（账号）')).toBeVisible()
+  await expect(login.locator('.login-art img')).toHaveAttribute('src', '/assets/winter-editorial-v1.webp')
+  await expect(login.locator('.login-stamp')).toHaveAttribute('src', '/assets/winter-mark.svg')
+  expect(await login.locator('.login-art img').evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true)
+  await expect(login.getByText('HALLOWEEN', { exact: true })).toHaveCount(0)
   await expect(login.getByText('SUFE 校学联新媒体中心', { exact: true })).toHaveCount(0)
   await expect(login.getByText('器材档案 · 创作现场', { exact: true })).toHaveCount(0)
-  await login.screenshot({ path: '.ui-artifacts/login-desktop.png', fullPage: true })
-  const mobileLogin = await browser.newPage({ viewport: { width: 375, height: 812 }, reducedMotion: 'reduce' })
-  await mobileLogin.goto(`${baseURL}/login`)
-  await expect(mobileLogin.getByRole('button', { name: '登录', exact: true })).toBeVisible()
-  expect(await mobileLogin.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-  await mobileLogin.screenshot({ path: '.ui-artifacts/login-mobile.png', fullPage: true })
-  console.log('UI verified: search, status filters, concurrent favorites, booking links, isolated drafts, failed session refresh, mobile navigation, responsive screenshots.')
+  await login.screenshot({ path: path.join(artifactDir, 'login-desktop.png'), fullPage: true })
+  for (const width of [320, 375]) {
+    const mobileLogin = await browser.newPage({ viewport: { width, height: 812 }, reducedMotion: 'reduce' })
+    await mobileLogin.goto(`${baseURL}/login`)
+    await expect(mobileLogin.getByRole('button', { name: '登录', exact: true })).toBeVisible()
+    await expect(mobileLogin.locator('.login-art img')).toBeVisible()
+    expect(await mobileLogin.locator('.login-art img').evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true)
+    expect(await mobileLogin.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await mobileLogin.screenshot({ path: path.join(artifactDir, `login-${width}.png`), fullPage: true })
+    await mobileLogin.close()
+  }
+
+  // Preview the photo-review layout with local assets; this does not submit photos.
+  const photoHtml = (await readFile(path.join(photoReviewDir, 'index.html'), 'utf8'))
+    .replaceAll('__BASE_PATH__', '/photo-review')
+    .replace('__TOKEN__', '')
+    .replace('<body ', '<body class="embedded" ')
+  const photoStyles = Object.fromEntries(await Promise.all(['style.css', 'editorial.css'].map(async name =>
+    [name, await readFile(path.join(photoReviewDir, name), 'utf8')]
+  )))
+  for (const width of [375, 1160]) {
+    const photo = await browser.newPage({ viewport: { width, height: 900 }, reducedMotion: 'reduce' })
+    await mockAPI(photo)
+    await photo.addInitScript(() => localStorage.setItem('access_token', 'qa-token'))
+    await photo.route(url => url.pathname.startsWith('/photo-review/'), route => {
+      const name = new URL(route.request().url()).pathname.split('/').pop()
+      if (name === 'app.js') return route.fulfill({ contentType: 'text/javascript', body: '' })
+      if (name in photoStyles) return route.fulfill({ contentType: 'text/css', body: photoStyles[name] })
+      return route.fulfill({ contentType: 'text/html', body: photoHtml })
+    })
+    await photo.goto(`${baseURL}/admin/photo-review`)
+    const review = photo.frameLocator('.photo-review-frame')
+    await expect(review.getByRole('button', { name: '选择照片', exact: true })).toBeVisible()
+    expect(await review.locator('body').evaluate(el => getComputedStyle(el).getPropertyValue('--paper').trim())).toBe('#eaf0f2')
+    expect(await review.locator('body').evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await photo.screenshot({ path: path.join(artifactDir, `photo-review-${width}.png`), fullPage: true })
+    await photo.close()
+  }
+  console.log('UI verified: winter artwork, responsive photo-review layout, search, status filters, concurrent favorites, booking links, isolated drafts, failed session refresh and mobile navigation.')
 } finally {
   await browser.close()
 }
