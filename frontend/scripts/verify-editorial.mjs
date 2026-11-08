@@ -49,7 +49,10 @@ try {
   await expect(page.locator('.catalog-mark')).toHaveAttribute('src', '/assets/winter-mark.svg')
   await expect(page.locator('.catalog-fir')).toHaveAttribute('src', '/assets/winter-fir-v1.webp')
   expect(await page.locator('.catalog-fir').evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true)
-  for (const asset of ['winter-equipment-icons-v1.webp', 'winter-action-icons-v1.webp', 'winter-sidebar-icons-v1.webp', 'winter-calendar-v1.svg']) {
+  await expect(page.getByText('雪落无声，镜头有光。')).toBeVisible()
+  expect(await page.locator('.catalog-heading').evaluate(el => getComputedStyle(el, '::after').backgroundImage)).toContain('winter-landscape-v2.webp')
+  expect(await page.locator('.catalog-frost').evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true)
+  for (const asset of ['winter-equipment-icons-v1.webp', 'winter-action-icons-v1.webp', 'winter-sidebar-icons-v1.webp', 'winter-calendar-v1.svg', 'winter-landscape-v2.webp', 'winter-frost-frame-v1.webp']) {
     expect((await page.request.get(`${baseURL}/assets/${asset}`)).ok()).toBe(true)
   }
   expect(await page.locator('.placeholder-icon').first().evaluate(el => getComputedStyle(el).backgroundImage)).toContain('winter-equipment-icons-v1.webp')
@@ -174,6 +177,12 @@ try {
     await mobile.goto(`${baseURL}/equipment`)
     await expect(mobile.locator('.equipment-card')).toHaveCount(5)
     await expect(mobile.locator('.catalog-mark')).toBeVisible()
+    const heroHasRoom = await mobile.evaluate(() => {
+      const phrase = document.querySelector('.catalog-winter-line')?.getBoundingClientRect()
+      const heading = document.querySelector('.catalog-heading .page-title')?.getBoundingClientRect()
+      return !!phrase && !!heading && phrase.bottom <= heading.top
+    })
+    expect(heroHasRoom).toBe(true)
     expect(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await mobile.screenshot({ path: path.join(artifactDir, `catalog-${width}.png`), fullPage: true })
     if (width > 900) { await mobile.close(); continue }
@@ -186,6 +195,7 @@ try {
     if (width <= 375) {
       await mobile.goto(`${baseURL}/borrow`)
       await expect(mobile.getByRole('button', { name: '提交申请', exact: true })).toBeVisible()
+      await expect(mobile.getByText('把冬天的光，带回故事里。')).toBeVisible()
       expect(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       await mobile.screenshot({ path: path.join(artifactDir, `borrow-${width}.png`), fullPage: true })
     }
@@ -195,6 +205,7 @@ try {
   const login = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' })
   await login.goto(`${baseURL}/login`)
   await expect(login.getByLabel('学号（账号）')).toBeVisible()
+  await expect(login.getByText('愿冬日的光，落在每一次记录里。')).toBeVisible()
   await expect(login.locator('.login-art img')).toHaveAttribute('src', '/assets/winter-editorial-v1.webp')
   await expect(login.locator('.login-stamp')).toHaveAttribute('src', '/assets/winter-mark.svg')
   await expect(login.locator('.login-fir')).toHaveAttribute('src', '/assets/winter-fir-v1.webp')
@@ -208,6 +219,7 @@ try {
     const mobileLogin = await browser.newPage({ viewport: { width, height: 812 }, reducedMotion: 'reduce' })
     await mobileLogin.goto(`${baseURL}/login`)
     await expect(mobileLogin.getByRole('button', { name: '登录', exact: true })).toBeVisible()
+    await expect(mobileLogin.getByText('愿冬日的光，落在每一次记录里。')).toBeVisible()
     await expect(mobileLogin.locator('.login-art img')).toBeVisible()
     await expect(mobileLogin.locator('.login-fir')).toBeVisible()
     expect(await mobileLogin.locator('.login-art img').evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true)

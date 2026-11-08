@@ -15,6 +15,7 @@
         <img src="/assets/winter-mark.svg" alt="" aria-hidden="true" class="login-stamp" />
         <div class="login-logo-text">
           <span class="login-logo-line1">FIELD NOTE<span class="brand-dot">.</span></span>
+          <p class="login-winter-line">愿冬日的光，落在每一次记录里。</p>
         </div>
       </div>
 
@@ -193,6 +194,16 @@ async function handleAdminLogin() {
 }
 
 .login-art img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 58%; }
+.login-art::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 38%;
+  z-index: 1;
+  background: url('/assets/winter-frost-frame-v1.webp') center top / 100% auto no-repeat;
+  opacity: .6;
+  pointer-events: none;
+}
 .login-art::after {
   content: '';
   position: absolute;
@@ -241,7 +252,7 @@ async function handleAdminLogin() {
 .login-logo {
   position: relative;
   text-align: left;
-  margin-bottom: 34px;
+  margin-bottom: 26px;
 }
 
 .login-stamp {
@@ -274,6 +285,12 @@ async function handleAdminLogin() {
   font-weight: 500;
   color: var(--text);
   letter-spacing: -0.3px;
+}
+.login-winter-line {
+  margin: 10px 0 0;
+  color: var(--text-secondary);
+  font: 13px/1.7 var(--font);
+  letter-spacing: .08em;
 }
 
 .login-logo-line2 {

@@ -301,6 +301,16 @@ watch(() => route.path, () => {
   flex-direction: column;
   z-index: 300;
 }
+.sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 90px;
+  background: url('/assets/winter-frost-frame-v1.webp') center top / 100% auto no-repeat;
+  opacity: .24;
+  pointer-events: none;
+}
+.sidebar > * { position: relative; }
 
 /* ---------- 头部 ---------- */
 .sidebar__header {

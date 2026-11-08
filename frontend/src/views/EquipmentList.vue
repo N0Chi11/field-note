@@ -214,10 +214,12 @@ onMounted(loadEquipment)
       <!-- 页面标题 -->
       <div class="page-header">
         <div class="catalog-heading">
+          <img class="catalog-frost" src="/assets/winter-frost-frame-v1.webp" alt="" aria-hidden="true" />
           <img class="catalog-mark" src="/assets/winter-mark.svg" alt="" aria-hidden="true" />
           <span class="catalog-flurries" aria-hidden="true"></span>
           <span class="winter-snowfall" aria-hidden="true"></span>
           <img class="catalog-fir" src="/assets/winter-fir-v1.webp" alt="" aria-hidden="true" />
+          <p class="catalog-winter-line">雪落无声，镜头有光。</p>
           <h1 class="page-title">器材设备清单</h1>
           <p class="page-desc">所有可借用设备均已编号并附有照片，未在清单中的物品不可借用</p>
         </div>
@@ -392,7 +394,7 @@ onMounted(loadEquipment)
 }
 .catalog-heading {
   position: relative;
-  min-height: 260px;
+  min-height: 285px;
   padding: 36px;
   display: flex;
   flex-direction: column;
@@ -406,9 +408,8 @@ onMounted(loadEquipment)
   top: 0;
   right: 0;
   bottom: 0;
-  width: 76%;
-  background: url('/assets/winter-editorial-v1.webp') center 60% / cover no-repeat;
-  transform: scaleX(-1);
+  width: 100%;
+  background: url('/assets/winter-landscape-v2.webp') center 52% / cover no-repeat;
   pointer-events: none;
 }
 .catalog-heading::before {
@@ -416,11 +417,25 @@ onMounted(loadEquipment)
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(90deg, #182B3D 0%, rgba(24, 43, 61, .96) 25%, rgba(24, 43, 61, .64) 62%, rgba(24, 43, 61, .12) 100%);
+  background: linear-gradient(90deg, rgba(16, 36, 53, .96) 0%, rgba(16, 36, 53, .86) 31%, rgba(16, 36, 53, .35) 65%, rgba(16, 36, 53, .08) 100%);
   pointer-events: none;
 }
 .catalog-heading > * { position: relative; z-index: 2; }
 .catalog-heading > .winter-snowfall { position: absolute; z-index: 1; }
+.catalog-heading > .catalog-frost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 110px;
+  max-width: none;
+  object-fit: cover;
+  object-position: center top;
+  opacity: .3;
+  -webkit-mask-image: linear-gradient(#000 20%, transparent 100%);
+  mask-image: linear-gradient(#000 20%, transparent 100%);
+  pointer-events: none;
+}
 .catalog-heading > .catalog-mark {
   position: absolute;
   top: 24px;
@@ -443,11 +458,21 @@ onMounted(loadEquipment)
   position: absolute;
   top: -35px;
   right: -18px;
-  width: min(46%, 390px);
+  width: min(36%, 320px);
   max-width: none;
   opacity: .9;
   filter: drop-shadow(0 5px 10px rgba(9, 24, 36, .22));
   pointer-events: none;
+}
+.catalog-heading > .catalog-winter-line {
+  position: absolute;
+  top: 36px;
+  left: 98px;
+  margin: 0;
+  color: #edf7f9;
+  font: 500 14px/1.5 var(--font);
+  letter-spacing: .12em;
+  text-shadow: 0 2px 10px #142b3d;
 }
 .catalog-heading .page-title { color: #F5FAFB; max-width: 85%; }
 .catalog-heading .page-desc { color: #D6E8EC; max-width: 70%; text-shadow: 0 1px 8px #182B3D; }
@@ -729,7 +754,7 @@ onMounted(loadEquipment)
   .favorite-btn.active { animation: none; }
 }
 
-.catalog-index { border-left: 1px solid var(--border); padding: 24px 26px; display: flex; flex-direction: column; justify-content: center; font-family: var(--font-ui); }
+.catalog-index { border-left: 1px solid var(--border); padding: 24px 26px; display: flex; flex-direction: column; justify-content: center; background: url('/assets/winter-flurries-v1.svg') right top / 220px auto no-repeat, linear-gradient(155deg, #f8fcfb, #eaf3f5); font-family: var(--font-ui); }
 .catalog-index__row { display: flex; align-items: baseline; justify-content: space-between; padding-top: 12px; }
 .catalog-index__row span { color: var(--text-secondary); font-size: 12px; }
 .catalog-index__row strong { font: 400 42px/1.1 var(--font); font-variant-numeric: tabular-nums; }
@@ -753,18 +778,21 @@ onMounted(loadEquipment)
 .borrow-link span { margin-left: 4px; }
 .borrow-unavailable { font: 11px var(--font-ui); color: var(--text-secondary); }
 @media (max-width: 1200px) {
-  .catalog-heading { min-height: 230px; padding: 28px; }
+  .catalog-heading { min-height: 260px; padding: 28px; }
   .catalog-heading > .catalog-mark { top: 20px; left: 28px; }
+  .catalog-heading > .catalog-winter-line { top: 32px; left: 90px; }
 }
 @media (max-width: 1100px) { .page-header { grid-template-columns: minmax(0, 1fr) 210px; } }
 @media (max-width: 640px) {
   .page-header { grid-template-columns: 1fr; gap: 0; padding: 0; }
-  .catalog-heading { min-height: 220px; padding: 24px 20px; }
+  .catalog-heading { min-height: 250px; padding: 24px 20px; }
   .catalog-heading > .catalog-mark { top: 16px; left: 20px; width: 40px; height: 40px; }
+  .catalog-heading > .catalog-frost { height: 85px; opacity: .24; }
+  .catalog-heading > .catalog-winter-line { top: 70px; left: 20px; font-size: 13px; }
   .catalog-heading > .catalog-flurries { left: 58px; width: 160px; height: 80px; }
-  .catalog-heading > .catalog-fir { top: -16px; right: -12px; width: 48%; }
-  .catalog-heading::after { width: 100%; background-position: center 60%; }
-  .catalog-heading::before { background: linear-gradient(90deg, rgba(24, 43, 61, .98) 0%, rgba(24, 43, 61, .86) 48%, rgba(24, 43, 61, .24) 100%); }
+  .catalog-heading > .catalog-fir { top: -16px; right: -12px; width: 43%; }
+  .catalog-heading::after { width: 100%; background-position: 66% center; }
+  .catalog-heading::before { background: linear-gradient(90deg, rgba(16, 36, 53, .96) 0%, rgba(16, 36, 53, .78) 45%, rgba(16, 36, 53, .18) 100%); }
   .catalog-heading .page-title { max-width: 100%; font-size: clamp(27px, 8.2vw, 34px); }
   .catalog-heading .page-desc { max-width: 90%; margin-top: 12px; font-size: 12px; }
   .catalog-index { border-left: none; border-top: 1px solid var(--border); padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }

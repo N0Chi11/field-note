@@ -106,7 +106,9 @@ function closeSidebar() {
   background: url('/assets/winter-flurries-v1.svg') right 145px / min(48vw, 580px) auto no-repeat;
 }
 
-.edition-masthead { display: flex; justify-content: space-between; align-items: center; gap: 20px; max-width: 1260px; margin: 0 auto 30px; padding-bottom: 16px; border-bottom: 3px solid var(--text); background: url('/assets/winter-flurries-v1.svg') right 110px center / 220px auto no-repeat; }
+.edition-masthead { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 20px; max-width: 1260px; margin: 0 auto 30px; padding-bottom: 16px; border-bottom: 3px solid var(--text); background: url('/assets/winter-flurries-v1.svg') right 110px center / 220px auto no-repeat; }
+.edition-masthead::before { content: ''; position: absolute; right: 0; top: -32px; width: min(340px, 50%); height: 95px; background: url('/assets/winter-frost-frame-v1.webp') right top / 100% auto no-repeat; opacity: .24; pointer-events: none; }
+.edition-masthead > * { position: relative; }
 .edition-name { color: var(--text); font: 500 clamp(26px, 2.6vw, 38px)/1 var(--font); letter-spacing: -.035em; }
 .edition-dot { color: var(--accent); }
 .edition-meta { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }

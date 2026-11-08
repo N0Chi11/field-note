@@ -9,9 +9,10 @@
           <span>建议提前一天提交</span>
           <span>设备须当日归还</span>
         </div>
-        <div class="borrow-art" aria-hidden="true">
-          <img class="borrow-art__fir" src="/assets/winter-fir-v1.webp" alt="" />
-          <img class="borrow-art__seal" src="/assets/winter-mark.svg" alt="" />
+        <div class="borrow-art">
+          <img class="borrow-art__fir" src="/assets/winter-fir-v1.webp" alt="" aria-hidden="true" />
+          <img class="borrow-art__seal" src="/assets/winter-mark.svg" alt="" aria-hidden="true" />
+          <p class="borrow-art__line">把冬天的光，带回故事里。</p>
         </div>
       </div>
 
@@ -547,9 +548,10 @@ onUnmounted(() => {
 .borrow-guidance { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 20px; padding: 14px 0; border-block: 1px solid var(--border); color: var(--text-secondary); font: 12px/1.6 var(--font-ui); }
 .borrow-guidance span { display: inline-flex; align-items: center; gap: 7px; }
 .borrow-guidance span::before { content: ''; width: 5px; height: 5px; background: var(--accent); transform: rotate(45deg); }
-.borrow-art { position: relative; height: clamp(170px, 18vw, 230px); margin-top: 20px; overflow: hidden; border: 1px solid var(--border); background: linear-gradient(90deg, rgba(24,43,61,.18), rgba(24,43,61,.2)), url('/assets/winter-editorial-v1.webp') center 53% / cover no-repeat; }
+.borrow-art { position: relative; height: clamp(170px, 18vw, 230px); margin-top: 20px; overflow: hidden; border: 1px solid var(--border); background: linear-gradient(0deg, rgba(16,36,53,.7), rgba(16,36,53,.05) 65%), url('/assets/winter-landscape-v2.webp') 65% center / cover no-repeat; }
 .borrow-art__fir { position: absolute; right: -14px; top: -18px; width: 65%; max-width: 300px; filter: drop-shadow(0 4px 8px rgba(9,24,36,.2)); }
-.borrow-art__seal { position: absolute; left: 16px; bottom: 16px; width: 42px; height: 42px; opacity: .9; }
+.borrow-art__seal { position: absolute; left: 16px; top: 16px; width: 42px; height: 42px; opacity: .9; }
+.borrow-art__line { position: absolute; left: 16px; right: 16px; bottom: 14px; margin: 0; color: #f5fafb; font: 500 14px/1.5 var(--font); letter-spacing: .08em; text-shadow: 0 1px 6px #102435; }
 .form-wrapper {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -598,7 +600,9 @@ onUnmounted(() => {
   .page-title {
     font-size: 46px;
   }
-  .borrow-art { height: 100px; background-position: center 25%; }
+  .borrow-art { height: 110px; background-position: 65% center; }
   .borrow-art__fir { width: 50%; }
+  .borrow-art__seal { top: 10px; left: 12px; width: 32px; height: 32px; }
+  .borrow-art__line { left: 12px; bottom: 10px; font-size: 13px; }
 }
 </style>
