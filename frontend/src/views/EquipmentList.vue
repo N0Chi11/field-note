@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, nextTick, onMounted } from 'vue'
 import AppLayout from '@/components/AppLayout.vue'
 import FilterTabs from '@/components/common/FilterTabs.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
@@ -25,6 +25,7 @@ const favoriteIds = ref<Set<number>>(new Set())
 const favoriteLoadingIds = ref<Set<number>>(new Set())
 const activeCategory = ref('all')
 const keyword = ref('')
+const searchInput = ref<HTMLInputElement | null>(null)
 const activeStatus = ref('all')
 const loadError = ref(false)
 const imageFailures = ref<Set<number>>(new Set())
@@ -119,6 +120,12 @@ function resetFilters() {
   keyword.value = ''
   activeCategory.value = 'all'
   activeStatus.value = 'all'
+}
+
+async function clearSearch() {
+  keyword.value = ''
+  await nextTick()
+  searchInput.value?.focus()
 }
 
 function markImageFailed(id: number) {
@@ -223,10 +230,11 @@ onMounted(loadEquipment)
       </div>
 
       <div class="catalog-tools">
-        <label class="catalog-search">
-          <EditorialIcon name="catalog" :size="24" />
-          <input v-model="keyword" type="search" aria-label="搜索器材" placeholder="按名称、编号或类别查找器材" />
-        </label>
+        <div class="catalog-search">
+          <svg class="catalog-search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/></svg>
+          <input ref="searchInput" v-model="keyword" type="search" aria-label="搜索器材" placeholder="按名称、编号或类别查找器材" />
+          <button v-if="keyword" type="button" class="catalog-search-clear" aria-label="清除搜索" @click="clearSearch">×</button>
+        </div>
         <label class="catalog-status">状态
           <select v-model="activeStatus" aria-label="筛选器材状态">
             <option value="all">全部状态</option>
@@ -472,7 +480,7 @@ onMounted(loadEquipment)
   border-bottom: 3px solid var(--text);
 }
 .category-icon {
-  filter: grayscale(.55) saturate(.7) hue-rotate(160deg) contrast(1.04);
+  filter: contrast(1.04);
 }
 .category-name {
   font-size: 22px;
@@ -502,6 +510,7 @@ onMounted(loadEquipment)
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 4px 16px rgba(25, 45, 61, .04);
   transition: transform var(--transition), box-shadow var(--transition),
     border-color var(--transition);
   animation: cardFadeIn 0.5s ease both;
@@ -549,8 +558,8 @@ onMounted(loadEquipment)
   pointer-events: none;
 }
 .placeholder-icon {
-  opacity: 0.78;
-  filter: grayscale(.55) saturate(.7) hue-rotate(160deg) contrast(1.05);
+  opacity: 0.92;
+  filter: contrast(1.05);
 }
 
 /* ---------- 状态标签 ---------- */
@@ -727,9 +736,13 @@ onMounted(loadEquipment)
 .available-number { color: var(--success); }
 .catalog-calendar { display: flex; justify-content: space-between; border-top: 1px solid var(--border); margin-top: 14px; padding-top: 12px; font-size: 12px; }
 .catalog-index p { font-size: 11px; color: var(--text-secondary); margin-top: 12px; line-height: 1.7; }
-.catalog-tools { display: flex; gap: 16px; align-items: center; margin-bottom: 18px; font-family: var(--font-ui); }
-.catalog-search { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; border-bottom: 1px solid var(--text); padding: 10px 0; }
+.catalog-tools { display: flex; gap: 16px; align-items: center; margin-bottom: 18px; padding: 8px 12px; border: 1px solid var(--border); background: rgba(249, 251, 250, .75); font-family: var(--font-ui); }
+.catalog-search { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; border-bottom: 1px solid var(--text); padding: 7px 0; }
+.catalog-search-icon { width: 20px; height: 20px; flex-shrink: 0; stroke: var(--accent); stroke-width: 1.5; stroke-linecap: round; }
 .catalog-search input { min-width: 0; width: 100%; background: transparent; border: none; padding: 4px; color: var(--text); }
+.catalog-search input::-webkit-search-cancel-button { display: none; }
+.catalog-search-clear { width: 28px; height: 28px; flex-shrink: 0; border: 0; background: transparent; color: var(--text-secondary); font-size: 20px; line-height: 1; }
+.catalog-search-clear:hover { color: var(--accent); }
 .catalog-search input:focus-visible { outline-offset: 3px; }
 .catalog-status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
 .catalog-status select { padding: 10px 24px 10px 12px; background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
@@ -759,7 +772,7 @@ onMounted(loadEquipment)
   .catalog-index__row { padding-top: 0; }
   .catalog-index__row strong { font-size: 32px; }
   .catalog-calendar, .catalog-index p { margin-top: 0; }
-  .catalog-tools { flex-wrap: wrap; gap: 12px; }
+  .catalog-tools { flex-wrap: wrap; gap: 10px 12px; padding: 10px 12px; }
   .catalog-search { flex-basis: 100%; }
   .catalog-results { margin-left: auto; }
 }

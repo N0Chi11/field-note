@@ -41,6 +41,8 @@ type SidebarIcon =
   | 'equipment'
   | 'application'
   | 'overview'
+  | 'calendar'
+  | 'photo-review'
   | 'precautions'
   | 'maintenance'
   | 'approval'
@@ -54,7 +56,7 @@ const equipmentNav: NavItem[] = [
   { path: '/equipment', icon: 'equipment', label: '器材设备清单' },
   { path: '/borrow', icon: 'application', label: '借用申请' },
   { path: '/overview', icon: 'overview', label: '借用一览' },
-  { path: '/calendar', icon: 'overview', label: '预约日历' },
+  { path: '/calendar', icon: 'calendar', label: '预约日历' },
   { path: '/precautions', icon: 'precautions', label: '注意事项' }
 ]
 
@@ -63,7 +65,7 @@ const adminNav: NavItem[] = [
   { path: '/admin/equipment', icon: 'maintenance', label: '设备维护' },
   { path: '/admin/approval', icon: 'approval', label: '借用审批', badge: 'pending' },
   { path: '/admin/return', icon: 'return', label: '归还确认', badge: 'return_pending' },
-  { path: '/admin/photo-review', icon: 'overview', label: '照片审核' },
+  { path: '/admin/photo-review', icon: 'photo-review', label: '照片审核' },
   { path: '/admin/logs', icon: 'logs', label: '操作日志' },
   { path: '/admin/feedback', icon: 'feedback', label: '用户反馈', badge: 'feedback_open' }
 ]
@@ -415,22 +417,24 @@ watch(() => route.path, () => {
 .nav-item__icon {
   width: 30px;
   height: 30px;
-  background-image: url('/assets/sidebar-icon-sprite-v1.webp');
+  background-image: url('/assets/winter-sidebar-icons-v1.webp');
   background-repeat: no-repeat;
   background-size: 300% 300%;
   flex-shrink: 0;
-  filter: grayscale(.65) saturate(.7) hue-rotate(160deg) contrast(1.04);
+  filter: brightness(1.08) contrast(1.04);
   transition: filter var(--transition), transform var(--transition);
 }
 
 .nav-item:hover .nav-item__icon {
-  filter: grayscale(.45) saturate(.8) hue-rotate(160deg) contrast(1.08);
+  filter: brightness(1.18) contrast(1.08);
   transform: translateX(1px);
 }
 
 .nav-item__icon--equipment { background-position: 0 0; }
 .nav-item__icon--application { background-position: 50% 0; }
 .nav-item__icon--overview { background-position: 100% 0; }
+.nav-item__icon--calendar { background-image: url('/assets/winter-calendar-v1.svg'); background-size: 100% 100%; background-position: center; }
+.nav-item__icon--photo-review { background-image: url('/assets/winter-equipment-icons-v1.webp'); background-size: 300% 300%; background-position: 100% 0; }
 .nav-item__icon--precautions { background-position: 0 50%; }
 .nav-item__icon--maintenance { background-position: 50% 50%; }
 .nav-item__icon--approval { background-position: 100% 50%; }
@@ -439,9 +443,7 @@ watch(() => route.path, () => {
 .nav-item__icon--profile { background-position: 100% 100%; }
 .nav-item__icon--feedback { background-position: 50% 100%; }
 
-.nav-item.active .nav-item__icon {
-  filter: grayscale(1) brightness(0.38) contrast(1.25);
-}
+.nav-item.active .nav-item__icon { filter: contrast(1.08); }
 
 .nav-item__text {
   flex: 1;

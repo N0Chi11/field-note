@@ -86,11 +86,11 @@ function selectTab(key: string) {
 }
 
 .filter-tabs__icon {
-  filter: saturate(.84) contrast(1.06);
+  filter: contrast(1.06);
 }
 
 .filter-tabs__item.active .filter-tabs__icon {
-  filter: grayscale(1) brightness(2.4) contrast(1.2);
+  filter: brightness(1.12) contrast(1.05);
 }
 
 .filter-tabs__label {

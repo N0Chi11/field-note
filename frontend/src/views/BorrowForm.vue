@@ -4,9 +4,15 @@
       <!-- 页面标题 -->
       <div class="page-header">
         <h1 class="page-title">借用申请</h1>
-        <p class="page-desc">
-          提交申请后可在“借用一览”页面查看审核状态（建议提前一天提交）
-        </p>
+        <p class="page-desc">提交后可在“借用一览”查看审核状态。</p>
+        <div class="borrow-guidance">
+          <span>建议提前一天提交</span>
+          <span>设备须当日归还</span>
+        </div>
+        <div class="borrow-art" aria-hidden="true">
+          <img class="borrow-art__fir" src="/assets/winter-fir-v1.webp" alt="" />
+          <img class="borrow-art__seal" src="/assets/winter-mark.svg" alt="" />
+        </div>
       </div>
 
       <div class="form-wrapper">
@@ -14,6 +20,7 @@
           ref="formRef"
           :model="form"
           :rules="rules"
+          size="large"
           label-placement="top"
           require-mark-placement="right-hanging"
         >
@@ -52,6 +59,9 @@
           </n-form-item>
 
           <!-- 借用 / 归还时间 -->
+          <n-alert v-if="presetAdjusted" type="info" title="已调整默认时间" class="preset-alert" role="status">
+            所选日期的默认时段已过，暂时为你选择明天；如需其他时间，可以手动修改。
+          </n-alert>
           <div class="form-row">
             <n-form-item label="借用时间" path="borrowTime">
               <n-date-picker
@@ -61,7 +71,7 @@
                 placeholder="选择借用时间"
                 :is-date-disabled="isDateDisabled"
                 style="width: 100%"
-                @update:value="onFieldChange"
+                @update:value="onTimeChange"
               />
             </n-form-item>
             <n-form-item label="归还时间" path="returnTime">
@@ -72,7 +82,7 @@
                 placeholder="选择归还时间"
                 :is-date-disabled="isDateDisabled"
                 style="width: 100%"
-                @update:value="onFieldChange"
+                @update:value="onTimeChange"
               />
             </n-form-item>
           </div>
@@ -187,6 +197,7 @@ const DRAFT_KEY = `eb_borrow_draft_${authStore.user?.id ?? 'guest'}`
 const formRef = ref<FormInst | null>(null)
 const submitting = ref(false)
 const equipmentLoading = ref(false)
+const presetAdjusted = ref(false)
 
 const initialTimes = defaultBorrowTimes()
 const form = reactive({
@@ -316,6 +327,11 @@ function onFieldChange() {
   scheduleConflictCheck()
 }
 
+function onTimeChange() {
+  presetAdjusted.value = false
+  onFieldChange()
+}
+
 function scheduleConflictCheck() {
   conflictSequence += 1
   conflict.value = null
@@ -396,6 +412,7 @@ function loadDraft() {
 }
 
 function resetDraft() {
+  presetAdjusted.value = false
   conflictSequence += 1
   if (conflictTimer) clearTimeout(conflictTimer)
   checkingConflict.value = false
@@ -423,6 +440,8 @@ function applyRoutePreset() {
   const dateValue = typeof route.query.date === 'string' ? route.query.date : ''
   const times = borrowTimesForDate(dateValue)
   if (!times) return
+  const [year, month, day] = dateValue.split('-').map(Number)
+  presetAdjusted.value = times.borrowTime !== Date.UTC(year, month - 1, day, 1)
   Object.assign(form, times)
   saveDraft()
   scheduleConflictCheck()
@@ -505,26 +524,16 @@ onUnmounted(() => {
 }
 .page-header {
   margin: 0;
-  padding: 20px 0 28px;
-  border-top: 1px solid var(--text);
-  border-bottom: 1px solid var(--text);
+  padding: 26px 0 0;
+  border-top: 3px solid var(--text);
   position: sticky;
   top: 36px;
-}
-.page-header::before {
-  content: 'BORROWING REQUEST / APPLICATION';
-  display: block;
-  margin-bottom: 48px;
-  color: var(--accent);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
 }
 .page-title {
   font-size: clamp(48px, 5vw, 74px);
   font-weight: 500;
   line-height: 0.94;
-  margin: 0 0 24px;
+  margin: 0 0 18px;
   color: var(--text);
   font-family: var(--font);
   letter-spacing: -0.055em;
@@ -535,13 +544,19 @@ onUnmounted(() => {
   margin: 0;
   line-height: 1.8;
 }
+.borrow-guidance { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 20px; padding: 14px 0; border-block: 1px solid var(--border); color: var(--text-secondary); font: 12px/1.6 var(--font-ui); }
+.borrow-guidance span { display: inline-flex; align-items: center; gap: 7px; }
+.borrow-guidance span::before { content: ''; width: 5px; height: 5px; background: var(--accent); transform: rotate(45deg); }
+.borrow-art { position: relative; height: clamp(170px, 18vw, 230px); margin-top: 20px; overflow: hidden; border: 1px solid var(--border); background: linear-gradient(90deg, rgba(24,43,61,.18), rgba(24,43,61,.2)), url('/assets/winter-editorial-v1.webp') center 53% / cover no-repeat; }
+.borrow-art__fir { position: absolute; right: -14px; top: -18px; width: 65%; max-width: 300px; filter: drop-shadow(0 4px 8px rgba(9,24,36,.2)); }
+.borrow-art__seal { position: absolute; left: 16px; bottom: 16px; width: 42px; height: 42px; opacity: .9; }
 .form-wrapper {
   background: var(--bg-card);
-  border: 1px solid var(--text);
-  border-top-width: 5px;
+  border: 1px solid var(--border);
+  border-top: 5px solid var(--text);
   border-radius: 1px;
   padding: clamp(24px, 4vw, 42px);
-  box-shadow: 8px 9px 0 rgba(26, 26, 24, 0.08);
+  box-shadow: 8px 9px 0 rgba(49, 95, 128, 0.08);
   animation: slideUp 0.4s ease both;
 }
 .form-row {
@@ -553,7 +568,7 @@ onUnmounted(() => {
   font-size: 14px;
   opacity: 0.7;
 }
-.conflict-alert {
+.conflict-alert, .preset-alert {
   margin-bottom: 16px;
 }
 .check-status { margin-bottom: 16px; color: var(--text-secondary); font: 12px/1.7 var(--font-ui); }
@@ -571,9 +586,7 @@ onUnmounted(() => {
   .page-header {
     position: static;
   }
-  .page-header::before {
-    margin-bottom: 28px;
-  }
+  .borrow-art { height: 140px; }
 }
 @media (max-width: 640px) {
   .form-row {
@@ -585,5 +598,7 @@ onUnmounted(() => {
   .page-title {
     font-size: 46px;
   }
+  .borrow-art { height: 100px; background-position: center 25%; }
+  .borrow-art__fir { width: 50%; }
 }
 </style>

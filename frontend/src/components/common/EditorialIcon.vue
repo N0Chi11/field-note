@@ -91,9 +91,11 @@ const iconStyle = computed(() => {
   return {
     width: size,
     height: size,
-    backgroundImage: `url('/assets/editorial-${position.sheet}-icons-v1.webp')`,
-    backgroundSize: `${position.grid * 100}% ${position.grid * 100}%`,
-    backgroundPosition: `${(position.column / denominator) * 100}% ${(position.row / denominator) * 100}%`
+    backgroundImage: props.name === 'calendar'
+      ? "url('/assets/winter-calendar-v1.svg')"
+      : `url('/assets/winter-${position.sheet}-icons-v1.webp')`,
+    backgroundSize: props.name === 'calendar' ? '100% 100%' : `${position.grid * 100}% ${position.grid * 100}%`,
+    backgroundPosition: props.name === 'calendar' ? 'center' : `${(position.column / denominator) * 100}% ${(position.row / denominator) * 100}%`
   }
 })
 </script>

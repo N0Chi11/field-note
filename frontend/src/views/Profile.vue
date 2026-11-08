@@ -19,6 +19,9 @@ const toast = useToastStore()
 
 const isAdmin = computed(() => !!authStore.isAdmin)
 const requests = ref<BorrowDetail[]>([])
+const statsLoading = ref(true)
+const statsError = ref(false)
+const statsIncomplete = ref(false)
 const avatarInput = ref<HTMLInputElement | null>(null)
 const avatarUploading = ref(false)
 const avatarCropFile = ref<File | null>(null)
@@ -35,7 +38,7 @@ function getInitials(name?: string): string {
 
 // 借用统计
 const stats = computed(() => {
-  const list = requests.value
+  const list = requests.value.filter((request) => request.user_id === authStore.user?.id)
   return {
     total: list.length,
     pending: list.filter((r) => r.status === 'pending').length,
@@ -47,10 +50,14 @@ const stats = computed(() => {
 
 // 加载借用记录（管理员看全部，普通用户后端仅返回本人的）
 async function loadRequests() {
+  statsLoading.value = true
+  statsError.value = false
+  statsIncomplete.value = false
   try {
     const all: BorrowDetail[] = []
     let page = 1
     const size = 100
+    let complete = false
     // 安全上限，避免异常时死循环
     for (let i = 0; i < 50; i++) {
       const params: BorrowRequestQuery & { page?: number; size?: number } = {
@@ -59,13 +66,20 @@ async function loadRequests() {
       }
       const res = (await getRequests(params)) as unknown as PaginatedResponse<BorrowDetail>
       all.push(...res.items)
-      if (res.items.length === 0 || all.length >= res.total) break
+      if (res.items.length === 0 || all.length >= res.total) {
+        complete = all.length >= res.total
+        break
+      }
       page++
     }
     requests.value = all
+    statsIncomplete.value = !complete
   } catch (e: any) {
     toast.error(errMsg(e, '加载借用记录失败'))
     requests.value = []
+    statsError.value = true
+  } finally {
+    statsLoading.value = false
   }
 }
 
@@ -209,28 +223,32 @@ onMounted(loadRequests)
         </div>
 
         <!-- 统计数据网格 -->
-        <div class="profile-stats">
+        <div class="profile-stats" :aria-busy="statsLoading">
           <div class="profile-stat">
-            <div class="profile-stat-value">{{ stats.total }}</div>
+            <div class="profile-stat-value">{{ statsLoading || statsError ? '—' : stats.total }}</div>
             <div class="profile-stat-label">总申请</div>
           </div>
           <div class="profile-stat">
-            <div class="profile-stat-value">{{ stats.pending }}</div>
+            <div class="profile-stat-value">{{ statsLoading || statsError ? '—' : stats.pending }}</div>
             <div class="profile-stat-label">待审核</div>
           </div>
           <div class="profile-stat">
-            <div class="profile-stat-value">{{ stats.borrowing }}</div>
+            <div class="profile-stat-value">{{ statsLoading || statsError ? '—' : stats.borrowing }}</div>
             <div class="profile-stat-label">借用中</div>
           </div>
           <div class="profile-stat">
-            <div class="profile-stat-value">{{ stats.returned }}</div>
+            <div class="profile-stat-value">{{ statsLoading || statsError ? '—' : stats.returned }}</div>
             <div class="profile-stat-label">已归还</div>
           </div>
           <div class="profile-stat">
-            <div class="profile-stat-value">{{ stats.rejected }}</div>
+            <div class="profile-stat-value">{{ statsLoading || statsError ? '—' : stats.rejected }}</div>
             <div class="profile-stat-label">已拒绝</div>
           </div>
         </div>
+        <div v-if="statsError" class="profile-data-notice" role="alert">
+          借用统计加载失败。<button type="button" @click="loadRequests">重新加载</button>
+        </div>
+        <p v-else-if="statsIncomplete" class="profile-data-notice">当前统计仅包含最近加载的借用记录。</p>
 
         <!-- 操作按钮 -->
         <div class="profile-actions">
@@ -459,7 +477,9 @@ onMounted(loadRequests)
   text-align: center;
   padding: 16px 8px;
   background: var(--bg-input);
-  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+  border-top: 2px solid var(--border);
+  border-radius: 1px;
 }
 .profile-stat-value {
   font-size: 26px;
@@ -471,6 +491,8 @@ onMounted(loadRequests)
   color: var(--text-tertiary);
   margin-top: 2px;
 }
+.profile-data-notice { margin: -12px 0 24px; color: var(--text-secondary); font: 12px/1.6 var(--font-ui); }
+.profile-data-notice button { border: 0; border-bottom: 1px solid var(--accent); padding: 0; color: var(--accent); background: transparent; }
 
 /* Profile Actions */
 .profile-actions {

@@ -49,6 +49,12 @@ try {
   await expect(page.locator('.catalog-mark')).toHaveAttribute('src', '/assets/winter-mark.svg')
   await expect(page.locator('.catalog-fir')).toHaveAttribute('src', '/assets/winter-fir-v1.webp')
   expect(await page.locator('.catalog-fir').evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true)
+  for (const asset of ['winter-equipment-icons-v1.webp', 'winter-action-icons-v1.webp', 'winter-sidebar-icons-v1.webp', 'winter-calendar-v1.svg']) {
+    expect((await page.request.get(`${baseURL}/assets/${asset}`)).ok()).toBe(true)
+  }
+  expect(await page.locator('.placeholder-icon').first().evaluate(el => getComputedStyle(el).backgroundImage)).toContain('winter-equipment-icons-v1.webp')
+  expect(await page.locator('.nav-item__icon').first().evaluate(el => getComputedStyle(el).backgroundImage)).toContain('winter-sidebar-icons-v1.webp')
+  expect(await page.locator('.nav-item__icon--calendar').evaluate(el => getComputedStyle(el).backgroundImage)).toContain('winter-calendar-v1.svg')
   expect(await page.locator('.catalog-heading .winter-snowfall').evaluate(el => getComputedStyle(el).pointerEvents)).toBe('none')
   expect(await page.locator('.catalog-heading .winter-snowfall').evaluate(el => getComputedStyle(el).animationName)).toBe('none')
   await expect(page.getByText('HALLOWEEN', { exact: true })).toHaveCount(0)
@@ -57,7 +63,9 @@ try {
   await page.screenshot({ path: path.join(artifactDir, 'catalog-desktop.png'), fullPage: true })
   await page.getByRole('searchbox', { name: '搜索器材' }).fill('索尼')
   await expect(page.locator('.equipment-card')).toHaveCount(1)
-  await page.getByRole('searchbox', { name: '搜索器材' }).fill('')
+  await page.getByRole('button', { name: '清除搜索' }).click()
+  await expect(page.getByRole('searchbox', { name: '搜索器材' })).toBeFocused()
+  await expect(page.locator('.equipment-card')).toHaveCount(5)
   await page.getByLabel('筛选器材状态').selectOption('repair')
   await expect(page.locator('.equipment-card')).toHaveCount(1)
   await expect(page.locator('.borrow-link')).toHaveCount(0)
@@ -175,6 +183,12 @@ try {
     await mobile.keyboard.press('Escape')
     await expect(mobile.locator('.sidebar')).not.toHaveClass(/is-open/)
     expect(await mobile.evaluate(() => document.body.style.overflow)).not.toBe('hidden')
+    if (width <= 375) {
+      await mobile.goto(`${baseURL}/borrow`)
+      await expect(mobile.getByRole('button', { name: '提交申请', exact: true })).toBeVisible()
+      expect(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+      await mobile.screenshot({ path: path.join(artifactDir, `borrow-${width}.png`), fullPage: true })
+    }
     await mobile.close()
   }
 

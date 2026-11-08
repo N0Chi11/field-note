@@ -3,7 +3,7 @@
  * 设备借用时间轴弹窗（甘特图）
  * 完全复刻原始 HTML 版本的 timeline / gantt 设计
  */
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { NModal, NSpin } from 'naive-ui'
 import { getEquipmentById } from '@/api/equipment'
 import { getRequests } from '@/api/borrow'
@@ -48,6 +48,7 @@ const toast = useToastStore()
 const loading = ref(false)
 const equipment = ref<Equipment | null>(null)
 const requests = ref<BorrowDetail[]>([])
+let loadSequence = 0
 
 /** 甘特图时间范围 */
 const ganttRange = ref<'month' | 'quarter' | 'year'>('month')
@@ -114,10 +115,8 @@ function errMsg(e: any, fallback = '操作失败'): string {
  * ------------------------------------------------------------------ */
 /** 当前借用中的记录（用于状态卡片） */
 const currentBorrower = computed<BorrowDetail | null>(() => {
-  return requests.value.find((r) => r.status === 'borrowing') || null
+  return requests.value.find((r) => r.status === 'borrowing' || r.status === 'return_pending') || null
 })
-
-const isBorrowed = computed(() => !!currentBorrower.value)
 
 /* ------------------------------------------------------------------ *
  * 甘特图：时间范围计算（完全复刻原 HTML）
@@ -306,12 +305,14 @@ const historyList = computed<BorrowDetail[]>(() => {
  * 数据加载
  * ------------------------------------------------------------------ */
 async function fetchRequestsByEquipment(
-  equipmentId: number
+  equipmentId: number,
+  sequence: number
 ): Promise<BorrowDetail[]> {
   const all: BorrowDetail[] = []
   let page = 1
   const size = 100
   for (let i = 0; i < 50; i++) {
+    if (sequence !== loadSequence) break
     const params: BorrowRequestQuery & {
       page?: number
       size?: number
@@ -322,6 +323,7 @@ async function fetchRequestsByEquipment(
       size
     }
     const res = (await getRequests(params)) as unknown as PaginatedResponse<BorrowDetail>
+    if (sequence !== loadSequence) break
     all.push(...res.items)
     if (res.items.length === 0 || all.length >= res.total) break
     page++
@@ -332,44 +334,46 @@ async function fetchRequestsByEquipment(
   )
 }
 
-async function loadData() {
-  if (!props.equipmentId) return
+async function loadData(equipmentId: number) {
+  const sequence = ++loadSequence
   loading.value = true
+  equipment.value = null
+  requests.value = []
   try {
     const [equipmentDetail, reqs] = await Promise.all([
-      getEquipmentById(props.equipmentId),
-      fetchRequestsByEquipment(props.equipmentId)
+      getEquipmentById(equipmentId),
+      fetchRequestsByEquipment(equipmentId, sequence)
     ])
-    equipment.value = equipmentDetail.equipment
-    requests.value = reqs
+    if (sequence === loadSequence) {
+      equipment.value = equipmentDetail.equipment
+      requests.value = reqs
+    }
   } catch (e: any) {
-    toast.error(errMsg(e, '加载时间轴数据失败'))
-    equipment.value = null
-    requests.value = []
+    if (sequence === loadSequence) {
+      toast.error(errMsg(e, '加载时间轴数据失败'))
+      equipment.value = null
+      requests.value = []
+    }
   } finally {
-    loading.value = false
+    if (sequence === loadSequence) loading.value = false
   }
 }
 
-/** 弹窗打开时加载数据 */
+/** 只响应当前打开的设备，忽略已经关闭或切换时才返回的旧结果。 */
 watch(
-  () => props.visible,
-  (v) => {
-    if (v && props.equipmentId) {
-      loadData()
+  () => [props.visible, props.equipmentId] as const,
+  ([visible, id]) => {
+    if (visible && id) void loadData(id)
+    else {
+      loadSequence += 1
+      loading.value = false
+      equipment.value = null
+      requests.value = []
     }
-  }
+  },
+  { immediate: true }
 )
-
-/** 弹窗打开状态下切换设备时重新加载 */
-watch(
-  () => props.equipmentId,
-  (id) => {
-    if (id && props.visible) {
-      loadData()
-    }
-  }
-)
+onUnmounted(() => { loadSequence += 1 })
 </script>
 
 <template>
@@ -383,7 +387,7 @@ watch(
       <!-- 弹窗头部 -->
       <div class="modal-header">
         <div class="modal-title">设备借用时间轴</div>
-        <button class="modal-close" type="button" @click="show = false">
+        <button class="modal-close" type="button" aria-label="关闭时间轴" @click="show = false">
           ×
         </button>
       </div>
@@ -409,25 +413,39 @@ watch(
 
             <!-- 状态卡片 -->
             <div
-              v-if="isBorrowed && currentBorrower"
+              v-if="equipment.status === 'repair'"
+              class="timeline-status-card repair"
+            >
+              <div class="status-card-icon"><EditorialIcon name="maintenance" :size="42" /></div>
+              <div class="timeline-status-text">
+                <strong>当前状态：维修中</strong>
+                <span class="sub">设备暂不可预约</span>
+              </div>
+            </div>
+            <div
+              v-else-if="equipment.status === 'borrowed'"
               class="timeline-status-card borrowed"
             >
               <div class="status-card-icon"><EditorialIcon name="parcel" :size="42" /></div>
               <div class="timeline-status-text">
                 <strong>当前状态：借用中</strong>
-                <span class="sub">
+                <span v-if="currentBorrower" class="sub">
                   借用人：{{ currentBorrower.user_name }}（{{
                     currentBorrower.user_student_id
                   }}）· 预计归还：{{ fmt(currentBorrower.return_time) }}
                 </span>
+                <span v-else class="sub">设备目前不在库，请以预约日历为准</span>
               </div>
             </div>
-            <div v-else class="timeline-status-card available">
+            <div v-else-if="equipment.status === 'available'" class="timeline-status-card available">
               <div class="status-card-icon"><EditorialIcon name="approved" :size="42" /></div>
               <div class="timeline-status-text">
                 <strong>当前状态：可借用</strong>
                 <span class="sub">设备目前可提交借用申请</span>
               </div>
+            </div>
+            <div v-else class="timeline-status-card">
+              <div class="timeline-status-text"><strong>设备状态暂不可用</strong></div>
             </div>
 
             <!-- 甘特图 -->
@@ -579,7 +597,9 @@ watch(
 /* ---------- 弹窗容器 ---------- */
 .timeline-modal {
   background: var(--bg-card);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--text);
+  border-radius: 2px;
   padding: 30px;
   width: 100%;
   max-width: 760px;
@@ -695,6 +715,9 @@ watch(
 .timeline-status-card.borrowed {
   border-left: 4px solid var(--accent);
 }
+.timeline-status-card.repair {
+  border-left: 4px solid var(--danger);
+}
 .status-card-icon {
   font-size: 24px;
   line-height: 1;
@@ -727,7 +750,7 @@ watch(
   padding: 6px 14px;
   border: 1px solid var(--border);
   background: var(--bg-card);
-  border-radius: 20px;
+  border-radius: 2px;
   font-size: 13px;
   color: var(--text-secondary);
   cursor: pointer;
