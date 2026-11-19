@@ -2,7 +2,7 @@
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import { ref, watch, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { APP_VERSION } from '@/utils/appInfo'
+import { APP_EDITION, APP_ISSUE, APP_NAME, APP_VERSION } from '@/utils/appInfo'
 
 const sidebarOpen = ref(false)
 
@@ -66,7 +66,7 @@ function closeSidebar() {
       </button>
       <span class="mobile-title">
         <img src="/logo.png" alt="logo" class="mobile-title-logo" />
-        FIELD NOTE
+        {{ APP_NAME }}
         <span class="mobile-version">{{ APP_VERSION }}</span>
       </span>
       <span class="mobile-placeholder"></span>
@@ -75,10 +75,13 @@ function closeSidebar() {
     <!-- 主内容区域 -->
     <main class="app-main">
       <div class="edition-masthead" aria-label="FIELD NOTE 刊头">
-        <router-link to="/equipment" class="edition-name">FIELD NOTE<span class="edition-dot">.</span></router-link>
+        <router-link to="/equipment" class="edition-name">{{ APP_NAME }}<span class="edition-dot">.</span></router-link>
         <div class="edition-meta">
-          <img src="/assets/winter-mark.svg" alt="" aria-hidden="true" class="edition-mark" />
-          <span class="edition-issue">ISSUE 107<br /><span>{{ APP_VERSION }}</span></span>
+          <img src="/assets/christmas-seal-v1.svg" alt="" aria-hidden="true" class="edition-mark" width="46" height="46" />
+          <div class="edition-issue">
+            <span class="edition-label" lang="en">{{ APP_EDITION }}</span>
+            <span>{{ APP_ISSUE }} / {{ APP_VERSION }}</span>
+          </div>
         </div>
       </div>
       <div class="editorial-page"><slot /></div>
@@ -103,18 +106,47 @@ function closeSidebar() {
   max-width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
-  background: url('/assets/winter-flurries-v1.svg') right 145px / min(48vw, 580px) auto no-repeat;
 }
 
-.edition-masthead { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 20px; max-width: 1260px; margin: 0 auto 30px; padding-bottom: 16px; border-bottom: 3px solid var(--text); background: url('/assets/winter-flurries-v1.svg') right 110px center / 220px auto no-repeat; }
-.edition-masthead::before { content: ''; position: absolute; right: 0; top: -32px; width: min(340px, 50%); height: 95px; background: url('/assets/winter-frost-frame-v1.webp') right top / 100% auto no-repeat; opacity: .24; pointer-events: none; }
+.edition-masthead {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  max-width: 1260px;
+  margin: 0 auto 28px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--text);
+}
+.edition-masthead::before {
+  content: '';
+  position: absolute;
+  top: -27px;
+  right: 176px;
+  width: 156px;
+  height: 81px;
+  background: url('/assets/christmas-sprig-v1.svg') right top / 100% auto no-repeat;
+  opacity: .44;
+  pointer-events: none;
+}
+.edition-masthead::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 72px;
+  height: 3px;
+  background: var(--accent);
+  pointer-events: none;
+}
 .edition-masthead > * { position: relative; }
-.edition-name { color: var(--text); font: 500 clamp(26px, 2.6vw, 38px)/1 var(--font); letter-spacing: -.035em; }
+.edition-name { color: var(--text); font: 500 clamp(26px, 2.9vw, 42px)/1 var(--font); letter-spacing: -.045em; white-space: nowrap; }
 .edition-dot { color: var(--accent); }
-.edition-meta { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
-.edition-mark { width: 52px; height: 52px; }
-.edition-issue { text-align: right; font: 10px/1.8 var(--font-data); letter-spacing: .08em; color: var(--accent); }
-.edition-issue span { color: var(--text-secondary); }
+.edition-meta { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.edition-mark { width: 46px; height: 46px; }
+.edition-issue { display: grid; text-align: right; font: 10px/1.75 var(--font-data); letter-spacing: .06em; color: var(--text-secondary); }
+.edition-label { color: var(--accent); font-weight: 700; letter-spacing: .14em; }
 
 .editorial-page {
   animation: editorial-page-enter .45s cubic-bezier(.22,.72,.3,1) both;
@@ -173,10 +205,11 @@ function closeSidebar() {
     padding: 0 16px;
     padding-top: env(safe-area-inset-top, 0px);
     background: var(--bg-sidebar);
-    border-bottom: 1px solid rgba(183, 215, 228, 0.28);
+    border-bottom: 1px solid color-mix(in srgb, var(--foil), transparent 60%);
     z-index: 200;
   }
-  .edition-masthead { gap: 10px; margin-bottom: 24px; padding-bottom: 16px; background-position: right 75px center; background-size: 130px auto; }
+  .edition-masthead { gap: 8px; margin-bottom: 20px; padding-bottom: 12px; }
+  .edition-masthead::before { display: none; }
   .edition-name { font-size: 24px; }
   .edition-meta { gap: 7px; }
   .edition-mark { width: 42px; height: 42px; }
@@ -233,6 +266,7 @@ function closeSidebar() {
     border-radius: 1px;
     transition: all 0.25s;
   }
+  .mobile-menu-btn:focus-visible { outline-color: var(--accent-on-dark); outline-offset: 2px; }
 
   .mobile-overlay {
     display: block;
@@ -241,6 +275,10 @@ function closeSidebar() {
     background: rgba(0, 0, 0, 0.4);
     z-index: 150;
   }
+}
+
+@media (max-width: 420px) {
+  .edition-mark { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -10,9 +10,8 @@
           <span>设备须当日归还</span>
         </div>
         <div class="borrow-art">
-          <img class="borrow-art__fir" src="/assets/winter-fir-v1.webp" alt="" aria-hidden="true" />
-          <img class="borrow-art__seal" src="/assets/winter-mark.svg" alt="" aria-hidden="true" />
-          <p class="borrow-art__line">把冬天的光，带回故事里。</p>
+          <img class="borrow-art__ornament" src="/assets/christmas-camera-ornament-v1.svg" alt="" aria-hidden="true" width="88" height="88" />
+          <p class="borrow-art__line">愿每一次按下快门，都留下一点温暖。</p>
         </div>
       </div>
 
@@ -548,17 +547,44 @@ onUnmounted(() => {
 .borrow-guidance { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 20px; padding: 14px 0; border-block: 1px solid var(--border); color: var(--text-secondary); font: 12px/1.6 var(--font-ui); }
 .borrow-guidance span { display: inline-flex; align-items: center; gap: 7px; }
 .borrow-guidance span::before { content: ''; width: 5px; height: 5px; background: var(--accent); transform: rotate(45deg); }
-.borrow-art { position: relative; height: clamp(170px, 18vw, 230px); margin-top: 20px; overflow: hidden; border: 1px solid var(--border); background: linear-gradient(0deg, rgba(16,36,53,.7), rgba(16,36,53,.05) 65%), url('/assets/winter-landscape-v2.webp') 65% center / cover no-repeat; }
-.borrow-art__fir { position: absolute; right: -14px; top: -18px; width: 65%; max-width: 300px; filter: drop-shadow(0 4px 8px rgba(9,24,36,.2)); }
-.borrow-art__seal { position: absolute; left: 16px; top: 16px; width: 42px; height: 42px; opacity: .9; }
-.borrow-art__line { position: absolute; left: 16px; right: 16px; bottom: 14px; margin: 0; color: #f5fafb; font: 500 14px/1.5 var(--font); letter-spacing: .08em; text-shadow: 0 1px 6px #102435; }
+.borrow-art {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 124px;
+  margin-top: 20px;
+  padding: 14px 20px;
+  overflow: hidden;
+  border: 1px solid var(--foil);
+  background: linear-gradient(125deg, #31523d, var(--bg-sidebar) 72%);
+}
+.borrow-art::before,
+.borrow-art::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+.borrow-art::before { inset: 6px; border: 1px solid #e9cca061; }
+.borrow-art::after {
+  top: -8px;
+  right: -16px;
+  width: 140px;
+  height: 100%;
+  background: url('/assets/christmas-sprig-v1.svg') right top / 100% auto no-repeat;
+  opacity: .36;
+  z-index: -1;
+}
+.borrow-art__ornament { flex: 0 0 auto; width: 85px; height: 85px; }
+.borrow-art__line { margin: 0; max-width: 13em; color: var(--text-on-dark); font: 500 14px/1.8 var(--font); letter-spacing: .06em; text-wrap: pretty; }
 .form-wrapper {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-top: 5px solid var(--text);
   border-radius: 1px;
   padding: clamp(24px, 4vw, 42px);
-  box-shadow: 8px 9px 0 rgba(49, 95, 128, 0.08);
+  box-shadow: 8px 9px 0 #8c6a401a;
   animation: slideUp 0.4s ease both;
 }
 .form-row {
@@ -588,7 +614,6 @@ onUnmounted(() => {
   .page-header {
     position: static;
   }
-  .borrow-art { height: 140px; }
 }
 @media (max-width: 640px) {
   .form-row {
@@ -600,9 +625,8 @@ onUnmounted(() => {
   .page-title {
     font-size: 46px;
   }
-  .borrow-art { height: 110px; background-position: 65% center; }
-  .borrow-art__fir { width: 50%; }
-  .borrow-art__seal { top: 10px; left: 12px; width: 32px; height: 32px; }
-  .borrow-art__line { left: 12px; bottom: 10px; font-size: 13px; }
+  .borrow-art { min-height: 96px; padding: 11px 15px; }
+  .borrow-art__ornament { width: 70px; height: 70px; }
+  .borrow-art__line { font-size: 13px; }
 }
 </style>

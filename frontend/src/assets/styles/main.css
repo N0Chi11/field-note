@@ -1,30 +1,28 @@
-/* =========================================================
-   全局样式 - 器材设备管理系统
-   完全对齐原始 HTML 版本的配色与设计
-   ========================================================= */
+/* FIELD NOTE · Christmas issue — ink, paper, wax and brass. */
 
 /* 使用系统字体，避免 Google Fonts 被墙导致白屏 */
 :root {
   /* 背景 */
-  --bg: #EAF0F2;
-  --bg-card: #F9FBFA;
-  --bg-sidebar: #182B3D;
-  --bg-hover: #DBE8ED;
-  --bg-input: #F2F7F8;
-  --bg-code: #DDE8EC;
+  --bg: #F3EEE4;
+  --bg-card: #FFFBF3;
+  --bg-sidebar: #162A23;
+  --bg-hover: #E6ECE2;
+  --bg-input: #F8F4EA;
+  --bg-code: #EAE6DA;
 
   /* 文本 */
-  --text: #192D3D;
-  --text-secondary: #4B6270;
-  --text-tertiary: #617784;
+  --text: #242C25;
+  --text-secondary: #4D574E;
+  --text-tertiary: #686358;
+  --text-on-dark: #F8F0E1;
 
-  /* 冬日：雪白纸面、深蓝夜色与冰川蓝 */
-  --accent: #315F80;
-  --accent-hover: #21445F;
-  --accent-light: #D6E8EF;
-  --accent-bg: #E6F1F4;
-  --accent-on-dark: #B7D7E4;
-  --accent-gradient: linear-gradient(135deg, #4B7F9A 0%, #284E6C 100%);
+  --accent: #7F3344;
+  --accent-hover: #652636;
+  --accent-light: #EAD8D9;
+  --accent-bg: #F3E6E4;
+  --accent-on-dark: #E9CCA0;
+  --accent-gradient: linear-gradient(135deg, #974B58, #742B3B);
+  --foil: #AB8355;
 
   /* 语义色 */
   --success: #356449;
@@ -33,12 +31,12 @@
   --warning-bg: #F5E5CC;
   --danger: #A13537;
   --danger-bg: #F4DEDA;
-  --info: #315F80;
-  --info-bg: #E1ECF1;
+  --info: #345C50;
+  --info-bg: #E1EBE3;
 
   /* 边框与圆角 */
-  --border: #C4D4DB;
-  --border-light: #DCE6E9;
+  --border: #D3C8B7;
+  --border-light: #E5DCCE;
   --radius-sm: 3px;
   --radius: 6px;
   --radius-lg: 10px;
@@ -74,7 +72,7 @@ body {
 body {
   font-family: var(--font);
   background:
-    linear-gradient(rgba(49, 95, 128, 0.025) 1px, transparent 1px),
+    linear-gradient(rgba(102, 78, 51, 0.029) 1px, transparent 1px),
     var(--bg);
   background-size: 100% 32px;
   color: var(--text);
@@ -167,28 +165,6 @@ a:hover {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
-}
-
-/* A quiet snowfall confined to the winter artwork, never the form controls. */
-.winter-snowfall {
-  position: absolute;
-  inset: -120px 0 0;
-  pointer-events: none;
-  background-image:
-    radial-gradient(circle at 4px 4px, rgba(239, 249, 252, .75) 1px, transparent 1.7px),
-    radial-gradient(circle at 3px 3px, rgba(221, 240, 246, .55) 1.3px, transparent 2px);
-  background-size: 147px 120px, 215px 120px;
-  background-position: 0 0, 65px 53px;
-  opacity: .55;
-  animation: winter-snowfall 22s linear infinite;
-}
-
-@keyframes winter-snowfall {
-  to { transform: translateY(120px); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .winter-snowfall { animation: none; }
 }
 
 /* ---------- 路由过渡动画 ---------- */

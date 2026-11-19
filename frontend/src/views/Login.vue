@@ -1,21 +1,25 @@
 <template>
   <div class="login-page">
-    <div class="login-art" aria-hidden="true">
-      <img src="/assets/winter-editorial-v1.webp" alt="" />
-    </div>
-    <div class="login-atmosphere" aria-hidden="true">
-      <span class="login-flurries"></span>
-      <span class="winter-snowfall"></span>
-      <img class="login-fir" src="/assets/winter-fir-v1.webp" alt="" />
-    </div>
+    <figure class="login-cover">
+      <figcaption class="login-cover-edition">
+        <span>{{ APP_ISSUE }}</span>
+        <span lang="en">{{ APP_EDITION }}</span>
+      </figcaption>
+      <div class="login-art" aria-hidden="true">
+        <picture>
+          <source media="(max-width: 860px)" srcset="/assets/christmas-santa-cover-v1.webp" />
+          <img src="/assets/christmas-santa-portrait-v1.webp" alt="" fetchpriority="high" />
+        </picture>
+      </div>
+    </figure>
     <div class="login-card">
       <!-- Logo -->
       <div class="login-logo">
         <img src="/logo.png" alt="logo" class="login-logo-img" />
-        <img src="/assets/winter-mark.svg" alt="" aria-hidden="true" class="login-stamp" />
+        <img src="/assets/christmas-seal-v1.svg" alt="" aria-hidden="true" class="login-stamp" width="72" height="72" />
         <div class="login-logo-text">
-          <span class="login-logo-line1">FIELD NOTE<span class="brand-dot">.</span></span>
-          <p class="login-winter-line">愿冬日的光，落在每一次记录里。</p>
+          <h1 class="login-logo-line1">{{ APP_NAME }}<span class="brand-dot">.</span></h1>
+          <p class="login-season-line">愿这个圣诞，有值得留影的灯火。</p>
         </div>
       </div>
 
@@ -72,6 +76,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 import EditorialPoem from '@/components/EditorialPoem.vue'
+import { APP_EDITION, APP_ISSUE, APP_NAME } from '@/utils/appInfo'
 
 const router = useRouter()
 const route = useRoute()
@@ -141,112 +146,95 @@ async function handleAdminLogin() {
 <style scoped>
 .login-page {
   min-height: 100vh;
-  display: flex;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(0, 580px) minmax(0, 500px);
+  column-gap: clamp(32px, 5.2vw, 80px);
+  align-content: center;
   align-items: center;
-  justify-content: flex-end;
-  background: radial-gradient(ellipse at 25% 48%, #3D5C70 0, #233F54 38%, #172B3D 78%);
-  padding: 48px 7vw;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse at 16% 12%, #38513e, transparent 52%),
+    var(--bg-sidebar);
+  padding: 44px clamp(30px, 6vw, 90px) 58px;
   position: relative;
-  overflow-x: hidden;
-  overflow-y: auto;
+  isolation: isolate;
+  overflow: hidden;
 }
 
 .login-page::before {
-  content: 'FIELD\A NOTE.';
-  white-space: pre;
-  position: absolute;
-  left: 6vw;
-  top: 16%;
-  font-family: var(--font);
-  font-size: clamp(72px, 8.5vw, 132px);
-  font-weight: 500;
-  letter-spacing: -0.075em;
-  line-height: 0.86;
-  color: #F3F8F8;
-  text-shadow: 0 4px 24px rgba(14, 32, 46, .4);
-  pointer-events: none;
-  z-index: 1;
-}
-.login-page::after {
-  content: 'ISSUE 107';
-  position: absolute;
-  left: 5.5vw;
-  top: 9vh;
-  color: var(--accent-on-dark);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.24em;
-  text-shadow: 0 1px 8px rgba(10, 30, 45, .85);
-  z-index: 1;
-}
-
-.login-art {
-  position: absolute;
-  left: 5.5vw;
-  top: 32%;
-  width: min(47vw, 650px);
-  height: min(60vh, 610px);
-  overflow: hidden;
-  border: 1px solid rgba(201, 225, 233, .6);
-  border-radius: 48% 48% 2px 2px / 26% 26% 2px 2px;
-  box-shadow: 0 20px 70px rgba(9, 24, 36, .32);
-  pointer-events: none;
-}
-
-.login-art img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 58%; }
-.login-art::before {
   content: '';
   position: absolute;
-  inset: 0 0 auto;
-  height: 38%;
-  z-index: 1;
-  background: url('/assets/winter-frost-frame-v1.webp') center top / 100% auto no-repeat;
-  opacity: .6;
+  top: -30px;
+  right: -60px;
+  width: min(36vw, 460px);
+  height: 210px;
+  background: url('/assets/christmas-sprig-v1.svg') right top / 100% auto no-repeat;
+  opacity: .43;
+  z-index: -1;
   pointer-events: none;
 }
+
+.login-cover { min-width: 0; }
+.login-cover-edition {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 13px;
+  font: 600 10px/1.5 var(--font-data);
+  letter-spacing: .15em;
+  color: var(--accent-on-dark);
+}
+.login-cover-edition span:last-child { order: 1; }
+.login-cover-edition::after { content: ''; height: 1px; flex: 1; background: #c6a97b68; }
+
+.login-art {
+  position: relative;
+  height: clamp(400px, 70svh, 690px);
+  padding: 10px 16px;
+  overflow: hidden;
+  border: 1px solid #a07c51;
+  background: #101e18;
+  box-shadow: 10px 11px 0 #0d1a146e;
+}
+
+.login-art picture { display: block; width: 100%; height: 100%; }
+.login-art img { width: 100%; height: 100%; object-fit: cover; object-position: center 46%; border: 1px solid #ad8a5d; }
+.login-art::before,
 .login-art::after {
   content: '';
   position: absolute;
-  inset: auto 0 0;
-  height: 22%;
-  background: linear-gradient(transparent, rgba(18, 38, 52, .48));
-}
-
-.login-atmosphere {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  background: repeating-linear-gradient(180deg, #c2a77d9c 0 5px, transparent 5px 15px);
   pointer-events: none;
 }
-.login-flurries {
-  position: absolute;
-  inset: 0;
-  background: url('/assets/winter-flurries-v1.svg') 2vw 1vh / min(53vw, 720px) auto no-repeat;
-  opacity: .8;
-}
-.login-fir {
-  position: absolute;
-  width: min(41vw, 590px);
-  max-width: none;
-  top: -4vw;
-  right: 44%;
-  opacity: .92;
-  filter: drop-shadow(0 8px 14px rgba(10, 30, 45, .2));
-}
+.login-art::before { left: 6px; }
+.login-art::after { right: 6px; }
 
 .login-card {
-  background: url('/assets/winter-flurries-v1.svg') right -45px bottom -45px / 270px auto no-repeat, var(--bg-card);
-  border: 1px solid #D7E5E9;
-  border-top: 6px solid #729EB3;
+  background: var(--bg-card);
+  border: 1px solid #c6a77e;
+  border-top: 5px solid var(--accent);
   border-radius: 1px;
-  padding: clamp(34px, 4vw, 56px);
-  width: min(44vw, 520px);
-  max-width: none;
-  box-shadow: 18px 18px 0 rgba(9, 25, 38, 0.24);
+  padding: clamp(29px, 3.5vw, 49px);
+  min-width: 0;
+  box-shadow: 10px 11px 0 #0d1a146e;
   animation: scaleIn 0.4s ease;
   position: relative;
-  z-index: 1;
+  isolation: isolate;
+}
+.login-card::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 auto;
+  width: 156px;
+  height: 83px;
+  background: url('/assets/christmas-sprig-v1.svg') right bottom / contain no-repeat;
+  opacity: .23;
+  pointer-events: none;
+  z-index: -1;
 }
 
 .login-logo {
@@ -259,16 +247,18 @@ async function handleAdminLogin() {
   position: absolute;
   top: -2px;
   right: 0;
-  width: 76px;
-  height: 76px;
+  width: 72px;
+  height: 72px;
+  transform: rotate(8deg);
+  filter: drop-shadow(0 2px 2px #5922343b);
 }
 
 .login-logo-img {
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   border-radius: 1px;
   object-fit: cover;
-  margin: 0 0 18px;
+  margin: 0 0 14px;
   filter: grayscale(1) contrast(1.08);
   box-shadow: none;
 }
@@ -281,30 +271,16 @@ async function handleAdminLogin() {
 }
 .login-logo-line1 {
   font-family: var(--font);
-  font-size: 38px;
+  font-size: clamp(30px, 3vw, 42px);
   font-weight: 500;
   color: var(--text);
   letter-spacing: -0.3px;
 }
-.login-winter-line {
-  margin: 10px 0 0;
-  color: var(--text-secondary);
+.login-season-line {
+  margin: 8px 0 0;
+  color: var(--accent);
   font: 13px/1.7 var(--font);
   letter-spacing: .08em;
-}
-
-.login-logo-line2 {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 0.5px;
-  margin-top: 2px;
-}
-
-.login-logo-sub {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-top: 4px;
 }
 .brand-dot { color: var(--accent); }
 
@@ -334,7 +310,7 @@ async function handleAdminLogin() {
 }
 
 .login-tabs button.active {
-  background: var(--text);
+  background: var(--bg-sidebar);
   color: var(--bg-card);
   box-shadow: none;
 }
@@ -392,13 +368,13 @@ async function handleAdminLogin() {
 }
 
 .btn-primary {
-  background: var(--bg-sidebar);
+  background: var(--accent);
   color: var(--bg-card);
   box-shadow: none;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--accent);
+  background: var(--accent-hover);
   transform: translateY(-1px);
   box-shadow: 4px 4px 0 rgba(26, 26, 24, 0.2);
 }
@@ -425,8 +401,7 @@ async function handleAdminLogin() {
   left: 0;
   right: 0;
   display: flex;
-  justify-content: flex-start;
-  padding-left: 5.5vw;
+  justify-content: center;
   pointer-events: none;
   z-index: 10;
 }
@@ -435,51 +410,38 @@ async function handleAdminLogin() {
   height: 22px;
   width: auto;
   opacity: 0.55;
-  filter: grayscale(1) invert(1);
+  filter: saturate(.68);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-card { animation: none; }
 }
 
 @media (max-width: 860px) {
   .login-page {
-    justify-content: center;
-    align-items: flex-start;
-    padding: 218px 20px 54px;
+    grid-template-columns: minmax(0, 500px);
+    align-content: start;
+    gap: 16px;
+    padding: 22px 18px 50px;
   }
-  .login-page::before {
-    display: none;
-  }
-  .login-page::after {
-    left: 50%;
-    transform: translateX(-50%);
-    top: 24px;
-    white-space: nowrap;
-    font-size: 9px;
-    letter-spacing: .12em;
-  }
-  .login-card {
-    width: 100%;
-    max-width: 480px;
-    padding: 28px 24px;
-  }
+  .login-page::before { display: none; }
+  .login-cover-edition { font-size: 9px; gap: 10px; margin-bottom: 9px; }
+  .login-card { padding: 21px clamp(16px, 5.6vw, 30px) 23px; box-shadow: 5px 6px 0 #0d1a146e; }
   .login-art {
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 300px;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-    opacity: .94;
-    mask-image: linear-gradient(#000 55%, transparent 100%);
+    height: clamp(142px, 42vw, 232px);
+    padding: 6px 12px;
+    box-shadow: 5px 6px 0 #0d1a146e;
   }
-  .login-art img { object-position: center 60%; }
-  .login-atmosphere { height: 300px; }
-  .login-flurries { background-position: left top; background-size: 100% auto; opacity: .72; }
-  .login-fir { width: 62%; top: -12px; right: -20px; opacity: .9; }
-  .login-stamp { width: 64px; height: 64px; }
+  .login-art img { object-position: 83% 49%; }
+  .login-art::before, .login-art::after { top: 6px; bottom: 6px; width: 3px; }
+  .login-art::before { left: 4px; }
+  .login-art::after { right: 4px; }
+  .login-logo { margin-bottom: 19px; }
+  .login-logo-img { width: 34px; height: 34px; margin-bottom: 9px; }
+  .login-stamp { width: 48px; height: 48px; top: -3px; }
   .login-logo-line1 { font-size: clamp(28px, 8vw, 38px); }
-  .login-footer {
-    justify-content: center;
-    padding-left: 0;
-  }
+  .login-tabs { margin-bottom: 17px; }
+  .form-group { margin-bottom: 12px; }
+  .login-hint { margin-top: 12px; }
 }
 </style>

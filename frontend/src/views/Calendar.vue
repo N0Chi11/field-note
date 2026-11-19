@@ -171,7 +171,7 @@ onUnmounted(() => { loadSequence += 1 })
           <h1>预约日历</h1>
           <p class="intro">选择日期查看器材预约，或发起借用申请。</p>
         </div>
-        <img class="calendar-seal" src="/assets/winter-mark.svg" alt="" aria-hidden="true" />
+        <img class="calendar-seal" src="/assets/christmas-seal-v1.svg" alt="" aria-hidden="true" />
       </header>
 
       <section class="calendar-toolbar">

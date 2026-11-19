@@ -214,14 +214,15 @@ onMounted(loadEquipment)
       <!-- 页面标题 -->
       <div class="page-header">
         <div class="catalog-heading">
-          <img class="catalog-frost" src="/assets/winter-frost-frame-v1.webp" alt="" aria-hidden="true" />
-          <img class="catalog-mark" src="/assets/winter-mark.svg" alt="" aria-hidden="true" />
-          <span class="catalog-flurries" aria-hidden="true"></span>
-          <span class="winter-snowfall" aria-hidden="true"></span>
-          <img class="catalog-fir" src="/assets/winter-fir-v1.webp" alt="" aria-hidden="true" />
-          <p class="catalog-winter-line">雪落无声，镜头有光。</p>
-          <h1 class="page-title">器材设备清单</h1>
-          <p class="page-desc">所有可借用设备均已编号并附有照片，未在清单中的物品不可借用</p>
+          <img class="catalog-cover" src="/assets/christmas-santa-cover-v1.webp" alt="" aria-hidden="true" fetchpriority="high" />
+          <div class="catalog-postmark">
+            <img class="catalog-mark" src="/assets/christmas-seal-v1.svg" alt="" aria-hidden="true" width="48" height="48" />
+            <p class="catalog-season-line">把圣诞的灯火，留在胶片上。</p>
+          </div>
+          <div class="catalog-copy">
+            <h1 class="page-title">器材设备清单</h1>
+            <p class="page-desc">仅可借用清单中已编号的器材。</p>
+          </div>
         </div>
         <div class="catalog-index">
           <div class="catalog-index__row"><span>器材总数</span><strong>{{ loading ? '—' : equipmentList.length }}</strong></div>
@@ -368,16 +369,17 @@ onMounted(loadEquipment)
 /* ---------- 页面标题 ---------- */
 .page-header {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 260px;
+  grid-template-columns: minmax(0, 1fr) minmax(205px, 22%);
   align-items: stretch;
   gap: 0;
   margin-bottom: 26px;
   padding: 0;
-  border: 1px solid var(--text);
+  border: 1px solid var(--foil);
   background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
 }
 .page-title {
-  font-size: clamp(40px, 4.3vw, 64px);
+  font-size: clamp(37px, 4.15vw, 62px);
   font-weight: 500;
   line-height: 1.18;
   margin: 0;
@@ -388,94 +390,59 @@ onMounted(loadEquipment)
 .page-desc {
   font-size: 13px;
   color: var(--text-secondary);
-  margin: 22px 0 0;
+  margin: 12px 0 0;
   line-height: 1.8;
   max-width: 520px;
 }
 .catalog-heading {
   position: relative;
-  min-height: 285px;
-  padding: 36px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  isolation: isolate;
+  min-height: clamp(268px, 24vw, 340px);
+  padding: clamp(26px, 2.8vw, 42px);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 26px;
   overflow: hidden;
   background: var(--bg-sidebar);
 }
-.catalog-heading::after {
-  content: '';
+.catalog-cover {
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   width: 100%;
-  background: url('/assets/winter-landscape-v2.webp') center 52% / cover no-repeat;
+  height: 100%;
+  object-fit: cover;
+  object-position: 57% top;
+  z-index: -2;
   pointer-events: none;
 }
 .catalog-heading::before {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 1;
-  background: linear-gradient(90deg, rgba(16, 36, 53, .96) 0%, rgba(16, 36, 53, .86) 31%, rgba(16, 36, 53, .35) 65%, rgba(16, 36, 53, .08) 100%);
+  z-index: -1;
+  background:
+    linear-gradient(85deg, #10251ded 0%, #14291fc4 29%, #13291d36 56%, transparent 73%),
+    linear-gradient(0deg, #10221db0 0%, transparent 46%);
   pointer-events: none;
 }
-.catalog-heading > * { position: relative; z-index: 2; }
-.catalog-heading > .winter-snowfall { position: absolute; z-index: 1; }
-.catalog-heading > .catalog-frost {
+.catalog-heading::after {
+  content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 110px;
-  max-width: none;
-  object-fit: cover;
-  object-position: center top;
-  opacity: .3;
-  -webkit-mask-image: linear-gradient(#000 20%, transparent 100%);
-  mask-image: linear-gradient(#000 20%, transparent 100%);
+  inset: 9px;
+  border: 1px solid #e9cca068;
   pointer-events: none;
 }
-.catalog-heading > .catalog-mark {
-  position: absolute;
-  top: 24px;
-  left: 36px;
-  width: 48px;
-  height: 48px;
-  opacity: .88;
-}
-.catalog-heading > .catalog-flurries {
-  position: absolute;
-  top: 0;
-  left: 80px;
-  width: min(42%, 330px);
-  height: 100px;
-  background: url('/assets/winter-flurries-v1.svg') left top / 100% auto no-repeat;
-  opacity: .85;
-  pointer-events: none;
-}
-.catalog-heading > .catalog-fir {
-  position: absolute;
-  top: -35px;
-  right: -18px;
-  width: min(36%, 320px);
-  max-width: none;
-  opacity: .9;
-  filter: drop-shadow(0 5px 10px rgba(9, 24, 36, .22));
-  pointer-events: none;
-}
-.catalog-heading > .catalog-winter-line {
-  position: absolute;
-  top: 36px;
-  left: 98px;
+.catalog-postmark { display: flex; align-items: center; gap: 12px; max-width: 65%; }
+.catalog-mark { width: 48px; height: 48px; flex: 0 0 auto; filter: drop-shadow(0 2px 3px #070e0a8f); }
+.catalog-season-line {
   margin: 0;
-  color: #edf7f9;
-  font: 500 14px/1.5 var(--font);
-  letter-spacing: .12em;
-  text-shadow: 0 2px 10px #142b3d;
+  color: var(--accent-on-dark);
+  font: 500 14px/1.6 var(--font);
+  letter-spacing: .08em;
 }
-.catalog-heading .page-title { color: #F5FAFB; max-width: 85%; }
-.catalog-heading .page-desc { color: #D6E8EC; max-width: 70%; text-shadow: 0 1px 8px #182B3D; }
+.catalog-copy { align-self: end; max-width: 64%; }
+.catalog-heading .page-title { color: var(--text-on-dark); text-shadow: 0 2px 10px #12221b; }
+.catalog-heading .page-desc { color: #efe6d7; text-shadow: 0 1px 7px #101e17; }
 
 /* ---------- 类别筛选 ---------- */
 .category-tabs {
@@ -502,7 +469,7 @@ onMounted(loadEquipment)
   gap: 10px;
   margin-bottom: 16px;
   padding: 0 0 10px;
-  border-bottom: 3px solid var(--text);
+  border-bottom: 1px solid var(--text);
 }
 .category-icon {
   filter: contrast(1.04);
@@ -535,15 +502,15 @@ onMounted(loadEquipment)
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 16px rgba(25, 45, 61, .04);
+  box-shadow: var(--shadow-sm);
   transition: transform var(--transition), box-shadow var(--transition),
     border-color var(--transition);
   animation: cardFadeIn 0.5s ease both;
 }
 .equipment-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(25, 45, 61, .12);
-  border-color: #8EADB9;
+  box-shadow: var(--shadow-md);
+  border-color: var(--foil);
 }
 
 /* ---------- 卡片图片区 ---------- */
@@ -551,7 +518,7 @@ onMounted(loadEquipment)
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  background: #DCE8EC;
+  background: #E9E7DA;
   overflow: hidden;
 }
 .card-image img {
@@ -573,13 +540,24 @@ onMounted(loadEquipment)
   align-items: center;
   justify-content: center;
   position: relative;
-  background: url('/assets/winter-flurries-v1.svg') right bottom / 160px auto no-repeat, radial-gradient(circle at 50% 45%, #EFF6F7 0 27%, transparent 27%), #DCE8EC;
+  background: radial-gradient(circle at 50% 46%, #f9f4e8 0 28%, transparent 28.4%), #E5E8DA;
+}
+.image-placeholder::before {
+  content: '';
+  position: absolute;
+  width: 88px;
+  height: 58px;
+  right: 16px;
+  bottom: 9px;
+  background: url('/assets/christmas-sprig-v1.svg') right center / 100% auto no-repeat;
+  opacity: .42;
+  pointer-events: none;
 }
 .image-placeholder::after {
   content: '';
   position: absolute;
   inset: 22px;
-  border: 1px solid rgba(49, 95, 128, .16);
+  border: 1px solid #856a4a33;
   pointer-events: none;
 }
 .placeholder-icon {
@@ -619,8 +597,8 @@ onMounted(loadEquipment)
   left: 10px;
   top: 10px;
   z-index: 2;
-  border: 1px solid rgba(25, 45, 61, 0.35);
-  background: rgba(249, 251, 250, 0.92);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-card), transparent 8%);
   color: var(--text);
   padding: 4px 9px;
   font: 600 11px/1 var(--font-ui);
@@ -658,7 +636,7 @@ onMounted(loadEquipment)
   font-size: 12px;
   color: var(--accent);
   font-weight: 600;
-  font-family: var(--font-ui);
+  font-family: var(--font-data);
   letter-spacing: 0.5px;
 }
 .card-name {
@@ -754,14 +732,14 @@ onMounted(loadEquipment)
   .favorite-btn.active { animation: none; }
 }
 
-.catalog-index { border-left: 1px solid var(--border); padding: 24px 26px; display: flex; flex-direction: column; justify-content: center; background: url('/assets/winter-flurries-v1.svg') right top / 220px auto no-repeat, linear-gradient(155deg, #f8fcfb, #eaf3f5); font-family: var(--font-ui); }
+.catalog-index { border-left: 1px solid var(--foil); padding: 24px clamp(18px, 2vw, 28px); display: flex; flex-direction: column; justify-content: center; background: linear-gradient(145deg, var(--bg-card), #F1E8D8); font-family: var(--font-ui); }
 .catalog-index__row { display: flex; align-items: baseline; justify-content: space-between; padding-top: 12px; }
 .catalog-index__row span { color: var(--text-secondary); font-size: 12px; }
 .catalog-index__row strong { font: 400 42px/1.1 var(--font); font-variant-numeric: tabular-nums; }
 .available-number { color: var(--success); }
-.catalog-calendar { display: flex; justify-content: space-between; border-top: 1px solid var(--border); margin-top: 14px; padding-top: 12px; font-size: 12px; }
+.catalog-calendar { display: flex; justify-content: space-between; border-top: 1px dashed var(--foil); margin-top: 14px; padding-top: 12px; font-size: 12px; font-weight: 600; }
 .catalog-index p { font-size: 11px; color: var(--text-secondary); margin-top: 12px; line-height: 1.7; }
-.catalog-tools { display: flex; gap: 16px; align-items: center; margin-bottom: 18px; padding: 8px 12px; border: 1px solid var(--border); background: rgba(249, 251, 250, .75); font-family: var(--font-ui); }
+.catalog-tools { display: flex; gap: 16px; align-items: center; margin-bottom: 18px; padding: 8px 12px; border: 1px solid var(--border); background: var(--bg-card); font-family: var(--font-ui); }
 .catalog-search { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; border-bottom: 1px solid var(--text); padding: 7px 0; }
 .catalog-search-icon { width: 20px; height: 20px; flex-shrink: 0; stroke: var(--accent); stroke-width: 1.5; stroke-linecap: round; }
 .catalog-search input { min-width: 0; width: 100%; background: transparent; border: none; padding: 4px; color: var(--text); }
@@ -777,29 +755,36 @@ onMounted(loadEquipment)
 .borrow-link { color: var(--accent); font: 600 12px var(--font-ui); white-space: nowrap; }
 .borrow-link span { margin-left: 4px; }
 .borrow-unavailable { font: 11px var(--font-ui); color: var(--text-secondary); }
-@media (max-width: 1200px) {
-  .catalog-heading { min-height: 260px; padding: 28px; }
-  .catalog-heading > .catalog-mark { top: 20px; left: 28px; }
-  .catalog-heading > .catalog-winter-line { top: 32px; left: 90px; }
-}
-@media (max-width: 1100px) { .page-header { grid-template-columns: minmax(0, 1fr) 210px; } }
-@media (max-width: 640px) {
+@media (max-width: 820px), (min-width: 901px) and (max-width: 1170px) {
   .page-header { grid-template-columns: 1fr; gap: 0; padding: 0; }
-  .catalog-heading { min-height: 250px; padding: 24px 20px; }
-  .catalog-heading > .catalog-mark { top: 16px; left: 20px; width: 40px; height: 40px; }
-  .catalog-heading > .catalog-frost { height: 85px; opacity: .24; }
-  .catalog-heading > .catalog-winter-line { top: 70px; left: 20px; font-size: 13px; }
-  .catalog-heading > .catalog-flurries { left: 58px; width: 160px; height: 80px; }
-  .catalog-heading > .catalog-fir { top: -16px; right: -12px; width: 43%; }
-  .catalog-heading::after { width: 100%; background-position: 66% center; }
-  .catalog-heading::before { background: linear-gradient(90deg, rgba(16, 36, 53, .96) 0%, rgba(16, 36, 53, .78) 45%, rgba(16, 36, 53, .18) 100%); }
-  .catalog-heading .page-title { max-width: 100%; font-size: clamp(27px, 8.2vw, 34px); }
-  .catalog-heading .page-desc { max-width: 90%; margin-top: 12px; font-size: 12px; }
-  .catalog-index { border-left: none; border-top: 1px solid var(--border); padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
+  .catalog-index { border-left: none; border-top: 1px solid var(--foil); padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
   .catalog-calendar, .catalog-index p { grid-column: 1 / -1; }
   .catalog-index__row { padding-top: 0; }
   .catalog-index__row strong { font-size: 32px; }
   .catalog-calendar, .catalog-index p { margin-top: 0; }
+}
+@media (max-width: 580px) {
+  .catalog-heading {
+    --cover-depth: clamp(158px, 46vw, 212px);
+    min-height: 0;
+    padding: calc(var(--cover-depth) - 2px) 20px 22px;
+    gap: 11px;
+  }
+  .catalog-cover { height: calc(var(--cover-depth) + 17px); object-position: 83% 48%; }
+  .catalog-heading::before {
+    inset: 0 0 auto;
+    height: calc(var(--cover-depth) + 17px);
+    background: linear-gradient(0deg, var(--bg-sidebar) 0%, transparent 30%);
+  }
+  .catalog-heading::after { inset: 6px; }
+  .catalog-postmark { max-width: 100%; gap: 9px; }
+  .catalog-mark { width: 33px; height: 33px; }
+  .catalog-season-line { font-size: 13px; }
+  .catalog-copy { max-width: 100%; }
+  .catalog-heading .page-title { font-size: clamp(29px, 8.5vw, 39px); }
+  .catalog-heading .page-desc { margin-top: 7px; font-size: 12px; }
+}
+@media (max-width: 640px) {
   .catalog-tools { flex-wrap: wrap; gap: 10px 12px; padding: 10px 12px; }
   .catalog-search { flex-basis: 100%; }
   .catalog-results { margin-left: auto; }

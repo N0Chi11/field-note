@@ -293,24 +293,16 @@ watch(() => route.path, () => {
   top: 0;
   left: 0;
   width: 252px;
-    height: 100vh;
-    height: 100dvh;
-  background: url('/assets/winter-flurries-v1.svg') center 4px / 250px auto no-repeat, radial-gradient(circle at 100% 0, rgba(127, 170, 190, .2), transparent 34%), var(--bg-sidebar);
-  border-right: 1px solid rgba(183, 215, 228, 0.24);
+  height: 100vh;
+  height: 100dvh;
+  background: radial-gradient(ellipse at 94% 0, #2b4032, transparent 43%), var(--bg-sidebar);
+  border-right: 1px solid color-mix(in srgb, var(--foil), transparent 62%);
   display: flex;
   flex-direction: column;
   z-index: 300;
 }
-.sidebar::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto;
-  height: 90px;
-  background: url('/assets/winter-frost-frame-v1.webp') center top / 100% auto no-repeat;
-  opacity: .24;
-  pointer-events: none;
-}
 .sidebar > * { position: relative; }
+.sidebar :is(a, button):focus-visible { outline-color: var(--accent-on-dark); outline-offset: 2px; }
 
 /* ---------- 头部 ---------- */
 .sidebar__header {
@@ -318,7 +310,21 @@ watch(() => route.path, () => {
   align-items: center;
   gap: 12px;
   padding: 26px 22px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid color-mix(in srgb, var(--foil), transparent 66%);
+  isolation: isolate;
+  overflow: hidden;
+}
+.sidebar__header::after {
+  content: '';
+  position: absolute;
+  top: -12px;
+  right: -25px;
+  width: 112px;
+  height: 82px;
+  background: url('/assets/christmas-sprig-v1.svg') right top / 100% auto no-repeat;
+  opacity: .7;
+  z-index: -1;
+  pointer-events: none;
 }
 
 .sidebar__header-logo {
@@ -341,7 +347,7 @@ watch(() => route.path, () => {
   font-family: var(--font);
   font-size: 18px;
   font-weight: 500;
-  color: #FFFFFF;
+  color: var(--text-on-dark);
   margin: 0;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -406,7 +412,7 @@ watch(() => route.path, () => {
 }
 
 .nav-item.active {
-  background: #E2EFF2;
+  background: var(--text-on-dark);
   color: var(--bg-sidebar);
   font-weight: 600;
 }
@@ -420,14 +426,14 @@ watch(() => route.path, () => {
   transform: translateY(-50%);
   width: 4px;
   height: 100%;
-  background: var(--accent-on-dark);
+  background: #AC6270;
 }
 
 /* 画报风图标精灵：统一材质、尺度与对齐 */
 .nav-item__icon {
   width: 30px;
   height: 30px;
-  background-image: url('/assets/winter-sidebar-icons-v1.webp');
+  background-image: url('/assets/sidebar-icon-sprite-v1.webp');
   background-repeat: no-repeat;
   background-size: 300% 300%;
   flex-shrink: 0;
@@ -443,8 +449,8 @@ watch(() => route.path, () => {
 .nav-item__icon--equipment { background-position: 0 0; }
 .nav-item__icon--application { background-position: 50% 0; }
 .nav-item__icon--overview { background-position: 100% 0; }
-.nav-item__icon--calendar { background-image: url('/assets/winter-calendar-v1.svg'); background-size: 100% 100%; background-position: center; }
-.nav-item__icon--photo-review { background-image: url('/assets/winter-equipment-icons-v1.webp'); background-size: 300% 300%; background-position: 100% 0; }
+.nav-item__icon--calendar { background-image: url('/assets/christmas-calendar-v1.svg'); background-size: 100% 100%; background-position: center; }
+.nav-item__icon--photo-review { background-image: url('/assets/editorial-equipment-icons-v1.webp'); background-size: 300% 300%; background-position: 100% 0; }
 .nav-item__icon--precautions { background-position: 0 50%; }
 .nav-item__icon--maintenance { background-position: 50% 50%; }
 .nav-item__icon--approval { background-position: 100% 50%; }
@@ -468,8 +474,8 @@ watch(() => route.path, () => {
   height: 18px;
   padding: 0 5px;
   border-radius: 9px;
-  background: #B7D7E4;
-  color: #182B3D;
+  background: var(--accent-on-dark);
+  color: var(--bg-sidebar);
   font-size: 11px;
   font-weight: 600;
   display: flex;
@@ -504,7 +510,7 @@ watch(() => route.path, () => {
   width: 40px;
   height: 40px;
   border-radius: 0;
-  background: #E2EFF2;
+  background: var(--text-on-dark);
   color: var(--bg-sidebar);
   display: flex;
   align-items: center;
@@ -557,8 +563,8 @@ watch(() => route.path, () => {
 }
 
 .sidebar__user-role.is-admin {
-  background: rgba(183, 215, 228, 0.16);
-  color: #C8E3EC;
+  background: color-mix(in srgb, var(--accent-on-dark), transparent 82%);
+  color: var(--accent-on-dark);
 }
 
 .sidebar__user-id {
