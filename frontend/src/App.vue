@@ -10,10 +10,10 @@ import {
 
 const themeOverrides: GlobalThemeOverrides = {
   common: {
-    primaryColor: '#7F3344',
-    primaryColorHover: '#964456',
-    primaryColorPressed: '#652636',
-    primaryColorSuppl: '#7F3344',
+    primaryColor: '#A5243D',
+    primaryColorHover: '#B72B43',
+    primaryColorPressed: '#821C36',
+    primaryColorSuppl: '#A5243D',
     infoColor: '#345C50',
     successColor: '#356449',
     warningColor: '#87551D',

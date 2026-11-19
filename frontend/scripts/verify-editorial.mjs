@@ -53,7 +53,8 @@ try {
   await expect(page.locator('.catalog-cover')).toHaveAttribute('src', '/assets/christmas-santa-cover-v1.webp')
   await expect.poll(() => page.locator('.catalog-cover').evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true)
   for (const asset of [
-    'christmas-santa-cover-v1.webp', 'christmas-santa-portrait-v1.webp', 'christmas-seal-v1.svg', 'christmas-sprig-v1.svg',
+    'christmas-santa-cover-v1.webp', 'christmas-santa-portrait-v1.webp', 'christmas-seal-v1.svg',
+    'christmas-garland-v2.svg', 'christmas-cover-trim-v2.svg',
     'christmas-calendar-v1.svg', 'christmas-camera-ornament-v1.svg',
     'editorial-equipment-icons-v1.webp', 'editorial-action-icons-v1.webp', 'sidebar-icon-sprite-v1.webp',
   ]) {
@@ -70,6 +71,65 @@ try {
   await expect(page.getByRole('heading', { name: '器材设备清单' })).toBeVisible()
   await expect(page.getByText('器材档案 · 创作现场', { exact: true })).toHaveCount(0)
   await page.screenshot({ path: path.join(artifactDir, 'catalog-desktop.png') })
+
+  // A wish is used only to make an in-browser picture, never sent or kept.
+  const sampleWish = '愿和喜欢的人多拍几张照片，把日常也留成纪念。'
+  const wishRequests = []
+  const observeWishRequests = request => {
+    if (request.url().includes(encodeURIComponent(sampleWish)) || request.postData()?.includes(sampleWish)) {
+      wishRequests.push(request.url())
+    }
+  }
+  page.on('request', observeWishRequests)
+  const wishTrigger = page.getByRole('button', { name: '相机许愿', exact: true })
+  await wishTrigger.click()
+  const wishDialog = page.getByRole('dialog')
+  await expect(wishDialog).toHaveAccessibleName('相机许愿')
+  const wishInput = wishDialog.getByLabel('你的圣诞心愿')
+  const shutter = wishDialog.getByRole('button', { name: '按下快门', exact: true })
+  await expect(shutter).toBeDisabled()
+  await wishInput.fill('   ')
+  await expect(shutter).toBeDisabled()
+  await wishInput.fill(sampleWish)
+  await expect(shutter).toBeEnabled()
+  await page.screenshot({ path: path.join(artifactDir, 'wish-desktop.png') })
+  await shutter.click()
+  await expect(wishDialog).toHaveAccessibleName('愿望入镜了')
+  await expect(wishDialog.getByRole('heading', { name: '愿望入镜了' })).toBeFocused()
+  await expect(wishDialog.getByText(sampleWish, { exact: true })).toBeVisible()
+  for (const visual of ['.wish-print__photo', '.wish-print__trim']) {
+    await expect.poll(() => wishDialog.locator(visual).evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true)
+  }
+  expect(await wishDialog.locator('.wish-print').evaluate(el => getComputedStyle(el).animationName)).toBe('none')
+  await page.screenshot({ path: path.join(artifactDir, 'wish-result-desktop.png') })
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    wishDialog.getByRole('button', { name: '保存照片', exact: true }).click()
+  ])
+  const cardFile = path.join(artifactDir, 'wish-photo.png')
+  await download.saveAs(cardFile)
+  const cardBytes = await readFile(cardFile)
+  expect(download.suggestedFilename()).toBe('FIELD-NOTE-圣诞心愿.png')
+  expect(cardBytes.subarray(1, 4).toString()).toBe('PNG')
+  expect(cardBytes.readUInt32BE(16)).toBe(1080)
+  expect(wishRequests).toEqual([])
+  expect(await page.evaluate(wish => {
+    return [localStorage, sessionStorage].some(storage => JSON.stringify(Object.entries(storage)).includes(wish))
+  }, sampleWish)).toBe(false)
+  page.off('request', observeWishRequests)
+
+  await wishDialog.getByRole('button', { name: '再拍一张', exact: true }).click()
+  await expect(wishInput).toBeFocused()
+  await expect(wishInput).toHaveValue('')
+  await wishInput.fill('这条没有拍下')
+  await page.keyboard.press('Escape')
+  await expect(wishDialog).toHaveCount(0)
+  await expect(wishTrigger).toBeFocused()
+  await wishTrigger.press('Enter')
+  await expect(wishInput).toHaveValue('')
+  await wishDialog.getByRole('button', { name: '关闭相机许愿' }).click()
+  await expect(wishDialog).toHaveCount(0)
+
   await page.getByRole('searchbox', { name: '搜索器材' }).fill('索尼')
   await expect(page.locator('.equipment-card')).toHaveCount(1)
   await page.getByRole('button', { name: '清除搜索' }).click()
@@ -195,6 +255,20 @@ try {
     expect(heroHasRoom).toBe(true)
     expect(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await mobile.screenshot({ path: path.join(artifactDir, `catalog-${width}.png`) })
+    if (width <= 375) {
+      await mobile.getByRole('button', { name: '相机许愿', exact: true }).click()
+      const dialog = mobile.getByRole('dialog')
+      const wish = width === 320 ? '愿拍下更多值得记住的瞬间'.repeat(7).slice(0, 80) : sampleWish
+      await dialog.getByLabel('你的圣诞心愿').fill(wish)
+      await dialog.getByRole('button', { name: '按下快门', exact: true }).click()
+      await expect(dialog.getByText(wish, { exact: true })).toBeVisible()
+      const frame = await dialog.boundingBox()
+      expect(frame.x).toBeGreaterThanOrEqual(0)
+      expect(frame.x + frame.width).toBeLessThanOrEqual(width)
+      await mobile.screenshot({ path: path.join(artifactDir, `wish-result-${width}.png`) })
+      await dialog.getByRole('button', { name: '关闭相机许愿' }).click()
+      await expect(dialog).toHaveCount(0)
+    }
     if (width > 900) { await mobile.close(); continue }
     await mobile.getByRole('button', { name: '打开导航菜单' }).click()
     await expect(mobile.locator('.sidebar')).toHaveClass(/is-open/)
@@ -271,7 +345,7 @@ try {
     await photo.screenshot({ path: path.join(artifactDir, `photo-review-${width}.png`), fullPage: true })
     await photo.close()
   }
-  console.log('UI verified: Christmas artwork and responsive crops, photo-review layout, search, status filters, concurrent favorites, booking links, isolated drafts, failed session refresh and mobile navigation.')
+  console.log('UI verified: Christmas artwork, private wish camera and PNG export, photo-review layout, search, filters, favorites, booking, session refresh and mobile navigation.')
 } finally {
   await browser.close()
 }

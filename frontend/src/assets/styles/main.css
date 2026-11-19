@@ -1,11 +1,11 @@
-/* FIELD NOTE · Christmas issue — ink, paper, wax and brass. */
+/* FIELD NOTE · Christmas issue — scarlet, spruce and warm print paper. */
 
 /* 使用系统字体，避免 Google Fonts 被墙导致白屏 */
 :root {
   /* 背景 */
   --bg: #F3EEE4;
   --bg-card: #FFFBF3;
-  --bg-sidebar: #162A23;
+  --bg-sidebar: #104735;
   --bg-hover: #E6ECE2;
   --bg-input: #F8F4EA;
   --bg-code: #EAE6DA;
@@ -14,15 +14,20 @@
   --text: #242C25;
   --text-secondary: #4D574E;
   --text-tertiary: #686358;
-  --text-on-dark: #F8F0E1;
+  --text-on-dark: #FFF4DF;
 
-  --accent: #7F3344;
-  --accent-hover: #652636;
-  --accent-light: #EAD8D9;
-  --accent-bg: #F3E6E4;
-  --accent-on-dark: #E9CCA0;
-  --accent-gradient: linear-gradient(135deg, #974B58, #742B3B);
+  --accent: #A5243D;
+  --accent-hover: #821C36;
+  --accent-light: #ECD4D7;
+  --accent-bg: #F7E5E5;
+  --accent-on-dark: #F5D8AA;
+  --accent-gradient: linear-gradient(135deg, #BA2E47, #9C2139);
   --foil: #AB8355;
+  --festive-red: #B72B43;
+  --festive-green: #14684B;
+  --festive-ribbon: repeating-linear-gradient(
+    136deg, #bc3047 0 10px, #f8e8c5 10px 13px, #196a4c 13px 23px, #f8e8c5 23px 26px
+  );
 
   /* 语义色 */
   --success: #356449;

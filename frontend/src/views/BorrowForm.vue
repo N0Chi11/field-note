@@ -558,7 +558,7 @@ onUnmounted(() => {
   padding: 14px 20px;
   overflow: hidden;
   border: 1px solid var(--foil);
-  background: linear-gradient(125deg, #31523d, var(--bg-sidebar) 72%);
+  background: linear-gradient(125deg, var(--festive-green), var(--bg-sidebar) 72%);
 }
 .borrow-art::before,
 .borrow-art::after {
@@ -572,8 +572,8 @@ onUnmounted(() => {
   right: -16px;
   width: 140px;
   height: 100%;
-  background: url('/assets/christmas-sprig-v1.svg') right top / 100% auto no-repeat;
-  opacity: .36;
+  background: url('/assets/christmas-garland-v2.svg') right top / 100% auto no-repeat;
+  opacity: .58;
   z-index: -1;
 }
 .borrow-art__ornament { flex: 0 0 auto; width: 85px; height: 85px; }

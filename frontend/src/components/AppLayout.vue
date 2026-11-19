@@ -124,10 +124,10 @@ function closeSidebar() {
   position: absolute;
   top: -27px;
   right: 176px;
-  width: 156px;
-  height: 81px;
-  background: url('/assets/christmas-sprig-v1.svg') right top / 100% auto no-repeat;
-  opacity: .44;
+  width: 130px;
+  height: 75px;
+  background: url('/assets/christmas-garland-v2.svg') right top / 100% auto no-repeat;
+  opacity: .88;
   pointer-events: none;
 }
 .edition-masthead::after {
@@ -135,9 +135,9 @@ function closeSidebar() {
   position: absolute;
   left: 0;
   bottom: -3px;
-  width: 72px;
-  height: 3px;
-  background: var(--accent);
+  width: 116px;
+  height: 4px;
+  background: var(--festive-ribbon);
   pointer-events: none;
 }
 .edition-masthead > * { position: relative; }
@@ -207,6 +207,14 @@ function closeSidebar() {
     background: var(--bg-sidebar);
     border-bottom: 1px solid color-mix(in srgb, var(--foil), transparent 60%);
     z-index: 200;
+  }
+  .mobile-header::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 3px;
+    background: var(--festive-ribbon);
+    pointer-events: none;
   }
   .edition-masthead { gap: 8px; margin-bottom: 20px; padding-bottom: 12px; }
   .edition-masthead::before { display: none; }

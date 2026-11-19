@@ -295,7 +295,7 @@ watch(() => route.path, () => {
   width: 252px;
   height: 100vh;
   height: 100dvh;
-  background: radial-gradient(ellipse at 94% 0, #2b4032, transparent 43%), var(--bg-sidebar);
+  background: radial-gradient(ellipse at 94% 0, #1d6a4b, transparent 61%), var(--bg-sidebar);
   border-right: 1px solid color-mix(in srgb, var(--foil), transparent 62%);
   display: flex;
   flex-direction: column;
@@ -317,12 +317,12 @@ watch(() => route.path, () => {
 .sidebar__header::after {
   content: '';
   position: absolute;
-  top: -12px;
-  right: -25px;
-  width: 112px;
+  top: -15px;
+  right: -16px;
+  width: 116px;
   height: 82px;
-  background: url('/assets/christmas-sprig-v1.svg') right top / 100% auto no-repeat;
-  opacity: .7;
+  background: url('/assets/christmas-garland-v2.svg') right top / 100% auto no-repeat;
+  opacity: .88;
   z-index: -1;
   pointer-events: none;
 }
@@ -426,7 +426,7 @@ watch(() => route.path, () => {
   transform: translateY(-50%);
   width: 4px;
   height: 100%;
-  background: #AC6270;
+  background: var(--festive-red);
 }
 
 /* 画报风图标精灵：统一材质、尺度与对齐 */

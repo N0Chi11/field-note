@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="470" viewBox="0 0 800 470" preserveAspectRatio="none" fill="none">
+  <defs>
+    <path id="cane" d="M49 162V51a29 29 0 0 1 58 0v9"/>
+    <path id="spark" d="M0-12c1.4 7.2 4.8 10.6 12 12-7.2 1.4-10.6 4.8-12 12-1.4-7.2-4.8-10.6-12-12C-4.8-1.4-1.4-4.8 0-12Z"/>
+    <path id="twig" d="M0 28C39 27 73 16 119 0M10 27c14-4 23-14 33-20m-23 18 37-1m-31-1 38-19m-14 13 35-4m-23 1 31-14m-18 11 25 1m-10-7 19-3m-79 22 11 7m5-9 21 1m-29 2 17 5m-6-11 24-5" />
+  </defs>
+
+  <!-- Spruce in the upper corner keeps the center clear for the portrait. -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M2 0c51 64 105 78 151 76M0 10c51 18 70 27 107 64M1 30c31 41 42 68 51 92" stroke="#b2b477" stroke-width="2.6"/>
+    <g stroke="#72a275" stroke-width="2.1">
+      <use href="#twig" transform="translate(24 16) rotate(30) scale(.95)"/>
+      <use href="#twig" transform="translate(44 39) rotate(30) scale(.81)"/>
+      <use href="#twig" transform="translate(65 58) rotate(26) scale(.65)"/>
+      <use href="#twig" transform="translate(17 47) rotate(73) scale(.76)"/>
+      <use href="#twig" transform="translate(30 74) rotate(68) scale(.53)"/>
+      <use href="#twig" transform="translate(18 25) rotate(58) scale(.66)"/>
+    </g>
+  </g>
+
+  <path d="M103 69c-15 0-34-7-34-17 0-11 20-5 35 9 10-15 29-23 34-13 6 10-15 22-31 21 9 11 21 22 31 25l-12 1-6 10-15-32c-7 11-11 21-11 38l-10-6-10 6c3-19 14-31 29-42Z"
+    fill="#ce344b" stroke="#f5c993" stroke-width="1.45" stroke-linejoin="round"/>
+  <path d="M103 64c-10-8-22-14-29-12m34 11c9-8 18-11 25-12m-29 19-14 26m18-26 16 20"
+    stroke="#8e233b" stroke-width="2.2" stroke-linecap="round"/>
+  <ellipse cx="106" cy="65" rx="6" ry="5.6" fill="#e75c69" stroke="#edb080" stroke-width="1.1"/>
+
+  <!-- Printed candy cane and corner parcels. -->
+  <g transform="translate(16 282) rotate(-13 75 84)" stroke-linecap="round">
+    <use href="#cane" stroke="#123d2d" stroke-width="24" opacity=".65"/>
+    <use href="#cane" stroke="#fff1d2" stroke-width="18"/>
+    <use href="#cane" stroke="#c6344e" stroke-width="18" stroke-dasharray="10 13" stroke-linecap="butt"/>
+  </g>
+  <g transform="translate(675 354) rotate(5 59 54)" stroke-linejoin="round">
+    <path d="M12 44h100v65H12Z" fill="#a5263f" stroke="#f2cb98" stroke-width="1.4"/>
+    <path d="M7 35h110v19H7Z" fill="#ca374d" stroke="#f2cb98" stroke-width="1.4"/>
+    <path d="M56 35h15v74H56Z" fill="#eac384"/>
+    <path d="M62 36c-18-1-31-10-25-19 4-6 17 0 25 15 8-16 25-24 30-16 6 9-12 17-24 18" stroke="#ffe6aa" stroke-width="4" stroke-linecap="round"/>
+    <path d="M26 77h10m-5-5v10m61-16h9m-4.5-4.5v9m-7 24h10m-5-5v10" stroke="#f0c785" stroke-width="1.14" opacity=".8"/>
+  </g>
+  <g fill="#f1cd91">
+    <use href="#spark" transform="translate(158 128) scale(.88)"/>
+    <use href="#spark" transform="translate(67 242) scale(.77)"/>
+    <use href="#spark" transform="translate(750 324) scale(.82)"/>
+    <circle cx="98" cy="205" r="3.2"/>
+    <circle cx="738" cy="274" r="2.8"/>
+    <circle cx="143" cy="391" r="2.3"/>
+  </g>
+</svg>

@@ -6,9 +6,11 @@ import EmptyState from '@/components/common/EmptyState.vue'
 import EditorialIcon from '@/components/common/EditorialIcon.vue'
 import type { EditorialIconName } from '@/components/common/EditorialIcon.vue'
 import EquipmentTimeline from '@/components/EquipmentTimeline.vue'
+import ChristmasWishCamera from '@/components/ChristmasWishCamera.vue'
 import { getEquipment } from '@/api/equipment'
 import { addFavorite, getFavorites, removeFavorite } from '@/api/experience'
 import { useToastStore } from '@/stores/toast'
+import { CHRISTMAS_COVER } from '@/utils/christmasAssets'
 import type { Equipment, EquipmentStatus } from '@/types/models'
 
 const toast = useToastStore()
@@ -18,6 +20,7 @@ const toast = useToastStore()
  * ------------------------------------------------------------------ */
 const timelineVisible = ref(false)
 const timelineEquipmentId = ref<number | null>(null)
+const wishCameraVisible = ref(false)
 
 const loading = ref(false)
 const equipmentList = ref<Equipment[]>([])
@@ -214,21 +217,39 @@ onMounted(loadEquipment)
       <!-- 页面标题 -->
       <div class="page-header">
         <div class="catalog-heading">
-          <img class="catalog-cover" src="/assets/christmas-santa-cover-v1.webp" alt="" aria-hidden="true" fetchpriority="high" />
-          <div class="catalog-postmark">
-            <img class="catalog-mark" src="/assets/christmas-seal-v1.svg" alt="" aria-hidden="true" width="48" height="48" />
-            <p class="catalog-season-line">把圣诞的灯火，留在胶片上。</p>
-          </div>
           <div class="catalog-copy">
+            <div class="catalog-postmark">
+              <img class="catalog-mark" src="/assets/christmas-seal-v1.svg" alt="" aria-hidden="true" width="42" height="42" />
+              <p class="catalog-season-line">把圣诞的灯火，留在胶片上。</p>
+            </div>
             <h1 class="page-title">器材设备清单</h1>
             <p class="page-desc">仅可借用清单中已编号的器材。</p>
+            <button
+              type="button"
+              class="catalog-wish-button"
+              aria-haspopup="dialog"
+              @click="wishCameraVisible = true"
+            >
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 7h4l2-2.5h4L16 7h4a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 20 19H4a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 4 7Z"/>
+                <circle cx="12" cy="13" r="3.5"/>
+                <path d="M18 10h.5"/>
+              </svg>
+              相机许愿 <span aria-hidden="true">↗</span>
+            </button>
+          </div>
+          <div class="catalog-stage" aria-hidden="true">
+            <img class="catalog-cover" :src="CHRISTMAS_COVER" alt="" fetchpriority="high" />
+            <span class="catalog-viewfinder"></span>
           </div>
         </div>
         <div class="catalog-index">
           <div class="catalog-index__row"><span>器材总数</span><strong>{{ loading ? '—' : equipmentList.length }}</strong></div>
           <div class="catalog-index__row"><span>当前可借</span><strong class="available-number">{{ loading ? '—' : availableCount }}</strong></div>
-          <router-link to="/calendar" class="catalog-calendar">查看预约日历 <span aria-hidden="true">↗</span></router-link>
-          <p>可借状态表示器材已在库，预约时段请以时间轴为准。</p>
+          <div class="catalog-index__guide">
+            <router-link to="/calendar" class="catalog-calendar">查看预约日历 <span aria-hidden="true">↗</span></router-link>
+            <p>可借状态表示器材已在库，预约时段请以时间轴为准。</p>
+          </div>
         </div>
       </div>
 
@@ -357,6 +378,7 @@ onMounted(loadEquipment)
       v-model:visible="timelineVisible"
       :equipment-id="timelineEquipmentId"
     />
+    <ChristmasWishCamera v-model:show="wishCameraVisible" />
   </AppLayout>
 </template>
 
@@ -368,42 +390,68 @@ onMounted(loadEquipment)
 
 /* ---------- 页面标题 ---------- */
 .page-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(205px, 22%);
-  align-items: stretch;
-  gap: 0;
   margin-bottom: 26px;
-  padding: 0;
   border: 1px solid var(--foil);
   background: var(--bg-card);
   box-shadow: var(--shadow-sm);
 }
 .page-title {
-  font-size: clamp(37px, 4.15vw, 62px);
+  font-size: clamp(30px, 3.55vw, 57px);
   font-weight: 500;
-  line-height: 1.18;
+  line-height: 1.12;
   margin: 0;
-  color: var(--text);
+  color: var(--text-on-dark);
   font-family: var(--font);
   letter-spacing: -0.045em;
 }
 .page-desc {
   font-size: 13px;
-  color: var(--text-secondary);
-  margin: 12px 0 0;
+  color: #ffe9d8;
+  margin: 11px 0 0;
   line-height: 1.8;
-  max-width: 520px;
 }
 .catalog-heading {
+  display: grid;
+  grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
+  min-height: clamp(275px, 25vw, 364px);
+  background: var(--festive-green);
+}
+.catalog-copy {
   position: relative;
   isolation: isolate;
-  min-height: clamp(268px, 24vw, 340px);
   padding: clamp(26px, 2.8vw, 42px);
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 26px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  background: var(--accent-gradient), var(--festive-red);
+}
+.catalog-copy::before {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border: 1px solid #ffe1ac73;
+  pointer-events: none;
+}
+.catalog-copy::after {
+  content: '';
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: min(36%, 155px);
+  aspect-ratio: 212 / 130;
+  background: url('/assets/christmas-garland-v2.svg') right bottom / contain no-repeat;
+  transform: rotate(180deg);
+  opacity: .64;
+  z-index: -1;
+  pointer-events: none;
+}
+.catalog-stage {
+  position: relative;
+  min-height: 0;
   overflow: hidden;
-  background: var(--bg-sidebar);
+  border-left: 1px solid #e3bd84;
 }
 .catalog-cover {
   position: absolute;
@@ -411,38 +459,63 @@ onMounted(loadEquipment)
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 57% top;
-  z-index: -2;
+  object-position: 89% center;
   pointer-events: none;
 }
-.catalog-heading::before {
+.catalog-stage::after {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: -1;
-  background:
-    linear-gradient(85deg, #10251ded 0%, #14291fc4 29%, #13291d36 56%, transparent 73%),
-    linear-gradient(0deg, #10221db0 0%, transparent 46%);
+  background: url('/assets/christmas-cover-trim-v2.svg') center / 100% 100% no-repeat;
   pointer-events: none;
 }
-.catalog-heading::after {
-  content: '';
+.catalog-viewfinder {
   position: absolute;
-  inset: 9px;
-  border: 1px solid #e9cca068;
+  inset: clamp(8px, 1.2vw, 17px);
+  color: #fff1ca;
+  opacity: .76;
+  z-index: 1;
+  background:
+    linear-gradient(currentColor, currentColor) left top / 21px 1px,
+    linear-gradient(currentColor, currentColor) left top / 1px 21px,
+    linear-gradient(currentColor, currentColor) right top / 21px 1px,
+    linear-gradient(currentColor, currentColor) right top / 1px 21px,
+    linear-gradient(currentColor, currentColor) left bottom / 21px 1px,
+    linear-gradient(currentColor, currentColor) left bottom / 1px 21px,
+    linear-gradient(currentColor, currentColor) right bottom / 21px 1px,
+    linear-gradient(currentColor, currentColor) right bottom / 1px 21px;
+  background-repeat: no-repeat;
   pointer-events: none;
 }
-.catalog-postmark { display: flex; align-items: center; gap: 12px; max-width: 65%; }
-.catalog-mark { width: 48px; height: 48px; flex: 0 0 auto; filter: drop-shadow(0 2px 3px #070e0a8f); }
+.catalog-postmark { display: flex; align-items: center; gap: 10px; margin-bottom: clamp(13px, 1.9vw, 24px); }
+.catalog-mark { width: 42px; height: 42px; flex: 0 0 auto; filter: drop-shadow(0 2px 3px #5c132963); }
 .catalog-season-line {
   margin: 0;
-  color: var(--accent-on-dark);
+  color: #fff2d8;
   font: 500 14px/1.6 var(--font);
-  letter-spacing: .08em;
+  letter-spacing: .04em;
 }
-.catalog-copy { align-self: end; max-width: 64%; }
-.catalog-heading .page-title { color: var(--text-on-dark); text-shadow: 0 2px 10px #12221b; }
-.catalog-heading .page-desc { color: #efe6d7; text-shadow: 0 1px 7px #101e17; }
+.catalog-wish-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  margin-top: clamp(14px, 2vw, 24px);
+  padding: 8px 14px;
+  border: 1px solid #ffe6b4;
+  border-radius: 2px;
+  background: #fff0d4;
+  color: #7f2036;
+  box-shadow: 3px 3px 0 #701a33;
+  font: 700 13px/1.4 var(--font-ui);
+  transition: background var(--transition), transform var(--transition);
+}
+.catalog-wish-button svg { width: 19px; height: 19px; flex: 0 0 auto; }
+.catalog-wish-button:hover { background: #fffaea; transform: translateY(-1px); }
+.catalog-wish-button:focus-visible {
+  outline-color: #fff0d4;
+  outline-offset: 4px;
+}
 
 /* ---------- 类别筛选 ---------- */
 .category-tabs {
@@ -540,7 +613,7 @@ onMounted(loadEquipment)
   align-items: center;
   justify-content: center;
   position: relative;
-  background: radial-gradient(circle at 50% 46%, #f9f4e8 0 28%, transparent 28.4%), #E5E8DA;
+  background: radial-gradient(circle at 50% 46%, #f9f4e8 0 28%, transparent 28.4%), #E0EADB;
 }
 .image-placeholder::before {
   content: '';
@@ -549,8 +622,8 @@ onMounted(loadEquipment)
   height: 58px;
   right: 16px;
   bottom: 9px;
-  background: url('/assets/christmas-sprig-v1.svg') right center / 100% auto no-repeat;
-  opacity: .42;
+  background: url('/assets/christmas-garland-v2.svg') right center / 100% auto no-repeat;
+  opacity: .56;
   pointer-events: none;
 }
 .image-placeholder::after {
@@ -709,19 +782,9 @@ onMounted(loadEquipment)
 
 /* ---------- 响应式 ---------- */
 @media (max-width: 640px) {
-  .page-header {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-  .page-desc {
-    justify-self: start;
-  }
   .equipment-grid {
     grid-template-columns: 1fr;
     gap: 12px;
-  }
-  .page-title {
-    font-size: 38px;
   }
   .category-name {
     font-size: 23px;
@@ -732,13 +795,23 @@ onMounted(loadEquipment)
   .favorite-btn.active { animation: none; }
 }
 
-.catalog-index { border-left: 1px solid var(--foil); padding: 24px clamp(18px, 2vw, 28px); display: flex; flex-direction: column; justify-content: center; background: linear-gradient(145deg, var(--bg-card), #F1E8D8); font-family: var(--font-ui); }
-.catalog-index__row { display: flex; align-items: baseline; justify-content: space-between; padding-top: 12px; }
+.catalog-index {
+  border-top: 4px solid transparent;
+  padding: 12px clamp(17px, 2.2vw, 30px);
+  display: grid;
+  grid-template-columns: minmax(100px, .69fr) minmax(100px, .69fr) minmax(0, 1.6fr);
+  align-items: center;
+  gap: 14px clamp(18px, 2.3vw, 34px);
+  background: linear-gradient(132deg, var(--bg-card), #f2eddb) padding-box, var(--festive-ribbon) border-box;
+  font-family: var(--font-ui);
+}
+.catalog-index__row { display: flex; align-items: baseline; justify-content: space-between; gap: 9px; }
 .catalog-index__row span { color: var(--text-secondary); font-size: 12px; }
-.catalog-index__row strong { font: 400 42px/1.1 var(--font); font-variant-numeric: tabular-nums; }
+.catalog-index__row strong { font: 400 34px/1.1 var(--font); font-variant-numeric: tabular-nums; }
 .available-number { color: var(--success); }
-.catalog-calendar { display: flex; justify-content: space-between; border-top: 1px dashed var(--foil); margin-top: 14px; padding-top: 12px; font-size: 12px; font-weight: 600; }
-.catalog-index p { font-size: 11px; color: var(--text-secondary); margin-top: 12px; line-height: 1.7; }
+.catalog-index__guide { border-left: 1px dashed var(--foil); padding-left: 16px; }
+.catalog-calendar { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 700; }
+.catalog-index p { font-size: 11px; color: var(--text-secondary); margin: 4px 0 0; line-height: 1.65; }
 .catalog-tools { display: flex; gap: 16px; align-items: center; margin-bottom: 18px; padding: 8px 12px; border: 1px solid var(--border); background: var(--bg-card); font-family: var(--font-ui); }
 .catalog-search { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; border-bottom: 1px solid var(--text); padding: 7px 0; }
 .catalog-search-icon { width: 20px; height: 20px; flex-shrink: 0; stroke: var(--accent); stroke-width: 1.5; stroke-linecap: round; }
@@ -755,34 +828,21 @@ onMounted(loadEquipment)
 .borrow-link { color: var(--accent); font: 600 12px var(--font-ui); white-space: nowrap; }
 .borrow-link span { margin-left: 4px; }
 .borrow-unavailable { font: 11px var(--font-ui); color: var(--text-secondary); }
-@media (max-width: 820px), (min-width: 901px) and (max-width: 1170px) {
-  .page-header { grid-template-columns: 1fr; gap: 0; padding: 0; }
-  .catalog-index { border-left: none; border-top: 1px solid var(--foil); padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
-  .catalog-calendar, .catalog-index p { grid-column: 1 / -1; }
-  .catalog-index__row { padding-top: 0; }
+@media (max-width: 660px) {
+  .catalog-index { grid-template-columns: 1fr 1fr; gap: 9px 22px; }
+  .catalog-index__guide { grid-column: 1 / -1; border: 0; border-top: 1px dashed var(--foil); padding: 8px 0 0; }
   .catalog-index__row strong { font-size: 32px; }
-  .catalog-calendar, .catalog-index p { margin-top: 0; }
-}
-@media (max-width: 580px) {
-  .catalog-heading {
-    --cover-depth: clamp(158px, 46vw, 212px);
-    min-height: 0;
-    padding: calc(var(--cover-depth) - 2px) 20px 22px;
-    gap: 11px;
-  }
-  .catalog-cover { height: calc(var(--cover-depth) + 17px); object-position: 83% 48%; }
-  .catalog-heading::before {
-    inset: 0 0 auto;
-    height: calc(var(--cover-depth) + 17px);
-    background: linear-gradient(0deg, var(--bg-sidebar) 0%, transparent 30%);
-  }
-  .catalog-heading::after { inset: 6px; }
-  .catalog-postmark { max-width: 100%; gap: 9px; }
-  .catalog-mark { width: 33px; height: 33px; }
+  .catalog-heading { grid-template-columns: 1fr; min-height: 0; }
+  .catalog-stage { grid-row: 1; aspect-ratio: 1.7; border-left: 0; border-bottom: 1px solid #edce98; }
+  .catalog-cover { object-position: 91% center; }
+  .catalog-copy { padding: 18px 22px 22px; }
+  .catalog-copy::before { inset: 6px; }
+  .catalog-postmark { gap: 8px; margin-bottom: 9px; }
+  .catalog-mark { width: 32px; height: 32px; }
   .catalog-season-line { font-size: 13px; }
-  .catalog-copy { max-width: 100%; }
-  .catalog-heading .page-title { font-size: clamp(29px, 8.5vw, 39px); }
-  .catalog-heading .page-desc { margin-top: 7px; font-size: 12px; }
+  .page-title { font-size: clamp(30px, 8.5vw, 41px); }
+  .page-desc { margin-top: 6px; font-size: 12px; }
+  .catalog-wish-button { margin-top: 13px; }
 }
 @media (max-width: 640px) {
   .catalog-tools { flex-wrap: wrap; gap: 10px 12px; padding: 10px 12px; }

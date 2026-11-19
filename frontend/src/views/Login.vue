@@ -7,8 +7,8 @@
       </figcaption>
       <div class="login-art" aria-hidden="true">
         <picture>
-          <source media="(max-width: 860px)" srcset="/assets/christmas-santa-cover-v1.webp" />
-          <img src="/assets/christmas-santa-portrait-v1.webp" alt="" fetchpriority="high" />
+          <source media="(max-width: 860px)" :srcset="CHRISTMAS_COVER" />
+          <img :src="CHRISTMAS_PORTRAIT" alt="" fetchpriority="high" />
         </picture>
       </div>
     </figure>
@@ -77,6 +77,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 import EditorialPoem from '@/components/EditorialPoem.vue'
 import { APP_EDITION, APP_ISSUE, APP_NAME } from '@/utils/appInfo'
+import { CHRISTMAS_COVER, CHRISTMAS_PORTRAIT } from '@/utils/christmasAssets'
 
 const router = useRouter()
 const route = useRoute()
@@ -154,7 +155,7 @@ async function handleAdminLogin() {
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(ellipse at 16% 12%, #38513e, transparent 52%),
+    radial-gradient(ellipse at 16% 12%, #207553, transparent 66%),
     var(--bg-sidebar);
   padding: 44px clamp(30px, 6vw, 90px) 58px;
   position: relative;
@@ -169,8 +170,8 @@ async function handleAdminLogin() {
   right: -60px;
   width: min(36vw, 460px);
   height: 210px;
-  background: url('/assets/christmas-sprig-v1.svg') right top / 100% auto no-repeat;
-  opacity: .43;
+  background: url('/assets/christmas-garland-v2.svg') right top / 100% auto no-repeat;
+  opacity: .84;
   z-index: -1;
   pointer-events: none;
 }
@@ -194,7 +195,7 @@ async function handleAdminLogin() {
   padding: 10px 16px;
   overflow: hidden;
   border: 1px solid #a07c51;
-  background: #101e18;
+  background: var(--festive-red);
   box-shadow: 10px 11px 0 #0d1a146e;
 }
 
@@ -207,16 +208,16 @@ async function handleAdminLogin() {
   top: 10px;
   bottom: 10px;
   width: 4px;
-  background: repeating-linear-gradient(180deg, #c2a77d9c 0 5px, transparent 5px 15px);
+  background: repeating-linear-gradient(180deg, #f5d8aa 0 5px, transparent 5px 15px);
   pointer-events: none;
 }
 .login-art::before { left: 6px; }
 .login-art::after { right: 6px; }
 
 .login-card {
-  background: var(--bg-card);
   border: 1px solid #c6a77e;
-  border-top: 5px solid var(--accent);
+  border-top: 7px solid transparent;
+  background: linear-gradient(var(--bg-card), var(--bg-card)) padding-box, var(--festive-ribbon) border-box;
   border-radius: 1px;
   padding: clamp(29px, 3.5vw, 49px);
   min-width: 0;
@@ -231,8 +232,8 @@ async function handleAdminLogin() {
   inset: auto 0 0 auto;
   width: 156px;
   height: 83px;
-  background: url('/assets/christmas-sprig-v1.svg') right bottom / contain no-repeat;
-  opacity: .23;
+  background: url('/assets/christmas-garland-v2.svg') right bottom / contain no-repeat;
+  opacity: .16;
   pointer-events: none;
   z-index: -1;
 }
@@ -432,7 +433,7 @@ async function handleAdminLogin() {
     padding: 6px 12px;
     box-shadow: 5px 6px 0 #0d1a146e;
   }
-  .login-art img { object-position: 83% 49%; }
+  .login-art img { object-position: right center; }
   .login-art::before, .login-art::after { top: 6px; bottom: 6px; width: 3px; }
   .login-art::before { left: 4px; }
   .login-art::after { right: 4px; }
