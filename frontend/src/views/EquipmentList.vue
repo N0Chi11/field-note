@@ -6,22 +6,22 @@ import EmptyState from '@/components/common/EmptyState.vue'
 import EditorialIcon from '@/components/common/EditorialIcon.vue'
 import type { EditorialIconName } from '@/components/common/EditorialIcon.vue'
 import EquipmentTimeline from '@/components/EquipmentTimeline.vue'
-import ChristmasGiftBox from '@/components/ChristmasGiftBox.vue'
 import ChristmasGiftParcel from '@/components/ChristmasGiftParcel.vue'
 import { getEquipment } from '@/api/equipment'
 import { addFavorite, getFavorites, removeFavorite } from '@/api/experience'
+import { useCameraDrawStore } from '@/stores/cameraDraw'
 import { useToastStore } from '@/stores/toast'
 import { CHRISTMAS_COVER } from '@/utils/christmasAssets'
 import type { Equipment, EquipmentStatus } from '@/types/models'
 
 const toast = useToastStore()
+const cameraDraw = useCameraDrawStore()
 
 /* ------------------------------------------------------------------ *
  * 时间轴弹窗状态
  * ------------------------------------------------------------------ */
 const timelineVisible = ref(false)
 const timelineEquipmentId = ref<number | null>(null)
-const giftBoxVisible = ref(false)
 
 const loading = ref(false)
 const equipmentList = ref<Equipment[]>([])
@@ -229,7 +229,7 @@ onMounted(loadEquipment)
               type="button"
               class="catalog-gift-button"
               aria-haspopup="dialog"
-              @click="giftBoxVisible = true"
+              @click="cameraDraw.open"
             >
               <ChristmasGiftParcel class="catalog-gift-button__box" />
               <span class="catalog-gift-button__label">相机抽奖</span>
@@ -376,7 +376,6 @@ onMounted(loadEquipment)
       v-model:visible="timelineVisible"
       :equipment-id="timelineEquipmentId"
     />
-    <ChristmasGiftBox v-model:show="giftBoxVisible" />
   </AppLayout>
 </template>
 

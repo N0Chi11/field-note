@@ -74,6 +74,7 @@
 import { ref, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useCameraDrawStore } from '@/stores/cameraDraw'
 import { useToastStore } from '@/stores/toast'
 import EditorialPoem from '@/components/EditorialPoem.vue'
 import { APP_EDITION, APP_ISSUE, APP_NAME } from '@/utils/appInfo'
@@ -82,6 +83,7 @@ import { CHRISTMAS_COVER, CHRISTMAS_PORTRAIT } from '@/utils/christmasAssets'
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const cameraDraw = useCameraDrawStore()
 const toast = useToastStore()
 
 const loginTab = ref<'user' | 'admin'>('user')
@@ -94,6 +96,11 @@ function destination(fallback: string) {
   const redirect = route.query.redirect
   return typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//') && !redirect.startsWith('/login')
     ? redirect : fallback
+}
+
+async function enterSignedInPage(fallback: string) {
+  const failure = await router.push(destination(fallback))
+  if (!failure && router.currentRoute.value.meta.auth && authStore.isLoggedIn) cameraDraw.open()
 }
 
 function errMsg(e: any): string {
@@ -117,7 +124,7 @@ async function handleUserLogin() {
   try {
     await authStore.loginUser(userForm.name.trim(), userForm.studentId.trim())
     toast.success('登录成功')
-    await router.push(destination('/equipment'))
+    await enterSignedInPage('/equipment')
   } catch (e) {
     toast.error(errMsg(e))
   } finally {
@@ -135,7 +142,7 @@ async function handleAdminLogin() {
   try {
     await authStore.loginAdmin(adminForm.name.trim(), adminForm.password)
     toast.success('管理员登录成功')
-    await router.push(destination('/admin/approval'))
+    await enterSignedInPage('/admin/approval')
   } catch (e) {
     toast.error(errMsg(e))
   } finally {

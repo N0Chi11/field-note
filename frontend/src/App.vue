@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { defineAsyncComponent, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import {
   NConfigProvider,
   NMessageProvider,
@@ -7,6 +9,16 @@ import {
   dateZhCN,
   type GlobalThemeOverrides
 } from 'naive-ui'
+import { useAuthStore } from '@/stores/auth'
+import { useCameraDrawStore } from '@/stores/cameraDraw'
+
+const ChristmasGiftBox = defineAsyncComponent(() => import('@/components/ChristmasGiftBox.vue'))
+const route = useRoute()
+const authStore = useAuthStore()
+const cameraDraw = useCameraDrawStore()
+
+// Clear an open draw on navigation before the login page opens a new one.
+watch([() => route.fullPath, () => authStore.isLoggedIn], cameraDraw.close, { flush: 'sync' })
 
 const themeOverrides: GlobalThemeOverrides = {
   common: {
@@ -40,6 +52,7 @@ const themeOverrides: GlobalThemeOverrides = {
     <NMessageProvider>
       <NDialogProvider>
         <router-view />
+        <ChristmasGiftBox v-if="route.meta.auth && authStore.isLoggedIn" v-model:show="cameraDraw.visible" />
       </NDialogProvider>
     </NMessageProvider>
   </NConfigProvider>

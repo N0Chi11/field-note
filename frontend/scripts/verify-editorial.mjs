@@ -23,13 +23,19 @@ const items = [
 ]
 
 async function mockAPI(page) {
+  let role = 'admin'
   await page.route('**/api/v1/**', async route => {
     const path = new URL(route.request().url()).pathname
     if (path.includes('/favorites/') && route.request().method() === 'POST') {
       await new Promise(resolve => setTimeout(resolve, path.endsWith('/1') ? 500 : 100))
     }
     let data = []
-    if (path.endsWith('/auth/me')) data = { id: 1, name: '范雨欣', student_id: '2026000001', role: 'admin', avatar_url: '/assets/default-avatars/editorial-1.png' }
+    if (path.endsWith('/auth/login')) {
+      const login = route.request().postDataJSON()
+      if (login.name === '失败测试') return route.fulfill({ status: 401, json: { detail: '测试账号登录失败' } })
+      role = login.login_type === 'admin' ? 'admin' : 'user'
+      data = { access_token: 'qa-login-token', refresh_token: 'qa-refresh-token' }
+    } else if (path.endsWith('/auth/me')) data = { id: 1, name: '测试用户', student_id: '2026000001', role, avatar_url: '/assets/default-avatars/editorial-1.png' }
     else if (path === '/api/v1/equipment/') data = items
     else if (path.endsWith('/admin/stats')) data = { pending: 2, borrowing: 1, return_pending: 1, feedback_open: 3, total: 5 }
     else if (path.endsWith('/requests/check-conflict')) data = { has_conflict: false, conflict_type: null, conflict_orders: [] }
@@ -128,6 +134,10 @@ try {
   await expect(giftDialog.getByText('GFX100 II', { exact: true })).toBeVisible()
   await expect(giftDialog.getByText(/虚拟/)).toHaveCount(0)
   await expect(giftDialog.getByText(giftDisclaimer, { exact: true })).toBeVisible()
+  const frog = giftDialog.getByRole('img', { name: '戴着圣诞帽、抱着手臂的奶蛙' })
+  await expect(frog).toBeVisible()
+  await expect.poll(() => frog.evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true)
+  expect(await giftDialog.getByText(giftDisclaimer, { exact: true }).evaluate(el => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(17)
   await expect(giftDialog.getByRole('link', { name: '查看商品页' })).toHaveAttribute('href', 'https://www.fujifilm-x.com/global/products/cameras/gfx100-ii/')
   const prizePhoto = giftDialog.getByRole('img', { name: 'Fujifilm GFX100 II 商品图' })
   await expect(prizePhoto).toHaveCSS('background-color', 'rgb(255, 255, 255)')
@@ -311,6 +321,7 @@ try {
       }
       await expect(dialog.locator('.gift-card__model')).toHaveText(width === 375 ? 'EOS R1' : '907X & CFV 100C')
       await expect(dialog.getByText(giftDisclaimer, { exact: true })).toBeVisible()
+      await dialog.getByRole('img', { name: '戴着圣诞帽、抱着手臂的奶蛙' }).evaluate(img => img.decode())
       await expect.poll(() => dialog.locator('.gift-card__photo').evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true)
       const frame = await dialog.boundingBox()
       expect(frame.x).toBeGreaterThanOrEqual(0)
@@ -371,13 +382,58 @@ try {
     await mobileLogin.close()
   }
 
-  const interactiveLogin = await browser.newPage({ viewport: { width: 1024, height: 900 } })
-  await interactiveLogin.goto(`${baseURL}/login`)
-  await interactiveLogin.getByLabel('姓名', { exact: true }).fill('测试用户')
-  await expect(interactiveLogin.getByLabel('姓名', { exact: true })).toHaveValue('测试用户')
-  await interactiveLogin.getByRole('button', { name: '管理员登录', exact: true }).click()
-  await expect(interactiveLogin.getByLabel('密码', { exact: true })).toBeVisible()
-  await interactiveLogin.close()
+  // Only successful sign-in presents the draw; keep member, admin and linked destinations intact.
+  for (const { id, entry, destination, title, width } of [
+    { id: 'member', entry: '/login', destination: '/equipment', title: '器材设备清单', width: 375 },
+    { id: 'admin', entry: '/login', destination: '/admin/approval', title: '申请审批', width: 1024 },
+    { id: 'linked', entry: '/calendar', destination: '/calendar', title: '预约日历', width: 1024 }
+  ]) {
+    const fresh = await browser.newPage({ viewport: { width, height: 900 }, reducedMotion: 'reduce' })
+    await mockAPI(fresh)
+    await fresh.goto(`${baseURL}${entry}`)
+    await expect(fresh).toHaveURL(/\/login(?:\?|$)/)
+    const dialog = fresh.getByRole('dialog')
+    const admin = id === 'admin'
+    const signIn = async (name = '测试用户') => {
+      if (admin) {
+        await fresh.locator('.login-tabs').getByRole('button', { name: '管理员登录', exact: true }).click()
+        await fresh.getByLabel('管理员姓名', { exact: true }).fill(name)
+        await fresh.getByLabel('密码', { exact: true }).fill('mock-pass')
+      } else {
+        await fresh.getByLabel('姓名', { exact: true }).fill(name)
+        await fresh.getByLabel('学号（账号）').fill('2026000001')
+      }
+      await fresh.locator('form').getByRole('button', { name: admin ? '管理员登录' : '登录', exact: true }).click()
+    }
+    await expect(dialog).toHaveCount(0)
+    if (id === 'linked') {
+      await signIn('失败测试')
+      await expect(fresh.getByText('测试账号登录失败')).toBeVisible()
+      await expect(dialog).toHaveCount(0)
+    }
+    await signIn()
+    await expect(fresh).toHaveURL(`${baseURL}${destination}`)
+    await expect(dialog).toHaveAccessibleName('相机抽奖')
+    await expect(dialog.getByRole('button', { name: '开始抽奖', exact: true })).toBeEnabled()
+    await expect(dialog.locator('.filmstrip')).toHaveAttribute('data-phase', 'ready')
+    await expect(dialog.getByText(giftDisclaimer, { exact: true })).toHaveCount(0)
+    if (id === 'member') {
+      await dialog.locator('.film-cell__photo').evaluateAll(imgs => Promise.all(imgs.map(img => img.decode())))
+      await fresh.screenshot({ path: path.join(artifactDir, 'camera-draw-after-login.png'), animations: 'disabled' })
+      await dialog.getByRole('button', { name: '关闭相机抽奖', exact: true }).click()
+      await expect(dialog).toHaveCount(0)
+    }
+    await fresh.reload()
+    await expect(fresh.getByRole('heading', { name: title, exact: true }).first()).toBeVisible()
+    await expect(dialog).toHaveCount(0)
+    if (admin) {
+      await fresh.getByRole('button', { name: '退出登录', exact: true }).click()
+      await expect(fresh).toHaveURL(/\/login(?:\?|$)/)
+      await signIn()
+      await expect(dialog).toHaveAccessibleName('相机抽奖')
+    }
+    await fresh.close()
+  }
 
   // Preview the photo-review layout with local assets; this does not submit photos.
   const photoHtml = (await readFile(path.join(photoReviewDir, 'index.html'), 'utf8'))
@@ -405,7 +461,7 @@ try {
     await photo.screenshot({ path: path.join(artifactDir, `photo-review-${width}.png`), fullPage: true })
     await photo.close()
   }
-  console.log('UI verified: random camera draw, centered winner, result disclaimer, PNG export, photo-review layout, search, favorites, booking and mobile navigation.')
+  console.log('UI verified: login-only auto-open, original destinations, random draw, festive disclaimer, PNG export, photo review, search, favorites, booking and mobile navigation.')
 } finally {
   await browser.close()
 }

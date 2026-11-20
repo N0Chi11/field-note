@@ -180,7 +180,10 @@ function saveGift() {
             <a class="gift-official" :href="gift.official" target="_blank" rel="noopener noreferrer">查看商品页 <span aria-hidden="true">↗</span></a>
           </figcaption>
         </figure>
-        <p class="gift-disclaimer">仅供娱乐，抽到了也不会真送你。</p>
+        <aside class="gift-disclaimer" aria-label="开奖提示">
+          <img class="gift-disclaimer__sticker" src="/assets/christmas-frog-sticker-v1.jpg" alt="戴着圣诞帽、抱着手臂的奶蛙" width="932" height="957" />
+          <p class="gift-disclaimer__copy">仅供娱乐，抽到了也不会真送你。</p>
+        </aside>
         <p v-if="saveError" class="gift-error" role="alert">礼卡暂未保存。等照片加载后再试，或直接截图。</p>
         <div class="gift-actions">
           <button type="button" class="gift-secondary gift-again" tabindex="0" @click="drawAgain">再抽一次</button>
@@ -329,7 +332,20 @@ function saveGift() {
 .gift-primary:not(:disabled):hover { background: var(--accent-hover); }
 .gift-secondary { border-color: #d3bda3; color: var(--gift-ink); background: transparent; }
 .gift-error { color: var(--danger); margin: 10px 0 0; font: 12px/1.55 var(--font-ui); }
-.gift-disclaimer { margin-top: 13px; padding: 7px 10px; border-left: 2px solid #a62745; background: #f5e5d0; color: #79293c; font: 600 12px/1.6 var(--font-ui); }
+.gift-disclaimer {
+  display: grid;
+  grid-template-columns: clamp(58px, 15vw, 84px) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(10px, 2.6vw, 19px);
+  margin-top: 15px;
+  padding: 9px clamp(10px, 2.6vw, 16px);
+  border: 1px solid #e1c6a5;
+  border-left: 4px solid #a62745;
+  background: #f5e5d0;
+  color: #732238;
+}
+.gift-disclaimer__sticker { display: block; width: 100%; height: auto; border: 1px solid #c9aa83; background: #fffdf8; }
+.gift-disclaimer__copy { font: 800 clamp(17px, 4vw, 23px)/1.42 var(--font-ui); text-wrap: balance; }
 @keyframes gift-appears {
   from { opacity: 0; transform: translateY(9px) scale(.985); }
   to { opacity: 1; transform: translateY(0) scale(1); }
