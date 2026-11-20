@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 
 const baseURL = process.env.FIELD_NOTE_QA_URL || 'http://127.0.0.1:5173'
 const artifactDir = process.env.FIELD_NOTE_QA_OUTPUT || '.ui-artifacts'
+const giftDisclaimer = '仅供娱乐，抽到了也不会真送你。'
 const photoReviewDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../backend/photo_review/web')
 const browser = await chromium.launch(process.env.FIELD_NOTE_QA_BROWSER
   ? { executablePath: process.env.FIELD_NOTE_QA_BROWSER }
@@ -34,6 +35,17 @@ async function mockAPI(page) {
     else if (path.endsWith('/requests/check-conflict')) data = { has_conflict: false, conflict_type: null, conflict_orders: [] }
     await route.fulfill({ json: { code: 0, message: 'ok', data } })
   })
+}
+
+async function clickWithDrawValue(button, value) {
+  await button.evaluate((el, roll) => {
+    el.addEventListener('click', () => {
+      const original = Math.random
+      Math.random = () => roll
+      setTimeout(() => { Math.random = original }, 0)
+    }, { capture: true, once: true })
+  }, value)
+  await button.click()
 }
 
 try {
@@ -80,24 +92,23 @@ try {
     if (request.url().includes('/api/v1/') && !['GET', 'HEAD'].includes(request.method())) writes.push(request.url())
   }
   page.on('request', observeGiftRequests)
-  const giftTrigger = page.getByRole('button', { name: '拆圣诞礼物', exact: true })
+  const giftTrigger = page.getByRole('button', { name: /^圣诞礼盒抽奖/ })
   const giftDialog = page.getByRole('dialog')
   await expect(giftDialog).toHaveCount(0)
   await giftTrigger.click()
-  await expect(giftDialog).toHaveAccessibleName('圣诞相机礼盒')
-  await expect(giftDialog.getByRole('radio')).toHaveCount(4)
-  const parcel = giftDialog.getByRole('button', { name: '拆开礼物盒', exact: true })
-  await expect(giftDialog.getByText('没选型号就随机拆一台')).toBeVisible()
-  await expect.poll(() => giftDialog.locator('.gift-option img').evaluateAll(imgs => imgs.every(img => img.complete && img.naturalWidth > 0))).toBe(true)
+  await expect(giftDialog).toHaveAccessibleName('圣诞相机抽奖')
+  await expect(giftDialog.getByRole('radio')).toHaveCount(0)
+  await expect(giftDialog.getByText(giftDisclaimer, { exact: true })).toHaveCount(0)
+  const draw = giftDialog.getByRole('button', { name: '开始抽奖', exact: true })
+  await expect(giftDialog.locator('.filmstrip')).toHaveAttribute('data-phase', 'ready')
+  await expect.poll(() => giftDialog.locator('.film-cell__photo').evaluateAll(imgs => imgs.length > 0 && imgs.every(img => img.complete && img.naturalWidth > 0))).toBe(true)
   await page.screenshot({ path: path.join(artifactDir, 'gift-desktop.png') })
-  await giftDialog.locator('.gift-choice').filter({ hasText: 'GFX100 II' }).click()
-  await expect(giftDialog.getByRole('radio', { name: 'Fujifilm GFX100 II' })).toBeChecked()
-  await expect(giftDialog.getByText('指定礼物：Fujifilm GFX100 II')).toBeVisible()
-  await parcel.click()
-  await expect(giftDialog).toHaveAccessibleName('收到一台相机')
-  await expect(giftDialog.getByRole('heading', { name: '收到一台相机' })).toBeFocused()
+  await clickWithDrawValue(draw, .64)
+  await expect(giftDialog).toHaveAccessibleName('抽中了！')
+  await expect(giftDialog.getByRole('heading', { name: '抽中了！' })).toBeFocused()
   await expect(giftDialog.getByText('GFX100 II', { exact: true })).toBeVisible()
   await expect(giftDialog.getByText('虚拟礼物', { exact: true })).toBeVisible()
+  await expect(giftDialog.getByText(giftDisclaimer, { exact: true })).toBeVisible()
   await expect(giftDialog.getByRole('link', { name: 'CC BY 4.0' })).toHaveAttribute('href', 'https://creativecommons.org/licenses/by/4.0/')
   await expect.poll(() => giftDialog.getByRole('img', { name: 'Fujifilm GFX100 II 实机照片' }).evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true)
   expect(await giftDialog.locator('.gift-result').evaluate(el => getComputedStyle(el).animationName)).toBe('none')
@@ -112,17 +123,16 @@ try {
   expect(download.suggestedFilename()).toBe('FIELD-NOTE-圣诞礼物-Fujifilm-GFX100-II.png')
   expect(cardBytes.subarray(1, 4).toString()).toBe('PNG')
   expect(cardBytes.readUInt32BE(16)).toBe(1080)
-  await giftDialog.getByRole('button', { name: '再拆一个', exact: true }).click()
-  await expect(parcel).toBeFocused()
-  await expect(giftDialog.getByRole('radio', { checked: true })).toHaveCount(0)
-  await parcel.click()
-  await expect(giftDialog.getByText(/^(H6D-100c|M11|EOS R1)$/)).toBeVisible()
+  await clickWithDrawValue(giftDialog.getByRole('button', { name: '再抽一次', exact: true }), .64)
+  await expect(giftDialog.getByText('GFX100 II', { exact: true })).toBeVisible()
+  await clickWithDrawValue(giftDialog.getByRole('button', { name: '再抽一次', exact: true }), .34)
+  await expect(giftDialog.getByText('M11', { exact: true })).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(giftDialog).toHaveCount(0)
   await expect(giftTrigger).toBeFocused()
   await giftTrigger.press('Enter')
-  await expect(giftDialog.getByRole('radio', { checked: true })).toHaveCount(0)
-  await giftDialog.getByRole('button', { name: '关闭圣诞相机礼盒' }).click()
+  await expect(draw).toBeEnabled()
+  await giftDialog.getByRole('button', { name: '关闭圣诞相机抽奖' }).click()
   await expect(giftDialog).toHaveCount(0)
   await expect(page.locator('.equipment-card')).toHaveCount(5)
   expect(writes).toEqual([])
@@ -254,21 +264,46 @@ try {
     expect(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await mobile.screenshot({ path: path.join(artifactDir, `catalog-${width}.png`) })
     if (width <= 375) {
-      await mobile.getByRole('button', { name: '拆圣诞礼物', exact: true }).click()
+      const trigger = mobile.getByRole('button', { name: /^圣诞礼盒抽奖/ })
+      await trigger.click()
       const dialog = mobile.getByRole('dialog')
-      await expect(dialog.getByRole('radio')).toHaveCount(4)
-      await expect.poll(() => dialog.locator('.gift-option img').evaluateAll(imgs => imgs.every(img => img.complete && img.naturalWidth > 0))).toBe(true)
-      await mobile.screenshot({ path: path.join(artifactDir, `gift-picker-${width}.png`), animations: 'disabled' })
-      await dialog.locator('.gift-choice').filter({ hasText: 'H6D-100c' }).click()
-      await dialog.getByRole('button', { name: '拆开礼物盒', exact: true }).click()
-      await expect(dialog.getByText('H6D-100c', { exact: true })).toBeVisible()
-      if (width === 375) expect(await dialog.locator('.gift-result').evaluate(el => getComputedStyle(el).animationName)).not.toBe('none')
+      const film = dialog.locator('.filmstrip')
+      await expect(film).toHaveAttribute('data-phase', 'ready')
+      await expect.poll(() => film.locator('img').evaluateAll(imgs => imgs.length > 0 && imgs.every(img => img.complete && img.naturalWidth > 0))).toBe(true)
+      await mobile.screenshot({ path: path.join(artifactDir, `gift-ready-${width}.png`), animations: 'disabled' })
+      await clickWithDrawValue(dialog.getByRole('button', { name: '开始抽奖', exact: true }), width === 375 ? .93 : .15)
+      if (width === 375) {
+        await expect(film).toHaveAttribute('data-phase', 'rolling')
+        await expect(dialog.getByRole('button', { name: '正在抽奖…' })).toBeDisabled()
+        await expect(film.locator('.filmstrip__track')).toHaveCSS('animation-name', /gift-roll/)
+        await expect(dialog.getByText(giftDisclaimer, { exact: true })).toHaveCount(0)
+        const winner = film.locator('.film-cell--winner')
+        await expect(winner.locator('strong')).toHaveText('EOS R1')
+        const centerDistance = await winner.evaluate(el => {
+          const cell = el.getBoundingClientRect()
+          const gate = el.closest('.filmstrip').querySelector('.filmstrip__gate').getBoundingClientRect()
+          return Math.abs(cell.left + cell.width / 2 - (gate.left + gate.width / 2))
+        })
+        expect(centerDistance).toBeLessThan(1)
+        await mobile.screenshot({ path: path.join(artifactDir, 'gift-landed-375.png') })
+      }
+      await expect(dialog.locator('.gift-card__model')).toHaveText(width === 375 ? 'EOS R1' : 'H6D-100c')
+      await expect(dialog.getByText(giftDisclaimer, { exact: true })).toBeVisible()
       await expect.poll(() => dialog.locator('.gift-card__photo').evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true)
       const frame = await dialog.boundingBox()
       expect(frame.x).toBeGreaterThanOrEqual(0)
       expect(frame.x + frame.width).toBeLessThanOrEqual(width)
       await mobile.screenshot({ path: path.join(artifactDir, `gift-result-${width}.png`), animations: 'disabled' })
-      await dialog.getByRole('button', { name: '关闭圣诞相机礼盒' }).click()
+      if (width === 375) {
+        await dialog.getByRole('button', { name: '再抽一次', exact: true }).click()
+        await expect(film).toHaveAttribute('data-phase', 'rolling')
+        await expect(dialog.getByRole('button', { name: '正在抽奖…' })).toBeFocused()
+        await mobile.keyboard.press('Escape')
+        await expect(dialog).toHaveCount(0)
+        await trigger.click()
+        await expect(film).toHaveAttribute('data-phase', 'ready')
+      }
+      await dialog.getByRole('button', { name: '关闭圣诞相机抽奖' }).click()
       await expect(dialog).toHaveCount(0)
     }
     if (width > 900) { await mobile.close(); continue }
@@ -292,7 +327,7 @@ try {
   const login = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' })
   await login.goto(`${baseURL}/login`)
   await expect(login.getByLabel('学号（账号）')).toBeVisible()
-  await expect(login.getByRole('button', { name: '拆圣诞礼物' })).toHaveCount(0)
+  await expect(login.getByRole('button', { name: /^圣诞礼盒抽奖/ })).toHaveCount(0)
   await expect(login.getByText('愿这个圣诞，有值得留影的灯火。')).toBeVisible()
   await expect(login.getByText('CHRISTMAS EDITION', { exact: true })).toBeVisible()
   await expect(login.locator('.login-stamp')).toHaveAttribute('src', '/assets/christmas-seal-v1.svg')
@@ -348,7 +383,7 @@ try {
     await photo.screenshot({ path: path.join(artifactDir, `photo-review-${width}.png`), fullPage: true })
     await photo.close()
   }
-  console.log('UI verified: virtual gift box, exact and random camera picks, PNG export, photo-review layout, search, favorites, booking and mobile navigation.')
+  console.log('UI verified: random camera draw, centered winner, result disclaimer, PNG export, photo-review layout, search, favorites, booking and mobile navigation.')
 } finally {
   await browser.close()
 }

@@ -5,73 +5,85 @@ import ChristmasGiftParcel from '@/components/ChristmasGiftParcel.vue'
 import { GIFT_CAMERAS, type GiftCamera } from '@/utils/christmasGiftCameras'
 import { downloadGiftCard } from '@/utils/christmasGiftCard'
 
+const ROLL_MS = 2520
+const OPEN_MS = 640
+const REEL_START = 2
+const RUNUP_ROUNDS = 4
+const REEL_FINAL_ROUND = REEL_START + 1 + RUNUP_ROUNDS * GIFT_CAMERAS.length
+const reelFrames = [
+  ...GIFT_CAMERAS.slice(-REEL_START),
+  null,
+  ...Array.from({ length: RUNUP_ROUNDS + 1 }, () => GIFT_CAMERAS).flat(),
+  ...GIFT_CAMERAS.slice(0, REEL_START)
+]
+
 const show = defineModel<boolean>('show', { required: true })
-const selectedId = ref('')
 const gift = shallowRef<GiftCamera | null>(null)
-const opening = ref(false)
+const phase = ref<'ready' | 'rolling' | 'landed'>('ready')
+const reelStop = ref(REEL_START)
 const photoFailed = ref(false)
 const saveError = ref(false)
 const heading = ref<HTMLHeadingElement | null>(null)
-const parcel = ref<HTMLButtonElement | null>(null)
+const drawButton = ref<HTMLButtonElement | null>(null)
 const photo = ref<HTMLImageElement | null>(null)
-const selected = computed(() => GIFT_CAMERAS.find(camera => camera.id === selectedId.value))
-let lastId = ''
-let revealTimer: number | undefined
+const drawLabel = computed(() => phase.value === 'rolling' ? '正在抽奖…' : phase.value === 'landed' ? '即将揭晓…' : '开始抽奖')
+let phaseTimer: number | undefined
 
-function cancelOpening() {
-  if (revealTimer !== undefined) window.clearTimeout(revealTimer)
-  revealTimer = undefined
-  opening.value = false
+function cancelDraw() {
+  if (phaseTimer !== undefined) window.clearTimeout(phaseTimer)
+  phaseTimer = undefined
 }
 
-function resetGift() {
-  cancelOpening()
+function resetDraw() {
+  cancelDraw()
   gift.value = null
-  selectedId.value = ''
+  phase.value = 'ready'
+  reelStop.value = REEL_START
   photoFailed.value = false
   saveError.value = false
 }
 
 watch(show, open => {
-  if (open) {
-    resetGift()
-    lastId = ''
-  } else {
-    cancelOpening()
-  }
+  if (open) resetDraw()
+  else cancelDraw()
 })
 
-onBeforeUnmount(cancelOpening)
+onBeforeUnmount(cancelDraw)
 
 async function reveal(camera: GiftCamera) {
-  cancelOpening()
+  cancelDraw()
   if (!show.value) return
   gift.value = camera
-  lastId = camera.id
   await nextTick()
   heading.value?.focus()
 }
 
-function openParcel() {
-  if (!show.value || opening.value || gift.value) return
-  const remaining = GIFT_CAMERAS.filter(camera => camera.id !== lastId)
-  const camera = selected.value ?? remaining[Math.floor(Math.random() * remaining.length)] ?? GIFT_CAMERAS[0]
+function startDraw() {
+  if (!show.value || phase.value !== 'ready' || gift.value) return
+  const winner = Math.floor(Math.random() * GIFT_CAMERAS.length)
+  const camera = GIFT_CAMERAS[winner]
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     void reveal(camera)
     return
   }
-  opening.value = true
-  revealTimer = window.setTimeout(() => void reveal(camera), 440)
+  reelStop.value = REEL_FINAL_ROUND + winner
+  phase.value = 'rolling'
+  phaseTimer = window.setTimeout(() => {
+    if (!show.value) return
+    phase.value = 'landed'
+    phaseTimer = window.setTimeout(() => void reveal(camera), OPEN_MS)
+  }, ROLL_MS)
 }
 
-async function openAnother() {
-  resetGift()
+async function drawAgain() {
+  resetDraw()
+  startDraw()
   await nextTick()
-  parcel.value?.focus()
+  if (phase.value !== 'ready') drawButton.value?.focus()
 }
 
 function afterClose() {
-  if (!show.value) resetGift()
+  if (!show.value) resetDraw()
 }
 
 function saveGift() {
@@ -89,58 +101,63 @@ function saveGift() {
   <NModal v-model:show="show" :mask-closable="false" transform-origin="center" @after-leave="afterClose">
     <div class="gift-room" role="dialog" aria-modal="true" aria-labelledby="camera-gift-title">
       <header class="gift-header">
-        <h2 id="camera-gift-title" ref="heading" tabindex="-1">{{ gift ? '收到一台相机' : '圣诞相机礼盒' }}</h2>
-        <button type="button" class="gift-close" tabindex="0" aria-label="关闭圣诞相机礼盒" @click="show = false">
+        <h2 id="camera-gift-title" ref="heading" tabindex="-1" :aria-describedby="gift ? 'gift-brand gift-winner' : undefined">{{ gift ? '抽中了！' : '圣诞相机抽奖' }}</h2>
+        <button type="button" class="gift-close" tabindex="0" aria-label="关闭圣诞相机抽奖" @click="show = false">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
         </button>
       </header>
 
       <template v-if="!gift">
-        <div class="gift-tray">
-          <button
-            ref="parcel"
-            type="button"
-            class="gift-wrap"
-            tabindex="0"
-            :disabled="opening"
-            :aria-label="opening ? '正在拆礼物' : '拆开礼物盒'"
-            :aria-busy="opening"
-            aria-describedby="camera-gift-hint"
-            @click="openParcel"
-          >
-            <ChristmasGiftParcel class="gift-wrap__box" :opening="opening" />
-            <span class="gift-wrap__action">{{ opening ? '正在拆礼物…' : '拆开礼物盒' }}</span>
-            <span id="camera-gift-hint" class="gift-wrap__hint">
-              {{ selected ? `指定礼物：${selected.brand} ${selected.model}` : '没选型号就随机拆一台' }}
-            </span>
-          </button>
-
-          <fieldset class="gift-picker">
-            <legend>也可以指定一台</legend>
-            <div class="gift-options">
-              <label v-for="camera in GIFT_CAMERAS" :key="camera.id" class="gift-choice">
-                <input
-                  v-model="selectedId"
-                  type="radio"
-                  name="camera-gift"
-                  :value="camera.id"
-                  :aria-label="`${camera.brand} ${camera.model}`"
-                  :disabled="opening"
-                />
-                <span class="gift-option">
-                  <img :src="camera.photo" alt="" decoding="async" width="360" height="240" />
-                  <span class="gift-option__caption">
-                    <span class="gift-option__brand">{{ camera.brand }}</span>
-                    <strong>{{ camera.model }}</strong>
-                  </span>
-                </span>
-              </label>
+        <div class="gift-stage">
+          <div class="gift-drive">
+            <ChristmasGiftParcel class="gift-drive__parcel" :opening="phase === 'landed'" />
+            <div class="gift-drive__controls">
+              <p id="camera-gift-hint" class="gift-drive__hint">四款虚拟相机，随机抽一台</p>
+              <button
+                ref="drawButton"
+                type="button"
+                class="gift-draw"
+                tabindex="0"
+                :aria-disabled="phase !== 'ready'"
+                aria-describedby="camera-gift-hint"
+                @click="startDraw"
+              >
+                {{ drawLabel }}
+                <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 1c1 5.2 3.8 8 9 9-5.2 1-8 3.8-9 9-1-5.2-3.8-8-9-9 5.2-1 8-3.8 9-9Z"/></svg>
+              </button>
+              <span class="gift-status" role="status">{{ phase === 'ready' ? '' : drawLabel }}</span>
             </div>
-            <button v-if="selected" class="gift-clear" type="button" tabindex="0" :disabled="opening" @click="selectedId = ''">改为随机拆</button>
-          </fieldset>
+          </div>
+
+          <div
+            class="filmstrip"
+            :data-phase="phase"
+            :style="{ '--film-from': REEL_START, '--film-to': reelStop, '--film-duration': `${ROLL_MS}ms` }"
+            aria-hidden="true"
+          >
+            <div class="filmstrip__window">
+              <div class="filmstrip__track">
+                <div v-for="(camera, i) in reelFrames" :key="i" class="film-cell" :class="{ 'film-cell--blank': !camera, 'film-cell--winner': phase === 'landed' && i === reelStop }">
+                  <template v-if="camera">
+                    <img class="film-cell__photo" :src="camera.photo" alt="" decoding="async" width="166" height="104" />
+                    <span class="film-cell__caption">
+                      <span>{{ camera.brand }}</span>
+                      <strong>{{ camera.model }}</strong>
+                    </span>
+                  </template>
+                  <svg v-else class="film-cell__unknown" viewBox="0 0 80 80" fill="none">
+                    <path d="M9 29V9h20m22 0h20v20m0 22v20H51m-22 0H9V51" stroke="currentColor" stroke-opacity=".5" />
+                    <circle cx="40" cy="40" r="24" stroke="currentColor" stroke-opacity=".45" stroke-dasharray="2 3" />
+                    <path d="M40 19c2.25 12.25 8.75 18.75 21 21-12.25 2.25-18.75 8.75-21 21-2.25-12.25-8.75-18.75-21-21 12.25-2.25 18.75-8.75 21-21Z" fill="currentColor" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="filmstrip__gate"></div>
+          </div>
         </div>
         <details class="gift-attributions">
-          <summary tabindex="0">实机照片来源</summary>
+          <summary tabindex="0">奖池与照片来源</summary>
           <ul>
             <li v-for="camera in GIFT_CAMERAS" :key="camera.id">
               <a :href="camera.source" target="_blank" rel="noopener noreferrer">{{ camera.brand }} {{ camera.model }} · {{ camera.author }}</a>
@@ -160,8 +177,8 @@ function saveGift() {
             <p v-if="photoFailed" class="gift-photo-error">照片暂未加载，可从下方查看实机图。</p>
           </div>
           <figcaption class="gift-card__caption">
-            <p class="gift-card__brand">{{ gift.brand }}</p>
-            <p class="gift-card__model">{{ gift.model }}</p>
+            <p id="gift-brand" class="gift-card__brand">{{ gift.brand }}</p>
+            <p id="gift-winner" class="gift-card__model">{{ gift.model }}</p>
             <p class="gift-card__kind">{{ gift.kind }}</p>
             <a class="gift-official" :href="gift.official" target="_blank" rel="noopener noreferrer">查看品牌官网 <span aria-hidden="true">↗</span></a>
             <p class="gift-credit">
@@ -171,14 +188,13 @@ function saveGift() {
             </p>
           </figcaption>
         </figure>
+        <p class="gift-disclaimer">仅供娱乐，抽到了也不会真送你。</p>
         <p v-if="saveError" class="gift-error" role="alert">礼卡暂未保存。等照片加载后再试，或直接截图。</p>
         <div class="gift-actions">
-          <button type="button" class="gift-secondary" tabindex="0" @click="openAnother">再拆一个</button>
+          <button type="button" class="gift-secondary gift-again" tabindex="0" @click="drawAgain">再抽一次</button>
           <button type="button" class="gift-primary" tabindex="0" :disabled="photoFailed" @click="saveGift">保存礼物卡</button>
         </div>
       </div>
-
-      <p class="gift-disclaimer">这是虚拟礼物，不是实际抽奖，也不会占用器材库存。</p>
     </div>
   </NModal>
 </template>
@@ -212,47 +228,88 @@ function saveGift() {
 .gift-close { display: grid; width: 44px; height: 44px; flex: 0 0 auto; place-items: center; border: 1px solid #d9c7ad; color: var(--gift-ink); background: transparent; }
 .gift-close svg { width: 19px; height: 19px; }
 .gift-close:hover, .gift-secondary:hover { background: var(--bg-hover); }
-.gift-tray { display: grid; grid-template-columns: minmax(205px, .88fr) minmax(0, 1.12fr); gap: 16px; align-items: start; }
-.gift-wrap {
+.gift-stage {
   position: relative;
-  isolation: isolate;
-  display: flex;
-  width: 100%;
-  min-height: 100%;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 24px 15px;
+  padding: 10px clamp(8px, 2vw, 16px) clamp(10px, 2vw, 16px);
   border: 1px solid #a98660;
   background:
-    url('/assets/christmas-bells-v1.svg') right -15px top -6px / 132px auto no-repeat,
-    radial-gradient(ellipse at 24% 28%, #2d7555, transparent 70%),
-    #124736;
+    url('/assets/christmas-bells-v1.svg') right -12px top -9px / clamp(74px, 13vw, 151px) auto no-repeat,
+    radial-gradient(ellipse at 34% 14%, #255b43, #123e30 72%);
   color: #fff3d5;
-  transition: background-color var(--transition);
 }
-.gift-wrap::before { content: ''; position: absolute; inset: 7px; border: 1px solid #ead1a278; pointer-events: none; }
-.gift-wrap:focus-visible { outline: 2px solid #f6d79f; outline-offset: -8px; }
-.gift-wrap:not(:disabled):hover { background-color: #1b5a42; }
-.gift-wrap:disabled { cursor: wait; opacity: 1; }
-.gift-wrap__box { width: min(190px, 93%); aspect-ratio: 210 / 166; }
-.gift-wrap__action { display: block; border-block: 1px solid #deb77e85; padding: 5px 12px; font: 700 clamp(15px, 3.7vw, 20px)/1.3 var(--font); }
-.gift-wrap__hint { color: #f1d5a3; font: 12px/1.45 var(--font-ui); text-wrap: balance; }
-.gift-picker { min-width: 0; padding: 0; border: 0; }
-.gift-picker legend { margin-bottom: 8px; color: var(--gift-ink); font: 700 13px/1.4 var(--font-ui); }
-.gift-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.gift-choice { position: relative; display: block; cursor: pointer; }
-.gift-choice input { position: absolute; width: 1px; height: 1px; opacity: 0; }
-.gift-option { display: block; border: 1px solid #d5c5b0; background: #fffaf1; }
-.gift-option img { display: block; width: 100%; height: 94px; object-fit: contain; background: #eee5d5; }
-.gift-option__caption { display: grid; gap: 1px; padding: 5px 8px 7px; color: var(--gift-ink); }
-.gift-option__brand { font: 700 10px/1.4 var(--font-data); color: #705b48; text-transform: uppercase; letter-spacing: .08em; }
-.gift-option strong { font: 600 15px/1.2 var(--font); }
-.gift-choice:hover .gift-option { border-color: #a97c5a; }
-.gift-choice input:checked + .gift-option { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); background: #fff0e2; }
-.gift-choice input:focus-visible + .gift-option { outline: 2px solid var(--accent); outline-offset: 2px; }
-.gift-clear { display: inline-flex; min-height: 30px; align-items: center; margin-top: 4px; border: 0; background: none; color: var(--accent); font: 600 12px var(--font-ui); text-decoration: underline; text-underline-offset: 3px; }
+.gift-stage::before { content: ''; position: absolute; inset: 5px; border: 1px solid #d3a6755c; pointer-events: none; }
+.gift-drive { display: flex; align-items: center; justify-content: center; gap: clamp(4px, 2vw, 18px); padding: 0 4px 14px; }
+.gift-drive__parcel { width: clamp(84px, 28vw, 157px); flex: 0 0 auto; aspect-ratio: 210 / 166; }
+.gift-drive__controls { position: relative; display: grid; min-width: 0; gap: 8px; }
+.gift-drive__hint { color: #f1d5a3; font: 12px/1.4 var(--font-ui); }
+.gift-draw {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  gap: 8px;
+  min-height: 44px;
+  min-width: 136px;
+  padding: 6px 10px;
+  border: 1px solid #e3b77b;
+  background: #a62745;
+  color: #fff2d7;
+  box-shadow: 0 3px 0 #421b24, inset 0 0 0 2px #a62745, inset 0 0 0 3px #f0cc9357;
+  font: 700 16px/1.22 var(--font);
+  transition: background-color var(--transition), transform var(--transition);
+}
+.gift-draw svg { width: 14px; height: 14px; flex: 0 0 auto; color: #f4d499; }
+.gift-draw[aria-disabled='false']:hover { background-color: #bc3452; transform: translateY(-1px); }
+.gift-draw[aria-disabled='false']:active { transform: translateY(2px); }
+.gift-draw:focus-visible { outline: 2px solid #ffdea5; outline-offset: 3px; }
+.gift-draw[aria-disabled='true'] { background-color: #742336; cursor: wait; }
+.gift-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.filmstrip {
+  --film-width: clamp(115px, 36vw, 166px);
+  --film-gap: 9px;
+  --film-pitch: calc(var(--film-width) + var(--film-gap));
+  --film-edge: 15px;
+  position: relative;
+  padding-block: var(--film-edge);
+  border: 1px solid #b69565;
+  background: #151e19;
+}
+.filmstrip::before, .filmstrip::after {
+  content: '';
+  position: absolute;
+  inset-inline: 5px;
+  height: 5px;
+  background: repeating-linear-gradient(90deg, #bd9c6b 0 9px, transparent 9px 20px);
+}
+.filmstrip::before { top: 4px; }
+.filmstrip::after { bottom: 4px; }
+.filmstrip__window { position: relative; overflow: hidden; height: clamp(108px, 33vw, 148px); }
+.filmstrip__window::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #151e19c2, transparent 17%, transparent 83%, #151e19c2); pointer-events: none; }
+.filmstrip__track {
+  position: absolute;
+  inset: 0 auto 0 50%;
+  display: flex;
+  width: max-content;
+  gap: var(--film-gap);
+  transform: translateX(calc(-0.5 * var(--film-width) - var(--film-to) * var(--film-pitch)));
+}
+.filmstrip[data-phase='rolling'] .filmstrip__track { animation: gift-roll var(--film-duration) cubic-bezier(.18, .67, .16, 1) both; }
+.filmstrip__gate { position: absolute; inset-block: var(--film-edge); left: 50%; width: var(--film-width); z-index: 1; transform: translateX(-50%); border: 1px solid #e3be87; pointer-events: none; }
+.filmstrip__gate::before, .filmstrip__gate::after { content: ''; position: absolute; left: 50%; transform: translateX(-50%); width: 18px; height: 11px; background: #f7d49a; }
+.filmstrip__gate::before { top: -9px; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.filmstrip__gate::after { bottom: -9px; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.filmstrip[data-phase='landed'] .filmstrip__gate { border-color: #ffdf9d; box-shadow: 0 0 18px 2px #f4c47970; }
+.film-cell { flex: none; width: var(--film-width); display: grid; grid-template-rows: minmax(0, 1fr) auto; overflow: hidden; background: #fff2da; color: var(--gift-ink); }
+.film-cell--winner { background: #ffe3ac; }
+.film-cell--blank { grid-template-rows: minmax(0, 1fr); place-items: center; color: #efd3a0; background: repeating-linear-gradient(137deg, #1b442f 0 6px, #1b462f 6px 12px); }
+.film-cell__unknown { width: 48%; max-height: 70%; }
+.film-cell__photo { display: block; width: 100%; height: 100%; padding: 4px; object-fit: contain; background: #e7d9c2; }
+.film-cell__caption { display: grid; gap: 1px; padding: 4px 8px 6px; }
+.film-cell__caption span { color: #755840; font: 700 9px/1.2 var(--font-data); text-transform: uppercase; letter-spacing: .08em; }
+.film-cell__caption strong { font: 600 clamp(13px, 3.5vw, 16px)/1.14 var(--font); }
+@keyframes gift-roll {
+  from { transform: translateX(calc(-0.5 * var(--film-width) - var(--film-from) * var(--film-pitch))); }
+}
 .gift-attributions { margin-top: 10px; color: #625645; font: 11px/1.65 var(--font-ui); }
 .gift-attributions summary { cursor: pointer; width: fit-content; padding: 4px 0; }
 .gift-attributions ul { padding-left: 17px; }
@@ -282,18 +339,15 @@ function saveGift() {
 .gift-primary:not(:disabled):hover { background: var(--accent-hover); }
 .gift-secondary { border-color: #d3bda3; color: var(--gift-ink); background: transparent; }
 .gift-error { color: var(--danger); margin: 10px 0 0; font: 12px/1.55 var(--font-ui); }
-.gift-disclaimer { margin: 11px 0 0; color: #655744; font: 11px/1.65 var(--font-ui); }
+.gift-disclaimer { margin-top: 13px; padding: 7px 10px; border-left: 2px solid #a62745; background: #f5e5d0; color: #79293c; font: 600 12px/1.6 var(--font-ui); }
 @keyframes gift-appears {
   from { opacity: 0; transform: translateY(9px) scale(.985); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 @media (max-width: 620px) {
-  .gift-tray { grid-template-columns: minmax(0, 1fr); gap: 12px; }
-  .gift-wrap { min-height: 142px; padding: 10px 14px; display: grid; grid-template-columns: 106px minmax(0, 1fr); grid-template-rows: 1fr 1fr; gap: 0 7px; text-align: left; background-size: 84px auto, auto, auto; }
-  .gift-wrap__box { grid-row: 1 / -1; width: 100%; }
-  .gift-wrap__action { justify-self: start; align-self: end; padding: 3px 5px; }
-  .gift-wrap__hint { justify-self: start; align-self: start; margin-top: 6px; font-size: 11px; text-wrap: wrap; }
-  .gift-option img { height: 76px; }
+  .gift-drive__hint { font-size: 11px; }
+  .gift-draw { min-width: 124px; }
+  .filmstrip { --film-gap: 7px; }
   .gift-card { grid-template-columns: minmax(0, 1fr); }
   .gift-card__mat { min-height: 0; padding: 7px; }
   .gift-card__photo { height: clamp(133px, 49vw, 216px); }
@@ -301,6 +355,8 @@ function saveGift() {
   .gift-official { margin-top: 9px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .gift-result { animation: none; }
+  .gift-draw { transition: none; }
+  .gift-draw[aria-disabled='false']:hover, .gift-draw[aria-disabled='false']:active { transform: none; }
+  .filmstrip[data-phase='rolling'] .filmstrip__track, .gift-result { animation: none; }
 }
 </style>

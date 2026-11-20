@@ -229,13 +229,12 @@ onMounted(loadEquipment)
               type="button"
               class="catalog-gift-button"
               aria-haspopup="dialog"
-              aria-label="拆圣诞礼物"
               @click="giftBoxVisible = true"
             >
               <ChristmasGiftParcel class="catalog-gift-button__box" />
               <span class="catalog-gift-button__label">
-                <strong>拆圣诞礼物</strong>
-                <small>相机许愿 · 虚拟礼物</small>
+                <strong>圣诞礼盒抽奖</strong>
+                <small>四款虚拟相机</small>
               </span>
               <svg class="catalog-gift-button__arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13m-5-5 5 5-5 5"/></svg>
             </button>
