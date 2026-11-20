@@ -6,7 +6,8 @@ import EmptyState from '@/components/common/EmptyState.vue'
 import EditorialIcon from '@/components/common/EditorialIcon.vue'
 import type { EditorialIconName } from '@/components/common/EditorialIcon.vue'
 import EquipmentTimeline from '@/components/EquipmentTimeline.vue'
-import ChristmasWishCamera from '@/components/ChristmasWishCamera.vue'
+import ChristmasGiftBox from '@/components/ChristmasGiftBox.vue'
+import ChristmasGiftParcel from '@/components/ChristmasGiftParcel.vue'
 import { getEquipment } from '@/api/equipment'
 import { addFavorite, getFavorites, removeFavorite } from '@/api/experience'
 import { useToastStore } from '@/stores/toast'
@@ -20,7 +21,7 @@ const toast = useToastStore()
  * ------------------------------------------------------------------ */
 const timelineVisible = ref(false)
 const timelineEquipmentId = ref<number | null>(null)
-const wishCameraVisible = ref(false)
+const giftBoxVisible = ref(false)
 
 const loading = ref(false)
 const equipmentList = ref<Equipment[]>([])
@@ -226,16 +227,17 @@ onMounted(loadEquipment)
             <p class="page-desc">仅可借用清单中已编号的器材。</p>
             <button
               type="button"
-              class="catalog-wish-button"
+              class="catalog-gift-button"
               aria-haspopup="dialog"
-              @click="wishCameraVisible = true"
+              aria-label="拆圣诞礼物"
+              @click="giftBoxVisible = true"
             >
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 7h4l2-2.5h4L16 7h4a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 20 19H4a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 4 7Z"/>
-                <circle cx="12" cy="13" r="3.5"/>
-                <path d="M18 10h.5"/>
-              </svg>
-              相机许愿 <span aria-hidden="true">↗</span>
+              <ChristmasGiftParcel class="catalog-gift-button__box" />
+              <span class="catalog-gift-button__label">
+                <strong>拆圣诞礼物</strong>
+                <small>相机许愿 · 虚拟礼物</small>
+              </span>
+              <svg class="catalog-gift-button__arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13m-5-5 5 5-5 5"/></svg>
             </button>
           </div>
           <div class="catalog-stage" aria-hidden="true">
@@ -378,7 +380,7 @@ onMounted(loadEquipment)
       v-model:visible="timelineVisible"
       :equipment-id="timelineEquipmentId"
     />
-    <ChristmasWishCamera v-model:show="wishCameraVisible" />
+    <ChristmasGiftBox v-model:show="giftBoxVisible" />
   </AppLayout>
 </template>
 
@@ -425,7 +427,9 @@ onMounted(loadEquipment)
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  background: var(--accent-gradient), var(--festive-red);
+  background:
+    radial-gradient(ellipse at 90% 0, #c5374a 0, transparent 60%),
+    var(--accent-gradient), var(--festive-red);
 }
 .catalog-copy::before {
   content: '';
@@ -437,13 +441,12 @@ onMounted(loadEquipment)
 .catalog-copy::after {
   content: '';
   position: absolute;
-  right: 10px;
-  bottom: 10px;
-  width: min(36%, 155px);
-  aspect-ratio: 212 / 130;
-  background: url('/assets/christmas-garland-v2.svg') right bottom / contain no-repeat;
-  transform: rotate(180deg);
-  opacity: .64;
+  right: 9px;
+  top: 9px;
+  width: min(36%, 162px);
+  aspect-ratio: 252 / 146;
+  background: url('/assets/christmas-bells-v1.svg') right top / contain no-repeat;
+  opacity: .94;
   z-index: -1;
   pointer-events: none;
 }
@@ -495,24 +498,28 @@ onMounted(loadEquipment)
   font: 500 14px/1.6 var(--font);
   letter-spacing: .04em;
 }
-.catalog-wish-button {
+.catalog-gift-button {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
-  min-height: 44px;
+  gap: 8px;
+  min-height: 62px;
   margin-top: clamp(14px, 2vw, 24px);
-  padding: 8px 14px;
+  padding: 5px 12px 5px 4px;
   border: 1px solid #ffe6b4;
-  border-radius: 2px;
-  background: #fff0d4;
-  color: #7f2036;
-  box-shadow: 3px 3px 0 #701a33;
-  font: 700 13px/1.4 var(--font-ui);
+  background: #fff1d6;
+  color: #174935;
+  box-shadow: 3px 3px 0 #6f1b31;
+  text-align: left;
+  white-space: nowrap;
   transition: background var(--transition), transform var(--transition);
 }
-.catalog-wish-button svg { width: 19px; height: 19px; flex: 0 0 auto; }
-.catalog-wish-button:hover { background: #fffaea; transform: translateY(-1px); }
-.catalog-wish-button:focus-visible {
+.catalog-gift-button__box { width: 65px; height: 50px; flex: 0 0 auto; }
+.catalog-gift-button__label { display: grid; gap: 2px; }
+.catalog-gift-button__label strong { font: 700 16px/1.3 var(--font); }
+.catalog-gift-button__label small { color: #715448; font: 11px/1.25 var(--font-ui); }
+.catalog-gift-button__arrow { width: 19px; height: 19px; margin-left: 5px; }
+.catalog-gift-button:hover { background: #fffaea; transform: translateY(-1px); }
+.catalog-gift-button:focus-visible {
   outline-color: #fff0d4;
   outline-offset: 4px;
 }
@@ -842,7 +849,8 @@ onMounted(loadEquipment)
   .catalog-season-line { font-size: 13px; }
   .page-title { font-size: clamp(30px, 8.5vw, 41px); }
   .page-desc { margin-top: 6px; font-size: 12px; }
-  .catalog-wish-button { margin-top: 13px; }
+  .catalog-gift-button { margin-top: 13px; }
+  .catalog-copy::after { width: 107px; opacity: .8; }
 }
 @media (max-width: 640px) {
   .catalog-tools { flex-wrap: wrap; gap: 10px 12px; padding: 10px 12px; }
