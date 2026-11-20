@@ -232,10 +232,7 @@ onMounted(loadEquipment)
               @click="giftBoxVisible = true"
             >
               <ChristmasGiftParcel class="catalog-gift-button__box" />
-              <span class="catalog-gift-button__label">
-                <strong>圣诞礼盒抽奖</strong>
-                <small>四款虚拟相机</small>
-              </span>
+              <span class="catalog-gift-button__label">相机抽奖</span>
               <svg class="catalog-gift-button__arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13m-5-5 5 5-5 5"/></svg>
             </button>
           </div>
@@ -513,9 +510,7 @@ onMounted(loadEquipment)
   transition: background var(--transition), transform var(--transition);
 }
 .catalog-gift-button__box { width: 65px; height: 50px; flex: 0 0 auto; }
-.catalog-gift-button__label { display: grid; gap: 2px; }
-.catalog-gift-button__label strong { font: 700 16px/1.3 var(--font); }
-.catalog-gift-button__label small { color: #715448; font: 11px/1.25 var(--font-ui); }
+.catalog-gift-button__label { font: 700 16px/1.3 var(--font); }
 .catalog-gift-button__arrow { width: 19px; height: 19px; margin-left: 5px; }
 .catalog-gift-button:hover { background: #fffaea; transform: translateY(-1px); }
 .catalog-gift-button:focus-visible {

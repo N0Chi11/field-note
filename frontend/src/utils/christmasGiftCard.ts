@@ -38,7 +38,7 @@ export function downloadGiftCard(gift: GiftCamera, photo: HTMLImageElement) {
   ctx.textAlign = 'left'
 
   const frame = { x: 70, y: 147, width: 940, height: 532 }
-  ctx.fillStyle = '#eadac2'
+  ctx.fillStyle = '#fff'
   ctx.fillRect(frame.x, frame.y, frame.width, frame.height)
   const scale = Math.min(frame.width / photo.naturalWidth, frame.height / photo.naturalHeight)
   const width = photo.naturalWidth * scale
@@ -52,7 +52,7 @@ export function downloadGiftCard(gift: GiftCamera, photo: HTMLImageElement) {
   ctx.fillRect(108, 719, 153, 38)
   ctx.fillStyle = '#fff5df'
   ctx.font = '700 21px "Microsoft YaHei", "PingFang SC", sans-serif'
-  ctx.fillText('虚拟礼物', 132, 745)
+  ctx.fillText('相机抽奖', 132, 745)
 
   ctx.fillStyle = '#2b513e'
   ctx.font = '700 23px Consolas, monospace'
@@ -70,15 +70,14 @@ export function downloadGiftCard(gift: GiftCamera, photo: HTMLImageElement) {
   ctx.stroke()
   ctx.fillStyle = '#53483a'
   ctx.font = '500 17px "Microsoft YaHei", "PingFang SC", Arial, sans-serif'
-  ctx.fillText(`摄影：${gift.author} · ${gift.license} · 裁切及缩放`, 108, 998, 861)
+  ctx.fillText(`商品图：${gift.brand}`, 108, 998, 861)
   ctx.font = '500 12px Arial, sans-serif'
-  ctx.fillText(gift.source, 108, 1018, 861)
-  ctx.fillText(gift.licenseUrl, 108, 1038, 861)
+  ctx.fillText(gift.official, 108, 1018, 861)
 
   ctx.fillStyle = '#f3d69f'
   ctx.font = '500 20px "Microsoft YaHei", "PingFang SC", sans-serif'
   ctx.textAlign = 'center'
-  ctx.fillText('圣诞相机礼盒 · 仅作纪念，不对应实际器材', 540, 1105, 900)
+  ctx.fillText('仅供娱乐，抽到了也不会真送你。', 540, 1105, 900)
 
   const link = document.createElement('a')
   link.download = `FIELD-NOTE-圣诞礼物-${gift.brand}-${gift.model.replace(/ /g, '-')}.png`

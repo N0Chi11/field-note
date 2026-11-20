@@ -8,7 +8,7 @@ import { downloadGiftCard } from '@/utils/christmasGiftCard'
 const ROLL_MS = 2520
 const OPEN_MS = 640
 const REEL_START = 2
-const RUNUP_ROUNDS = 4
+const RUNUP_ROUNDS = 1
 const REEL_FINAL_ROUND = REEL_START + 1 + RUNUP_ROUNDS * GIFT_CAMERAS.length
 const reelFrames = [
   ...GIFT_CAMERAS.slice(-REEL_START),
@@ -101,8 +101,8 @@ function saveGift() {
   <NModal v-model:show="show" :mask-closable="false" transform-origin="center" @after-leave="afterClose">
     <div class="gift-room" role="dialog" aria-modal="true" aria-labelledby="camera-gift-title">
       <header class="gift-header">
-        <h2 id="camera-gift-title" ref="heading" tabindex="-1" :aria-describedby="gift ? 'gift-brand gift-winner' : undefined">{{ gift ? '抽中了！' : '圣诞相机抽奖' }}</h2>
-        <button type="button" class="gift-close" tabindex="0" aria-label="关闭圣诞相机抽奖" @click="show = false">
+        <h2 id="camera-gift-title" ref="heading" tabindex="-1" :aria-describedby="gift ? 'gift-brand gift-winner' : undefined">{{ gift ? '抽中了！' : '相机抽奖' }}</h2>
+        <button type="button" class="gift-close" tabindex="0" aria-label="关闭相机抽奖" @click="show = false">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
         </button>
       </header>
@@ -112,7 +112,7 @@ function saveGift() {
           <div class="gift-drive">
             <ChristmasGiftParcel class="gift-drive__parcel" :opening="phase === 'landed'" />
             <div class="gift-drive__controls">
-              <p id="camera-gift-hint" class="gift-drive__hint">四款虚拟相机，随机抽一台</p>
+              <p id="camera-gift-hint" class="gift-drive__hint">{{ GIFT_CAMERAS.length }} 款机型 · 随机抽取</p>
               <button
                 ref="drawButton"
                 type="button"
@@ -156,36 +156,28 @@ function saveGift() {
             <div class="filmstrip__gate"></div>
           </div>
         </div>
-        <details class="gift-attributions">
-          <summary tabindex="0">奖池与照片来源</summary>
-          <ul>
-            <li v-for="camera in GIFT_CAMERAS" :key="camera.id">
-              <a :href="camera.source" target="_blank" rel="noopener noreferrer">{{ camera.brand }} {{ camera.model }} · {{ camera.author }}</a>
-              <span> / </span>
-              <a :href="camera.licenseUrl" target="_blank" rel="noopener noreferrer">{{ camera.license }}</a>
+        <details class="gift-pool">
+          <summary tabindex="0">查看奖池</summary>
+          <ul class="gift-pool__list">
+            <li v-for="camera in GIFT_CAMERAS" :key="camera.id" class="gift-pool__item" :data-camera-id="camera.id">
+              <img :src="camera.photo" alt="" width="152" height="90" decoding="sync" />
+              <span class="film-cell__caption"><span>{{ camera.brand }}</span><strong>{{ camera.model }}</strong></span>
             </li>
           </ul>
-          <p>照片经裁切、缩放和转码，继续按各自的原许可使用。</p>
         </details>
       </template>
 
       <div v-else class="gift-result">
         <figure class="gift-card">
           <div class="gift-card__mat">
-            <span class="gift-card__seal">虚拟礼物</span>
-            <img ref="photo" class="gift-card__photo" :src="gift.photo" :alt="`${gift.brand} ${gift.model} 实机照片`" @error="photoFailed = true" />
-            <p v-if="photoFailed" class="gift-photo-error">照片暂未加载，可从下方查看实机图。</p>
+            <img ref="photo" class="gift-card__photo" :src="gift.photo" :alt="`${gift.brand} ${gift.model} 商品图`" @error="photoFailed = true" />
+            <p v-if="photoFailed" class="gift-photo-error">图片暂未加载，可以前往品牌商品页查看。</p>
           </div>
           <figcaption class="gift-card__caption">
             <p id="gift-brand" class="gift-card__brand">{{ gift.brand }}</p>
             <p id="gift-winner" class="gift-card__model">{{ gift.model }}</p>
             <p class="gift-card__kind">{{ gift.kind }}</p>
-            <a class="gift-official" :href="gift.official" target="_blank" rel="noopener noreferrer">查看品牌官网 <span aria-hidden="true">↗</span></a>
-            <p class="gift-credit">
-              <a :href="gift.source" target="_blank" rel="noopener noreferrer">摄影：{{ gift.author }}</a>
-              <span> · </span>
-              <a :href="gift.licenseUrl" target="_blank" rel="noopener noreferrer">{{ gift.license }}</a>
-            </p>
+            <a class="gift-official" :href="gift.official" target="_blank" rel="noopener noreferrer">查看商品页 <span aria-hidden="true">↗</span></a>
           </figcaption>
         </figure>
         <p class="gift-disclaimer">仅供娱乐，抽到了也不会真送你。</p>
@@ -303,22 +295,22 @@ function saveGift() {
 .film-cell--winner { background: #ffe3ac; }
 .film-cell--blank { grid-template-rows: minmax(0, 1fr); place-items: center; color: #efd3a0; background: repeating-linear-gradient(137deg, #1b442f 0 6px, #1b462f 6px 12px); }
 .film-cell__unknown { width: 48%; max-height: 70%; }
-.film-cell__photo { display: block; width: 100%; height: 100%; padding: 4px; object-fit: contain; background: #e7d9c2; }
+.film-cell__photo { display: block; width: 100%; height: 100%; object-fit: contain; background: #fff; }
 .film-cell__caption { display: grid; gap: 1px; padding: 4px 8px 6px; }
 .film-cell__caption span { color: #755840; font: 700 9px/1.2 var(--font-data); text-transform: uppercase; letter-spacing: .08em; }
 .film-cell__caption strong { font: 600 clamp(13px, 3.5vw, 16px)/1.14 var(--font); }
 @keyframes gift-roll {
   from { transform: translateX(calc(-0.5 * var(--film-width) - var(--film-from) * var(--film-pitch))); }
 }
-.gift-attributions { margin-top: 10px; color: #625645; font: 11px/1.65 var(--font-ui); }
-.gift-attributions summary { cursor: pointer; width: fit-content; padding: 4px 0; }
-.gift-attributions ul { padding-left: 17px; }
-.gift-attributions p { margin-top: 5px; }
+.gift-pool { margin-top: 10px; color: var(--gift-ink); font: 600 12px/1.65 var(--font-ui); }
+.gift-pool summary { cursor: pointer; width: fit-content; min-height: 36px; padding: 7px 7px 7px 0; }
+.gift-pool__list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; list-style: none; }
+.gift-pool__item { overflow: hidden; border: 1px solid #d7c0a1; background: #fff2da; }
+.gift-pool__item img { display: block; width: 100%; height: 76px; object-fit: contain; background: #fff; }
 .gift-result { animation: gift-appears .36s cubic-bezier(.2,.7,.25,1) both; }
 .gift-card { display: grid; grid-template-columns: minmax(0, 1.24fr) minmax(0, .76fr); min-width: 0; border: 1px solid var(--gift-gold); box-shadow: 3px 4px 0 #ad84502e; }
 .gift-card__mat { position: relative; min-width: 0; display: grid; align-items: center; min-height: 236px; padding: 10px; background: #164d39; }
-.gift-card__photo { display: block; width: 100%; height: min(280px, 37dvh); object-fit: contain; background: #194d3a; }
-.gift-card__seal { position: absolute; top: 16px; left: 16px; z-index: 1; padding: 3px 8px; border: 1px solid #dcb579; color: #fff4df; background: #83253b; font: 700 11px/1.45 var(--font-ui); letter-spacing: .12em; }
+.gift-card__photo { display: block; width: 100%; height: min(280px, 37dvh); object-fit: contain; background: #fff; }
 .gift-photo-error { padding: 9px; color: #f8e5c1; font: 12px/1.5 var(--font-ui); }
 .gift-card__caption {
   display: flex;
@@ -332,8 +324,6 @@ function saveGift() {
 .gift-card__model { margin: 5px 0; font: 500 clamp(29px, 5vw, 43px)/1 var(--font); letter-spacing: -.06em; text-wrap: balance; }
 .gift-card__kind { margin-top: 3px; color: var(--text-secondary); font: 12px/1.5 var(--font-ui); }
 .gift-official { align-self: flex-start; margin: 15px 0 8px; border-bottom: 1px solid #c8ad90; padding-bottom: 3px; font: 600 12px/1.45 var(--font-ui); }
-.gift-credit { color: #605545; font: 11px/1.6 var(--font-ui); }
-.gift-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .gift-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
 .gift-primary, .gift-secondary { min-height: 44px; padding: 8px 16px; border: 1px solid var(--accent); background: var(--accent); color: var(--text-on-dark); font: 700 13px/1.3 var(--font-ui); }
 .gift-primary:not(:disabled):hover { background: var(--accent-hover); }
@@ -348,6 +338,7 @@ function saveGift() {
   .gift-drive__hint { font-size: 11px; }
   .gift-draw { min-width: 124px; }
   .filmstrip { --film-gap: 7px; }
+  .gift-pool__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .gift-card { grid-template-columns: minmax(0, 1fr); }
   .gift-card__mat { min-height: 0; padding: 7px; }
   .gift-card__photo { height: clamp(133px, 49vw, 216px); }

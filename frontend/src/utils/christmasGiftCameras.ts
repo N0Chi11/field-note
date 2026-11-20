@@ -4,60 +4,27 @@ export interface GiftCamera {
   model: string
   kind: string
   photo: string
-  author: string
-  source: string
-  license: string
-  licenseUrl: string
   official: string
 }
 
+function camera(id: string, brand: string, model: string, kind: string, official: string): GiftCamera {
+  return { id, brand, model, kind, photo: `/assets/camera-prizes/${id}.webp`, official }
+}
+
 export const GIFT_CAMERAS: readonly GiftCamera[] = [
-  {
-    id: 'hasselblad-h6d-100c',
-    brand: 'Hasselblad',
-    model: 'H6D-100c',
-    kind: '中画幅单反',
-    photo: '/assets/christmas-gifts/hasselblad-h6d-100c.webp',
-    author: 'Ida Gustaf',
-    source: 'https://commons.wikimedia.org/wiki/File:Hasselblad-H6D-100c_front-shot_WH1_(cropped).jpg',
-    license: 'CC BY-SA 4.0',
-    licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
-    official: 'https://www.hasselblad.com/h-system/h6d-100c/'
-  },
-  {
-    id: 'leica-m11',
-    brand: 'Leica',
-    model: 'M11',
-    kind: '全画幅旁轴',
-    photo: '/assets/christmas-gifts/leica-m11.webp',
-    author: 'Henry Söderlund',
-    source: 'https://commons.wikimedia.org/wiki/File:Leica_M11_-_by_Henry_S%C3%B6derlund_(52659157434).jpg',
-    license: 'CC BY 2.0',
-    licenseUrl: 'https://creativecommons.org/licenses/by/2.0/',
-    official: 'https://leica-camera.com/en-US/photography/cameras/m/m11-black'
-  },
-  {
-    id: 'fujifilm-gfx100-ii',
-    brand: 'Fujifilm',
-    model: 'GFX100 II',
-    kind: '中画幅无反',
-    photo: '/assets/christmas-gifts/fujifilm-gfx100-ii.webp',
-    author: '昼落ち',
-    source: 'https://commons.wikimedia.org/wiki/File:Fujifilm_GFX100_II_2_dec_2023a.jpg',
-    license: 'CC BY 4.0',
-    licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
-    official: 'https://www.fujifilm-x.com/global/products/cameras/gfx100-ii/'
-  },
-  {
-    id: 'canon-eos-r1',
-    brand: 'Canon',
-    model: 'EOS R1',
-    kind: '全画幅旗舰',
-    photo: '/assets/christmas-gifts/canon-eos-r1.webp',
-    author: 'Dinkun Chen',
-    source: 'https://commons.wikimedia.org/wiki/File:Canon_EOS_R1%2BRF_24-105mm_F2.8L_IS_USM_Z.jpg',
-    license: 'CC BY-SA 4.0',
-    licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
-    official: 'https://www.canon-europe.com/cameras/eos-r1/'
-  }
+  camera('hasselblad-x2d-ii-100c', 'Hasselblad', 'X2D II 100C', '中画幅无反', 'https://store-na.hasselblad.com/products/x2d-ii-100c'),
+  camera('leica-m11', 'Leica', 'M11', '全画幅旁轴', 'https://leica-camera.com/en-US/photography/cameras/m/m11-black'),
+  camera('fujifilm-gfx100-ii', 'Fujifilm', 'GFX100 II', '中画幅无反', 'https://www.fujifilm-x.com/global/products/cameras/gfx100-ii/'),
+  camera('canon-eos-r1', 'Canon', 'EOS R1', '全画幅无反', 'https://www.canon-europe.com/cameras/eos-r1/'),
+  camera('sony-a1-ii', 'Sony', 'α1 II', '全画幅无反', 'https://alphauniverse.com/cameras/alpha-1-ii/'),
+  camera('nikon-z9', 'Nikon', 'Z 9', '全画幅无反', 'https://imaging.nikon.com/imaging/lineup/mirrorless/z_9/'),
+  camera('leica-q3-43', 'Leica', 'Q3 43', '全画幅定焦', 'https://leica-camera.com/en-US/photography/cameras/q/q3-43-black'),
+  camera('hasselblad-907x-cfv-100c', 'Hasselblad', '907X & CFV 100C', '中画幅无反', 'https://store-na.hasselblad.com/products/907x-cfv-100c'),
+  camera('fujifilm-gfx100rf', 'Fujifilm', 'GFX100RF', '中画幅定焦', 'https://www.fujifilm-x.com/global/products/cameras/gfx100rf/'),
+  camera('canon-eos-r5-mark-ii', 'Canon', 'EOS R5 Mark II', '全画幅无反', 'https://www.canon-europe.com/cameras/eos-r5-mark-ii/'),
+  camera('sony-a9-iii', 'Sony', 'α9 III', '全画幅无反', 'https://alphauniverse.com/cameras/alpha-9-iii/'),
+  camera('nikon-z8', 'Nikon', 'Z 8', '全画幅无反', 'https://imaging.nikon.com/imaging/lineup/mirrorless/z_8/'),
+  camera('leica-sl3', 'Leica', 'SL3', '全画幅无反', 'https://leica-camera.com/en-US/photography/cameras/sl/sl3-black'),
+  camera('fujifilm-gfx100s-ii', 'Fujifilm', 'GFX100S II', '中画幅无反', 'https://www.fujifilm-x.com/global/products/cameras/gfx100s-ii/'),
+  camera('panasonic-lumix-s1rii', 'Panasonic', 'LUMIX S1RII', '全画幅无反', 'https://shop.panasonic.com/pages/lumix-s1rii-full-frame-mirrorless-camera')
 ]

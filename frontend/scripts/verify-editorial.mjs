@@ -48,6 +48,14 @@ async function clickWithDrawValue(button, value) {
   await button.click()
 }
 
+async function rollForCamera(dialog, cameraId) {
+  return dialog.locator('.gift-pool__item').evaluateAll((items, id) => {
+    const index = items.findIndex(item => item.dataset.cameraId === id)
+    if (index === -1) throw new Error(`Missing prize: ${id}`)
+    return (index + .5) / items.length
+  }, cameraId)
+}
+
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1040 }, reducedMotion: 'reduce' })
   const errors = []
@@ -67,8 +75,6 @@ try {
   for (const asset of [
     'christmas-santa-cover-v1.webp', 'christmas-santa-portrait-v1.webp', 'christmas-seal-v1.svg',
     'christmas-garland-v2.svg', 'christmas-cover-trim-v2.svg', 'christmas-bells-v1.svg',
-    'christmas-gifts/hasselblad-h6d-100c.webp', 'christmas-gifts/leica-m11.webp',
-    'christmas-gifts/fujifilm-gfx100-ii.webp', 'christmas-gifts/canon-eos-r1.webp',
     'christmas-calendar-v1.svg', 'christmas-camera-ornament-v1.svg',
     'editorial-equipment-icons-v1.webp', 'editorial-action-icons-v1.webp', 'sidebar-icon-sprite-v1.webp',
   ]) {
@@ -92,25 +98,40 @@ try {
     if (request.url().includes('/api/v1/') && !['GET', 'HEAD'].includes(request.method())) writes.push(request.url())
   }
   page.on('request', observeGiftRequests)
-  const giftTrigger = page.getByRole('button', { name: /^圣诞礼盒抽奖/ })
+  const giftTrigger = page.getByRole('button', { name: '相机抽奖', exact: true })
   const giftDialog = page.getByRole('dialog')
   await expect(giftDialog).toHaveCount(0)
   await giftTrigger.click()
-  await expect(giftDialog).toHaveAccessibleName('圣诞相机抽奖')
+  await expect(giftDialog).toHaveAccessibleName('相机抽奖')
   await expect(giftDialog.getByRole('radio')).toHaveCount(0)
   await expect(giftDialog.getByText(giftDisclaimer, { exact: true })).toHaveCount(0)
   const draw = giftDialog.getByRole('button', { name: '开始抽奖', exact: true })
   await expect(giftDialog.locator('.filmstrip')).toHaveAttribute('data-phase', 'ready')
-  await expect.poll(() => giftDialog.locator('.film-cell__photo').evaluateAll(imgs => imgs.length > 0 && imgs.every(img => img.complete && img.naturalWidth > 0))).toBe(true)
+  await expect(giftDialog.getByText('15 款机型 · 随机抽取')).toBeVisible()
+  await expect(giftDialog.locator('.gift-pool__item')).toHaveCount(15)
+  await expect.poll(() => giftDialog.locator('.film-cell__photo').evaluateAll(imgs => {
+    return new Set(imgs.map(img => img.src)).size === 15
+      && imgs.every(img => img.complete && img.naturalWidth === 760 && img.naturalHeight === 540 && img.src.includes('/assets/camera-prizes/'))
+  })).toBe(true)
+  const fujiRoll = await rollForCamera(giftDialog, 'fujifilm-gfx100-ii')
+  const leicaRoll = await rollForCamera(giftDialog, 'leica-m11')
   await page.screenshot({ path: path.join(artifactDir, 'gift-desktop.png') })
-  await clickWithDrawValue(draw, .64)
+  const poolToggle = giftDialog.getByText('查看奖池', { exact: true })
+  await poolToggle.click()
+  await expect(giftDialog.locator('.gift-pool__item').last()).toBeVisible()
+  await giftDialog.locator('.gift-pool__item img').evaluateAll(imgs => Promise.all(imgs.map(img => img.decode())))
+  await page.screenshot({ path: path.join(artifactDir, 'gift-pool-desktop.png'), animations: 'disabled' })
+  await poolToggle.click()
+  await clickWithDrawValue(draw, fujiRoll)
   await expect(giftDialog).toHaveAccessibleName('抽中了！')
   await expect(giftDialog.getByRole('heading', { name: '抽中了！' })).toBeFocused()
   await expect(giftDialog.getByText('GFX100 II', { exact: true })).toBeVisible()
-  await expect(giftDialog.getByText('虚拟礼物', { exact: true })).toBeVisible()
+  await expect(giftDialog.getByText(/虚拟/)).toHaveCount(0)
   await expect(giftDialog.getByText(giftDisclaimer, { exact: true })).toBeVisible()
-  await expect(giftDialog.getByRole('link', { name: 'CC BY 4.0' })).toHaveAttribute('href', 'https://creativecommons.org/licenses/by/4.0/')
-  await expect.poll(() => giftDialog.getByRole('img', { name: 'Fujifilm GFX100 II 实机照片' }).evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true)
+  await expect(giftDialog.getByRole('link', { name: '查看商品页' })).toHaveAttribute('href', 'https://www.fujifilm-x.com/global/products/cameras/gfx100-ii/')
+  const prizePhoto = giftDialog.getByRole('img', { name: 'Fujifilm GFX100 II 商品图' })
+  await expect(prizePhoto).toHaveCSS('background-color', 'rgb(255, 255, 255)')
+  await expect.poll(() => prizePhoto.evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true)
   expect(await giftDialog.locator('.gift-result').evaluate(el => getComputedStyle(el).animationName)).toBe('none')
   await page.screenshot({ path: path.join(artifactDir, 'gift-result-desktop.png') })
   const [download] = await Promise.all([
@@ -123,16 +144,16 @@ try {
   expect(download.suggestedFilename()).toBe('FIELD-NOTE-圣诞礼物-Fujifilm-GFX100-II.png')
   expect(cardBytes.subarray(1, 4).toString()).toBe('PNG')
   expect(cardBytes.readUInt32BE(16)).toBe(1080)
-  await clickWithDrawValue(giftDialog.getByRole('button', { name: '再抽一次', exact: true }), .64)
+  await clickWithDrawValue(giftDialog.getByRole('button', { name: '再抽一次', exact: true }), fujiRoll)
   await expect(giftDialog.getByText('GFX100 II', { exact: true })).toBeVisible()
-  await clickWithDrawValue(giftDialog.getByRole('button', { name: '再抽一次', exact: true }), .34)
+  await clickWithDrawValue(giftDialog.getByRole('button', { name: '再抽一次', exact: true }), leicaRoll)
   await expect(giftDialog.getByText('M11', { exact: true })).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(giftDialog).toHaveCount(0)
   await expect(giftTrigger).toBeFocused()
   await giftTrigger.press('Enter')
   await expect(draw).toBeEnabled()
-  await giftDialog.getByRole('button', { name: '关闭圣诞相机抽奖' }).click()
+  await giftDialog.getByRole('button', { name: '关闭相机抽奖' }).click()
   await expect(giftDialog).toHaveCount(0)
   await expect(page.locator('.equipment-card')).toHaveCount(5)
   expect(writes).toEqual([])
@@ -264,14 +285,15 @@ try {
     expect(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await mobile.screenshot({ path: path.join(artifactDir, `catalog-${width}.png`) })
     if (width <= 375) {
-      const trigger = mobile.getByRole('button', { name: /^圣诞礼盒抽奖/ })
+      const trigger = mobile.getByRole('button', { name: '相机抽奖', exact: true })
       await trigger.click()
       const dialog = mobile.getByRole('dialog')
       const film = dialog.locator('.filmstrip')
       await expect(film).toHaveAttribute('data-phase', 'ready')
       await expect.poll(() => film.locator('img').evaluateAll(imgs => imgs.length > 0 && imgs.every(img => img.complete && img.naturalWidth > 0))).toBe(true)
       await mobile.screenshot({ path: path.join(artifactDir, `gift-ready-${width}.png`), animations: 'disabled' })
-      await clickWithDrawValue(dialog.getByRole('button', { name: '开始抽奖', exact: true }), width === 375 ? .93 : .15)
+      const roll = await rollForCamera(dialog, width === 375 ? 'canon-eos-r1' : 'hasselblad-907x-cfv-100c')
+      await clickWithDrawValue(dialog.getByRole('button', { name: '开始抽奖', exact: true }), roll)
       if (width === 375) {
         await expect(film).toHaveAttribute('data-phase', 'rolling')
         await expect(dialog.getByRole('button', { name: '正在抽奖…' })).toBeDisabled()
@@ -287,7 +309,7 @@ try {
         expect(centerDistance).toBeLessThan(1)
         await mobile.screenshot({ path: path.join(artifactDir, 'gift-landed-375.png') })
       }
-      await expect(dialog.locator('.gift-card__model')).toHaveText(width === 375 ? 'EOS R1' : 'H6D-100c')
+      await expect(dialog.locator('.gift-card__model')).toHaveText(width === 375 ? 'EOS R1' : '907X & CFV 100C')
       await expect(dialog.getByText(giftDisclaimer, { exact: true })).toBeVisible()
       await expect.poll(() => dialog.locator('.gift-card__photo').evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true)
       const frame = await dialog.boundingBox()
@@ -303,7 +325,7 @@ try {
         await trigger.click()
         await expect(film).toHaveAttribute('data-phase', 'ready')
       }
-      await dialog.getByRole('button', { name: '关闭圣诞相机抽奖' }).click()
+      await dialog.getByRole('button', { name: '关闭相机抽奖' }).click()
       await expect(dialog).toHaveCount(0)
     }
     if (width > 900) { await mobile.close(); continue }
@@ -327,7 +349,7 @@ try {
   const login = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' })
   await login.goto(`${baseURL}/login`)
   await expect(login.getByLabel('学号（账号）')).toBeVisible()
-  await expect(login.getByRole('button', { name: /^圣诞礼盒抽奖/ })).toHaveCount(0)
+  await expect(login.getByRole('button', { name: '相机抽奖', exact: true })).toHaveCount(0)
   await expect(login.getByText('愿这个圣诞，有值得留影的灯火。')).toBeVisible()
   await expect(login.getByText('CHRISTMAS EDITION', { exact: true })).toBeVisible()
   await expect(login.locator('.login-stamp')).toHaveAttribute('src', '/assets/christmas-seal-v1.svg')
