@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url'
 const baseURL = process.env.FIELD_NOTE_QA_URL || 'http://127.0.0.1:5173'
 const artifactDir = process.env.FIELD_NOTE_QA_OUTPUT || '.ui-artifacts'
 const giftDisclaimer = '仅供娱乐，抽到了也不会真送你。'
+const sidebarSprite = '/assets/christmas-sidebar-icons-v1.svg'
 const photoReviewDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../backend/photo_review/web')
 const browser = await chromium.launch(process.env.FIELD_NOTE_QA_BROWSER
   ? { executablePath: process.env.FIELD_NOTE_QA_BROWSER }
@@ -62,8 +63,24 @@ async function rollForCamera(dialog, cameraId) {
   }, cameraId)
 }
 
+async function expectChristmasIcons(sidebar, count) {
+  const icons = sidebar.locator('svg.nav-item__icon, svg.sidebar__logout-icon')
+  await expect(icons).toHaveCount(count)
+  await expect.poll(() => icons.evaluateAll((elements, sprite) => {
+    const sources = new Set()
+    for (const icon of elements) {
+      const source = icon.querySelector('use')?.getAttribute('href')
+      const { width, height } = icon.getBBox()
+      if (!source?.startsWith(`${sprite}#`) || width < 10 || height < 10) return false
+      if (icon.getAttribute('aria-hidden') !== 'true' || icon.getAttribute('focusable') !== 'false') return false
+      sources.add(source)
+    }
+    return sources.size === elements.length
+  }, sidebarSprite)).toBe(true)
+}
+
 try {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1040 }, reducedMotion: 'reduce' })
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1100 }, reducedMotion: 'reduce' })
   const errors = []
   page.on('pageerror', error => errors.push(error.message))
   await mockAPI(page)
@@ -82,15 +99,22 @@ try {
     'christmas-santa-cover-v1.webp', 'christmas-santa-portrait-v1.webp', 'christmas-seal-v1.svg',
     'christmas-garland-v2.svg', 'christmas-cover-trim-v2.svg', 'christmas-bells-v1.svg',
     'christmas-calendar-v1.svg', 'christmas-camera-ornament-v1.svg',
-    'editorial-equipment-icons-v1.webp', 'editorial-action-icons-v1.webp', 'sidebar-icon-sprite-v1.webp',
+    'editorial-equipment-icons-v1.webp', 'editorial-action-icons-v1.webp', 'christmas-sidebar-icons-v1.svg',
   ]) {
     const response = await page.request.get(`${baseURL}/assets/${asset}`)
     expect(response.ok()).toBe(true)
     expect(response.headers()['content-type']).toContain(asset.endsWith('.svg') ? 'image/svg+xml' : 'image/webp')
   }
   expect(await page.locator('.placeholder-icon').first().evaluate(el => getComputedStyle(el).backgroundImage)).toContain('editorial-equipment-icons-v1.webp')
-  expect(await page.locator('.nav-item__icon').first().evaluate(el => getComputedStyle(el).backgroundImage)).toContain('sidebar-icon-sprite-v1.webp')
-  expect(await page.locator('.nav-item__icon--calendar').evaluate(el => getComputedStyle(el).backgroundImage)).toContain('christmas-calendar-v1.svg')
+  const sidebar = page.locator('#app-sidebar')
+  await expectChristmasIcons(sidebar, 15)
+  for (const [route, icon] of [['/equipment', 'equipment'], ['/calendar', 'calendar'], ['/admin/approval', 'approval'], ['/admin/return', 'return'], ['/yearbook', 'yearbook'], ['/passport', 'passport']]) {
+    await expect(sidebar.locator(`a[href="${route}"] use`)).toHaveAttribute('href', `${sidebarSprite}#${icon}`)
+  }
+  await expect(sidebar.locator('a[href="/admin/approval"] .nav-item__badge')).toHaveText('2')
+  await expect(sidebar.locator('a[href="/admin/return"] .nav-item__badge')).toHaveText('1')
+  await expect(sidebar.locator('a[href="/admin/feedback"] .nav-item__badge')).toHaveText('3')
+  await sidebar.screenshot({ path: path.join(artifactDir, 'christmas-sidebar-desktop.png') })
   expect(await page.locator('.catalog-cover').evaluate(el => getComputedStyle(el).pointerEvents)).toBe('none')
   expect(await page.locator('.editorial-page').evaluate(el => getComputedStyle(el).animationName)).toBe('none')
   await expect(page.getByText('HALLOWEEN', { exact: true })).toHaveCount(0)
@@ -343,6 +367,11 @@ try {
     await mobile.getByRole('button', { name: '打开导航菜单' }).click()
     await expect(mobile.locator('.sidebar')).toHaveClass(/is-open/)
     expect(await mobile.evaluate(() => document.body.style.overflow)).toBe('hidden')
+    if (width === 375) {
+      const mobileSidebar = mobile.locator('#app-sidebar')
+      await expectChristmasIcons(mobileSidebar, 15)
+      await mobileSidebar.screenshot({ path: path.join(artifactDir, 'christmas-sidebar-mobile.png'), animations: 'disabled' })
+    }
     await mobile.keyboard.press('Escape')
     await expect(mobile.locator('.sidebar')).not.toHaveClass(/is-open/)
     expect(await mobile.evaluate(() => document.body.style.overflow)).not.toBe('hidden')
@@ -426,6 +455,12 @@ try {
     await fresh.reload()
     await expect(fresh.getByRole('heading', { name: title, exact: true }).first()).toBeVisible()
     await expect(dialog).toHaveCount(0)
+    if (id === 'member') {
+      await fresh.getByRole('button', { name: '打开导航菜单' }).click()
+      const memberSidebar = fresh.locator('#app-sidebar')
+      await expectChristmasIcons(memberSidebar, 10)
+      await expect(memberSidebar.locator('a[href="/feedback"] use')).toHaveAttribute('href', `${sidebarSprite}#feedback`)
+    }
     if (admin) {
       await fresh.getByRole('button', { name: '退出登录', exact: true }).click()
       await expect(fresh).toHaveURL(/\/login(?:\?|$)/)
@@ -461,7 +496,7 @@ try {
     await photo.screenshot({ path: path.join(artifactDir, `photo-review-${width}.png`), fullPage: true })
     await photo.close()
   }
-  console.log('UI verified: login-only auto-open, original destinations, random draw, festive disclaimer, PNG export, photo review, search, favorites, booking and mobile navigation.')
+  console.log('UI verified: festive sidebar icons on desktop and mobile, alert counts, sign-in draw, PNG export, photo review, search, favorites and booking.')
 } finally {
   await browser.close()
 }

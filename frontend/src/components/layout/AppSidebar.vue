@@ -7,6 +7,7 @@ import { getAvailabilityNotifications } from '@/api/experience'
 import { useToastStore } from '@/stores/toast'
 import type { AdminStats } from '@/types/models'
 import EditorialPoem from '@/components/EditorialPoem.vue'
+import ChristmasSidebarIcon, { type ChristmasSidebarIconName } from './ChristmasSidebarIcon.vue'
 import { APP_VERSION } from '@/utils/appInfo'
 
 defineProps<{
@@ -31,25 +32,11 @@ const user = computed(() => authStore.user)
 
 interface NavItem {
   path: string
-  icon: SidebarIcon
+  icon: ChristmasSidebarIconName
   label: string
   /** 待办 badge 类型，对应 AdminStats 字段 */
   badge?: 'pending' | 'return_pending' | 'feedback_open'
 }
-
-type SidebarIcon =
-  | 'equipment'
-  | 'application'
-  | 'overview'
-  | 'calendar'
-  | 'photo-review'
-  | 'precautions'
-  | 'maintenance'
-  | 'approval'
-  | 'return'
-  | 'logs'
-  | 'feedback'
-  | 'profile'
 
 /** 设备管理组 */
 const equipmentNav: NavItem[] = [
@@ -73,8 +60,8 @@ const adminNav: NavItem[] = [
 /** 账户组 */
 const accountNav: NavItem[] = [
   { path: '/profile', icon: 'profile', label: '个人中心' },
-  { path: '/yearbook', icon: 'profile', label: '借用年鉴' },
-  { path: '/passport', icon: 'logs', label: '创作护照' },
+  { path: '/yearbook', icon: 'yearbook', label: '借用年鉴' },
+  { path: '/passport', icon: 'passport', label: '创作护照' },
   { path: '/feedback', icon: 'feedback', label: '意见反馈' }
 ]
 const visibleAccountNav = computed(() =>
@@ -199,11 +186,7 @@ watch(() => route.path, () => {
           :class="{ active: isActive(item.path) }"
           @click="handleNavClick"
         >
-          <span
-            class="nav-item__icon"
-            :class="`nav-item__icon--${item.icon}`"
-            aria-hidden="true"
-          ></span>
+          <ChristmasSidebarIcon class="nav-item__icon" :name="item.icon" />
           <span class="nav-item__text">{{ item.label }}</span>
         </router-link>
       </div>
@@ -219,11 +202,7 @@ watch(() => route.path, () => {
           :class="{ active: isActive(item.path) }"
           @click="handleNavClick"
         >
-          <span
-            class="nav-item__icon"
-            :class="`nav-item__icon--${item.icon}`"
-            aria-hidden="true"
-          ></span>
+          <ChristmasSidebarIcon class="nav-item__icon" :name="item.icon" />
           <span class="nav-item__text">{{ item.label }}</span>
           <span v-if="badgeCount(item) > 0" class="nav-item__badge">
             {{ badgeCount(item) }}
@@ -242,11 +221,7 @@ watch(() => route.path, () => {
           :class="{ active: isActive(item.path) }"
           @click="handleNavClick"
         >
-          <span
-            class="nav-item__icon"
-            :class="`nav-item__icon--${item.icon}`"
-            aria-hidden="true"
-          ></span>
+          <ChristmasSidebarIcon class="nav-item__icon" :name="item.icon" />
           <span class="nav-item__text">{{ item.label }}</span>
         </router-link>
       </div>
@@ -279,7 +254,7 @@ watch(() => route.path, () => {
         </div>
       </router-link>
       <button class="sidebar__logout" @click="handleLogout(); handleNavClick()">
-        <span class="sidebar__logout-icon" aria-hidden="true"></span>
+        <ChristmasSidebarIcon class="sidebar__logout-icon" name="logout" />
         退出登录
       </button>
       <div class="sidebar-version">{{ APP_VERSION }}</div>
@@ -429,37 +404,23 @@ watch(() => route.path, () => {
   background: var(--festive-red);
 }
 
-/* 画报风图标精灵：统一材质、尺度与对齐 */
+/* Christmas print stamps share a grid without changing the nav hit area. */
 .nav-item__icon {
+  display: block;
   width: 30px;
   height: 30px;
-  background-image: url('/assets/sidebar-icon-sprite-v1.webp');
-  background-repeat: no-repeat;
-  background-size: 300% 300%;
   flex-shrink: 0;
-  filter: brightness(1.08) contrast(1.04);
-  transition: filter var(--transition), transform var(--transition);
+  transition: transform var(--transition);
 }
 
 .nav-item:hover .nav-item__icon {
-  filter: brightness(1.18) contrast(1.08);
-  transform: translateX(1px);
+  transform: translateY(-1px);
 }
 
-.nav-item__icon--equipment { background-position: 0 0; }
-.nav-item__icon--application { background-position: 50% 0; }
-.nav-item__icon--overview { background-position: 100% 0; }
-.nav-item__icon--calendar { background-image: url('/assets/christmas-calendar-v1.svg'); background-size: 100% 100%; background-position: center; }
-.nav-item__icon--photo-review { background-image: url('/assets/editorial-equipment-icons-v1.webp'); background-size: 300% 300%; background-position: 100% 0; }
-.nav-item__icon--precautions { background-position: 0 50%; }
-.nav-item__icon--maintenance { background-position: 50% 50%; }
-.nav-item__icon--approval { background-position: 100% 50%; }
-.nav-item__icon--return { background-position: 0 100%; }
-.nav-item__icon--logs { background-position: 50% 100%; }
-.nav-item__icon--profile { background-position: 100% 100%; }
-.nav-item__icon--feedback { background-position: 50% 100%; }
-
-.nav-item.active .nav-item__icon { filter: contrast(1.08); }
+@media (prefers-reduced-motion: reduce) {
+  .nav-item__icon { transition: none; }
+  .nav-item:hover .nav-item__icon { transform: none; }
+}
 
 .nav-item__text {
   flex: 1;
@@ -599,33 +560,10 @@ watch(() => route.path, () => {
 }
 
 .sidebar__logout-icon {
-  position: relative;
-  width: 13px;
-  height: 13px;
-  border: 1px solid currentColor;
-  border-top: 0;
-}
-
-.sidebar__logout-icon::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: -4px;
-  width: 1px;
-  height: 9px;
-  background: currentColor;
-  transform: translateX(-50%);
-}
-.sidebar__logout-icon::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: -4px;
-  width: 5px;
-  height: 5px;
-  border-left: 1px solid currentColor;
-  border-bottom: 1px solid currentColor;
-  transform: translateX(-50%) rotate(-45deg);
+  display: block;
+  width: 21px;
+  height: 21px;
+  flex-shrink: 0;
 }
 
 .sidebar-version {
